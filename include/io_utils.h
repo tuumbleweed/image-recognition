@@ -6,7 +6,7 @@
 #include <tuple>
 #include <cstdint>
 
-void print_image(std::vector<uint8_t>& image, int& rows, int& cols);
+void print_image(std::vector<float>& image, int& rows, int& cols);
 
 std::tuple<std::vector<std::vector<uint8_t>>, int, int> read_images(const std::string& filename);
 

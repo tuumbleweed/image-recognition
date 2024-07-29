@@ -5,4 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 include_directories(include)
 
-add_executable(ImageRecognition src/main.cpp src/io_utils.cpp)
+# Automatically find all .cpp files in the src directory
+file(GLOB_RECURSE SOURCES "src/*.cpp")
+
+add_executable(ImageRecognition ${SOURCES})

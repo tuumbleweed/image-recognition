@@ -1,4 +1,5 @@
 #include "io_utils.h"
+#include "normalize.h"
 #include <iostream>
 #include <vector>
 #include <cstdint>
@@ -10,12 +11,15 @@ int main() {
     auto [test_images, test_rows, test_cols] = read_images("tmp/t10k-images.idx3-ubyte");
     std::vector<uint8_t> test_labels = read_labels("tmp/t10k-labels.idx1-ubyte");
 
+    std::vector<std::vector<float>> train_images_norm = normalize_all(train_images);
+    std::vector<std::vector<float>> test_images_norm = normalize_all(test_images);
+
     std::cout << "Label " << static_cast<int>(train_labels[0]) << std::endl;
-    std::vector<uint8_t> first_train_image = train_images[0];
+    std::vector<float> first_train_image = train_images_norm[0];
     print_image(first_train_image, train_rows, train_cols);
 
     std::cout << "Label " << static_cast<int>(test_labels[0]) << std::endl;
-    std::vector<uint8_t> first_test_image = test_images[0];
+    std::vector<float> first_test_image = test_images_norm[0];
     print_image(first_test_image, test_rows, test_cols);
 
     return 0;
