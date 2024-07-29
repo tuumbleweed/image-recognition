@@ -2,8 +2,19 @@
 #include <fstream>
 #include <vector>
 #include <iomanip>  // for std::setw
+#include <tuple>
 
-std::vector<std::vector<uint8_t>> read_images(const std::string& filename) {
+void print_image(std::vector<uint8_t>& image, int& rows, int& cols) {
+    // Print the whole image
+    for (int r = 0; r < rows; ++r) {
+        for (int c = 0; c < cols; ++c) {
+            std::cout << std::setw(3) << static_cast<int>(image[r * cols + c]) << " ";
+        }
+        std::cout << std::endl;
+    }
+}
+
+std::tuple<std::vector<std::vector<uint8_t>>, int, int> read_images(const std::string& filename) {
     std::ifstream file(filename, std::ios::binary);
     if (!file) {
         std::cerr << "Cannot open file: " << filename << std::endl;
@@ -31,17 +42,8 @@ std::vector<std::vector<uint8_t>> read_images(const std::string& filename) {
         file.read(reinterpret_cast<char*>(images[i].data()), rows * cols);
     }
 
-    std::vector<uint8_t> first_image = images[0];
-    // Print the whole image
-    for (int r = 0; r < rows; ++r) {
-        for (int c = 0; c < cols; ++c) {
-            std::cout << std::setw(3) << static_cast<int>(first_image[r * cols + c]) << " ";
-        }
-        std::cout << std::endl;
-    }
-
     file.close();
-    return images;
+    return std::make_tuple(images, rows, cols);
 }
 
 std::vector<uint8_t> read_labels(const std::string& filename) {
@@ -63,23 +65,28 @@ std::vector<uint8_t> read_labels(const std::string& filename) {
     std::vector<uint8_t> labels(number_of_labels);
     file.read(reinterpret_cast<char*>(labels.data()), labels.size());
 
-    uint8_t first_label = labels[0];
-    std::cout << "Label " << static_cast<int>(first_label) << std::endl;
-
     file.close();
     return labels;
 }
 
 int main() {
-    std::vector<std::vector<uint8_t>> train_images = read_images("tmp/train-images.idx3-ubyte");
+    auto [train_images, train_rows, train_cols] = read_images("tmp/train-images.idx3-ubyte");
     std::vector<uint8_t> train_labels = read_labels("tmp/train-labels.idx1-ubyte");
-    std::vector<std::vector<uint8_t>> test_images = read_images("tmp/t10k-images.idx3-ubyte");
+    auto [test_images, test_rows, test_cols] = read_images("tmp/t10k-images.idx3-ubyte");
     std::vector<uint8_t> test_labels = read_labels("tmp/t10k-labels.idx1-ubyte");
 
-    std::cout << train_images.size() << std::endl;
-    std::cout << train_labels.size() << std::endl;
-    std::cout << test_images.size() << std::endl;
-    std::cout << test_labels.size() << std::endl;
+    std::cout << "Label " << static_cast<int>(train_labels[0]) << std::endl;
+    std::vector<uint8_t> first_train_image = train_images[0];
+    print_image(first_train_image, train_rows, train_cols);
+
+    std::cout << "Label " << static_cast<int>(test_labels[0]) << std::endl;
+    std::vector<uint8_t> first_test_image = test_images[0];
+    print_image(first_test_image, test_rows, test_cols);
+
+    // std::cout << train_images.size() << std::endl;
+    // std::cout << train_labels.size() << std::endl;
+    // std::cout << test_images.size() << std::endl;
+    // std::cout << test_labels.size() << std::endl;
 
     return 0;
 }
