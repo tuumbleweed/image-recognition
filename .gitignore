@@ -1,6 +1,7 @@
 .vscode
 tmp/*
-!tmp/README.md
 
 *.o
-read
+build/*
+
+!README.md
