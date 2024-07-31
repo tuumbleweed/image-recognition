@@ -1,5 +1,6 @@
 #include "io_utils.h"
 #include "normalize.h"
+#include "layer.h"
 #include <iostream>
 #include <vector>
 #include <cstdint>
@@ -14,13 +15,21 @@ int main() {
     std::vector<std::vector<float>> train_images_norm = normalize_all(train_images);
     std::vector<std::vector<float>> test_images_norm = normalize_all(test_images);
 
-    std::cout << "Label " << static_cast<int>(train_labels[0]) << std::endl;
-    std::vector<float> first_train_image = train_images_norm[0];
-    print_image(first_train_image, train_rows, train_cols);
+    int input_size = 28 * 28; // 784 for 28x28 images
+    int hidden_size1 = 16;
+    int hidden_size2 = 16;
+    int output_size = 10; // 10 classes for digit recognition
 
-    std::cout << "Label " << static_cast<int>(test_labels[0]) << std::endl;
-    std::vector<float> first_test_image = test_images_norm[0];
-    print_image(first_test_image, test_rows, test_cols);
+    std::vector<Layer> network = initialize_network(input_size, hidden_size1, hidden_size2, output_size);
+
+
+    // std::cout << "Label " << static_cast<int>(train_labels[0]) << std::endl;
+    // std::vector<float> first_train_image = train_images_norm[0];
+    // print_image(first_train_image, train_rows, train_cols);
+
+    // std::cout << "Label " << static_cast<int>(test_labels[0]) << std::endl;
+    // std::vector<float> first_test_image = test_images_norm[0];
+    // print_image(first_test_image, test_rows, test_cols);
 
     return 0;
 }
