@@ -3,6 +3,7 @@
 #include "layer.h"
 #include "gpu.h"
 #include "cpu.h"
+#include "colors.h"
 #include <iostream>
 #include <vector>
 #include <cstdint>
@@ -46,26 +47,19 @@ int main() {
     // Perform forward propagation on the GPU
     forward_propagation_cpu(first_train_image, network, output);
     // Print the output (softmax probabilities)
-    std::cout << "Output probabilities:" << std::endl;
+    std::cout << "Output probabilities (CPU):" << GREY << std::endl;
     for (size_t i = 0; i < output.size(); ++i) {
-        std::cout << "Class " << i << ": " << output[i] << std::endl;
+        std::cout << i << ": " << output[i] << ", ";
     }
+    std::cout << RESET << std::endl << std::endl;
 
     forward_propagation_gpu(first_train_image, network, output);
     // Print the output (softmax probabilities)
-    std::cout << "Output probabilities:" << std::endl;
+    std::cout << "Output probabilities (GPU):" << GREY << std::endl;
     for (size_t i = 0; i < output.size(); ++i) {
-        std::cout << "Class " << i << ": " << output[i] << std::endl;
+        std::cout << i << ": " << output[i] << ", ";
     }
-
-    // forward_propagation_gpu()
-    // std::cout << "Label " << static_cast<int>(train_labels[0]) << std::endl;
-    // std::vector<float> first_train_image = train_images_norm[0];
-    // print_image(first_train_image, train_rows, train_cols);
-
-    // std::cout << "Label " << static_cast<int>(test_labels[0]) << std::endl;
-    // std::vector<float> first_test_image = test_images_norm[0];
-    // print_image(first_test_image, test_rows, test_cols);
+    std::cout << RESET << std::endl << std::endl;
 
     return 0;
 }

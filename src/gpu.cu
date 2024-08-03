@@ -1,4 +1,5 @@
 #include "gpu.h"
+#include "colors.h"
 #include <cuda_runtime.h>
 #include <stdio.h>
 #include <iostream>
@@ -11,7 +12,7 @@ inline void gpuAssert(cudaError_t code, const char *file, int line, bool abort=t
    }
 }
 
-__device__ float sigmoid_cuda(float x) {
+__device__ float sigmoid_gpu(float x) {
     if (x >= 0) {
         return 1.0f / (1.0f + expf(-x));
     } else {
@@ -20,14 +21,14 @@ __device__ float sigmoid_cuda(float x) {
     }
 }
 
-__global__ void apply_sigmoid(float* input, int size) {
+__global__ void apply_sigmoid_gpu(float* input, int size) {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < size) {
-        input[idx] = 1.0f / (1.0f + exp(-input[idx]));
+        input[idx] = sigmoid_gpu(input[idx]);
     }
 }
 
-__global__ void matrix_multiply(const float* A, const float* B, float* C, int M, int N, int K) {
+__global__ void matrix_multiply_gpu(const float* A, const float* B, float* C, int M, int N, int K) {
     int row = blockIdx.y * blockDim.y + threadIdx.y;
     int col = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -77,23 +78,29 @@ void forward_propagation_gpu(const std::vector<float>& input,
         dim3 threadsPerBlock(16, 16);
         dim3 blocksPerGrid((layer_output_size + threadsPerBlock.x - 1) / threadsPerBlock.x,
                            (input_size + threadsPerBlock.y - 1) / threadsPerBlock.y);
-        matrix_multiply<<<blocksPerGrid, threadsPerBlock>>>(current_input, d_weights[i], current_output, 1, input_size, layer_output_size);
+        matrix_multiply_gpu<<<blocksPerGrid, threadsPerBlock>>>(current_input, d_weights[i], current_output, 1, input_size, layer_output_size);
 
         // Debug: Check output after matrix multiplication
         std::vector<float> temp_output(layer_output_size);
         cudaMemcpy(temp_output.data(), current_output, layer_output_size * sizeof(float), cudaMemcpyDeviceToHost);
-        // for (int j = 0; j < layer_output_size; ++j) {
-        //     std::cout << "Layer " << i << " Pre-Activation Output " << j << ": " << temp_output[j] << std::endl;
-        // }
+        std::cout << "Layer " << i << " Pre-Activation Output (GPU):" << GREY << std::endl;
+        // Debug: Check output after matrix multiplication
+        for (int j = 0; j < layer_output_size; ++j) {
+            std::cout << temp_output[j] << " ";
+        }
+        std::cout << RESET << std::endl;
 
         // Apply Sigmoid activation function
-        apply_sigmoid<<<(layer_output_size + 255) / 256, 256>>>(current_output, layer_output_size);
+        apply_sigmoid_gpu<<<(layer_output_size + 255) / 256, 256>>>(current_output, layer_output_size);
 
         // Debug: Check output after activation
         cudaMemcpy(temp_output.data(), current_output, layer_output_size * sizeof(float), cudaMemcpyDeviceToHost);
-        // for (int j = 0; j < layer_output_size; ++j) {
-        //     std::cout << "Layer " << i << " Post-Activation Output " << j << ": " << temp_output[j] << std::endl;
-        // }
+        std::cout << "Layer " << i << " Post-Activation Output (GPU):" << GREY << std::endl;
+        // Debug: Check output after activation
+        for (int j = 0; j < layer_output_size; ++j) {
+            std::cout << temp_output[j] << " ";
+        }
+        std::cout << RESET << std::endl;
     }
 
     // Copy the result back to the host

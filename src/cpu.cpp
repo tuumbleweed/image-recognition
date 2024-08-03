@@ -1,5 +1,6 @@
 #include "layer.h"
 #include "cpu.h"
+#include "colors.h"
 #include <iostream>
 #include <vector>
 #include <cmath>
@@ -52,18 +53,22 @@ void forward_propagation_cpu(const std::vector<float>& input,
         // Perform matrix multiplication
         matrix_multiply_cpu(current_input, network[i].weights, current_output, 1, input_size, layer_output_size);
 
-        // // Debug: Check output after matrix multiplication
-        // for (int j = 0; j < layer_output_size; ++j) {
-        //     std::cout << "Layer " << i << " Pre-Activation Output " << j << ": " << current_output[j] << std::endl;
-        // }
+        std::cout << "Layer " << i << " Pre-Activation Output (CPU):" << GREY << std::endl;
+        // Debug: Check output after matrix multiplication
+        for (int j = 0; j < layer_output_size; ++j) {
+            std::cout << current_output[j] << " ";
+        }
+        std::cout << RESET << std::endl;
 
         // Apply Sigmoid activation function
         apply_sigmoid_cpu(current_output);
 
-        // // Debug: Check output after activation
-        // for (int j = 0; j < layer_output_size; ++j) {
-        //     std::cout << "Layer " << i << " Post-Activation Output " << j << ": " << current_output[j] << std::endl;
-        // }
+        std::cout << "Layer " << i << " Post-Activation Output (CPU):" << GREY << std::endl;
+        // Debug: Check output after activation
+        for (int j = 0; j < layer_output_size; ++j) {
+            std::cout << current_output[j] << " ";
+        }
+        std::cout << RESET << std::endl;
 
         // Prepare input for the next layer
         current_input = current_output;

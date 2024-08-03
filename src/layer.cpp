@@ -1,4 +1,5 @@
 #include "layer.h"
+#include "colors.h"
 #include <random>
 #include <cmath>
 #include <iostream>
@@ -10,17 +11,23 @@ std::vector<std::vector<float>> initialize_weights(int input_dim, int output_dim
     std::mt19937 gen(rd());
     std::normal_distribution<float> dist(0.0f, 1.0f / std::sqrt(input_dim)); // Xavier initialization
 
+    std::cout << "------------------------------------Initialize weights (" << input_dim << 'x' << output_dim << ")------------------------------------" << std::endl;
     for (int i = 0; i < output_dim; ++i) {
+        std::cout << "Initialize weights (" << input_dim << 'x' << output_dim << "), " << i+1 << '/' << output_dim << ":" << GREY << std::endl;
         for (int j = 0; j < input_dim; ++j) {
             layer_weights[i][j] = dist(gen);
+            std::cout << layer_weights[i][j] << " ";
         }
+        std::cout << RESET << std::endl;
     }
+    std::cout << std::endl;
     return layer_weights;
 }
 
 // Function to initialize the network layers and their weights
 std::vector<Layer> initialize_network(int input_size, int hidden_size1, int hidden_size2, int output_size) {
-    std::cout << "Initializing network " << input_size << 'x' << hidden_size1 << 'x' << hidden_size2 << 'x' << output_size << std::endl;
+    std::cout << "Initializing network " << input_size << 'x' << hidden_size1;
+    std::cout << 'x' << hidden_size2 << 'x' << output_size << std::endl;
     std::vector<Layer> network;
 
     // Initialize weights between input layer and first hidden layer
