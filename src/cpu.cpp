@@ -46,6 +46,7 @@ void forward_propagation_cpu(const std::vector<float>& input,
     std::vector<float> current_input = input;
     std::vector<float> current_output;
 
+    std::cout << "------------------------------------Activation Output (CPU)------------------------------------" << std::endl;
     for (size_t i = 0; i < network.size(); ++i) {
         int layer_output_size = network[i].weights.size();
         current_output.resize(layer_output_size);

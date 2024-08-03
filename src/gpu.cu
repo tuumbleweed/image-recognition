@@ -70,6 +70,7 @@ void forward_propagation_gpu(const std::vector<float>& input,
     float* current_input = d_input;
     float* current_output = nullptr;
 
+    std::cout << "------------------------------------Activation Output (GPU)------------------------------------" << std::endl;
     for (size_t i = 0; i < network.size(); ++i) {
         int layer_output_size = network[i].weights.size();
         cudaMalloc(&current_output, layer_output_size * sizeof(float));
