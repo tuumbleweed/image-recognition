@@ -51,20 +51,80 @@ void forward_propagation_gpu(const std::vector<float>& input,
     // Allocate memory on the GPU
     float* d_input;
     float* d_output;
-    cudaMalloc(&d_input, input_size * sizeof(float));
-    cudaMalloc(&d_output, output_size * sizeof(float));
+    cudaError_t err;
+
+    std::cout << "------------------------------------Memory Allocation (GPU)------------------------------------" << std::endl;
+    // Allocate memory for input
+    std::cout << "Allocating " << input_size * sizeof(float) << " bytes for input on the GPU." << std::endl;
+    err = cudaMalloc(&d_input, input_size * sizeof(float));
+    if (err != cudaSuccess) {
+        std::cerr << "cudaMalloc failed for input: " << cudaGetErrorString(err) << std::endl;
+        return;
+    }
+
+    // Allocate memory for output
+    std::cout << "Allocating " << output_size * sizeof(float) << " bytes for output on the GPU." << std::endl;
+    err = cudaMalloc(&d_output, output_size * sizeof(float));
+    if (err != cudaSuccess) {
+        std::cerr << "cudaMalloc failed for output: " << cudaGetErrorString(err) << std::endl;
+        cudaFree(d_input);
+        return;
+    }
 
     // Allocate and copy weights for each layer to the GPU
     std::vector<float*> d_weights(network.size());
     for (size_t i = 0; i < network.size(); ++i) {
         int layer_input_size = network[i].weights[0].size();
         int layer_output_size = network[i].weights.size();
-        cudaMalloc(&d_weights[i], layer_input_size * layer_output_size * sizeof(float));
-        cudaMemcpy(d_weights[i], network[i].weights[0].data(), layer_input_size * layer_output_size * sizeof(float), cudaMemcpyHostToDevice);
+        size_t mem_size = layer_input_size * layer_output_size * sizeof(float);
+
+        // Debug: Print the sizes to verify correctness
+        std::cout << "Layer " << i << " input size: " << layer_input_size 
+                  << ", output size: " << layer_output_size << std::endl;
+        std::cout << "Allocating " << mem_size << " bytes for weights on the GPU." << std::endl;
+
+        // Allocate memory for weights
+        err = cudaMalloc(&d_weights[i], mem_size);
+        if (err != cudaSuccess) {
+            std::cerr << "cudaMalloc failed for layer " << i 
+                      << ": " << cudaGetErrorString(err) << std::endl;
+            for (size_t j = 0; j <= i; ++j) {
+                cudaFree(d_weights[j]);
+            }
+            cudaFree(d_input);
+            cudaFree(d_output);
+            return;
+        }
+
+        // Copy weights to the GPU
+        err = cudaMemcpy(d_weights[i], network[i].weights[0].data(), mem_size, cudaMemcpyHostToDevice);
+        if (err != cudaSuccess) {
+            std::cerr << "cudaMemcpy failed for layer " << i 
+                      << ": " << cudaGetErrorString(err) << std::endl;
+            for (size_t j = 0; j <= i; ++j) {
+                cudaFree(d_weights[j]);
+            }
+            cudaFree(d_input);
+            cudaFree(d_output);
+            return;
+        } else {
+            std::cout << "cudaMemcpy successful for layer " << i << std::endl;
+        }
     }
 
     // Copy the input data to the GPU
-    cudaMemcpy(d_input, input.data(), input_size * sizeof(float), cudaMemcpyHostToDevice);
+    std::cout << "Copying input data to the GPU." << std::endl;
+    err = cudaMemcpy(d_input, input.data(), input_size * sizeof(float), cudaMemcpyHostToDevice);
+    if (err != cudaSuccess) {
+        std::cerr << "cudaMemcpy failed for input: " << cudaGetErrorString(err) << std::endl;
+        for (auto& d_weight : d_weights) {
+            cudaFree(d_weight);
+        }
+        cudaFree(d_input);
+        cudaFree(d_output);
+        return;
+    }
+    std::cout << std::endl;
 
     // Forward propagation through the layers
     float* current_input = d_input;
@@ -85,7 +145,6 @@ void forward_propagation_gpu(const std::vector<float>& input,
         std::vector<float> temp_output(layer_output_size);
         cudaMemcpy(temp_output.data(), current_output, layer_output_size * sizeof(float), cudaMemcpyDeviceToHost);
         std::cout << "Layer " << i << " Pre-Activation Output (GPU):" << GREY << std::endl;
-        // Debug: Check output after matrix multiplication
         for (int j = 0; j < layer_output_size; ++j) {
             std::cout << temp_output[j] << " ";
         }
@@ -97,16 +156,21 @@ void forward_propagation_gpu(const std::vector<float>& input,
         // Debug: Check output after activation
         cudaMemcpy(temp_output.data(), current_output, layer_output_size * sizeof(float), cudaMemcpyDeviceToHost);
         std::cout << "Layer " << i << " Post-Activation Output (GPU):" << GREY << std::endl;
-        // Debug: Check output after activation
         for (int j = 0; j < layer_output_size; ++j) {
             std::cout << temp_output[j] << " ";
         }
         std::cout << RESET << std::endl;
+
+        current_input = current_output; // Update input for next layer
     }
 
     // Copy the result back to the host
+    std::cout << "Copying output data back to the host." << std::endl;
     output.resize(output_size);
-    cudaMemcpy(output.data(), current_output, output_size * sizeof(float), cudaMemcpyDeviceToHost);
+    err = cudaMemcpy(output.data(), current_output, output_size * sizeof(float), cudaMemcpyDeviceToHost);
+    if (err != cudaSuccess) {
+        std::cerr << "cudaMemcpy failed for output: " << cudaGetErrorString(err) << std::endl;
+    }
 
     // Free GPU memory
     cudaFree(d_input);
