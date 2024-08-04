@@ -68,13 +68,14 @@ void forward_propagation_gpu(const std::vector<float>& input,
         int layer_output_size = network[i].weights.size();
         size_t mem_size = layer_input_size * layer_output_size * sizeof(float);
 
-        // Debug: Print the sizes to verify correctness
-
         // Allocate memory for weights
         cudaMallocWrapper(reinterpret_cast<void**>(&d_weights[i]), mem_size);
-
         // Copy weights to the GPU
-        cudaMemcpyWrapper(d_weights[i], network[i].weights[0].data(), mem_size, cudaMemcpyHostToDevice);
+        std::vector<float> flattened_weights;
+        for (const std::vector<float>& row : network[i].weights) {
+            flattened_weights.insert(flattened_weights.end(), row.begin(), row.end());
+        }
+        cudaMemcpyWrapper(d_weights[i], flattened_weights.data(), mem_size, cudaMemcpyHostToDevice);
     }
 
     // Copy the input data to the GPU

@@ -38,7 +38,6 @@ int main() {
     int output_size = 10; // 10 classes for digit recognition
 
     std::vector<Layer> network = initialize_network(input_size, hidden_size1, hidden_size2, output_size);
-    // print_network(network);
 
     // Example: Using the first training image for forward propagation
     std::vector<float>& first_train_image = train_images_norm[0];
