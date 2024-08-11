@@ -5,7 +5,7 @@
 // matrix1 is one dimentional, matrix2 is 2D
 // matrix1 length should be equal to matrix2 length
 // (number of float elements in matrix1 == number of std::vector<float> in matrix2)
-std::vector<float> matrix_multiply_cpu_2(const std::vector<float>& matrix1, const std::vector<std::vector<float>>& matrix2) {
+std::vector<float> matrix_multiply_cpu_proper(const std::vector<float>& matrix1, const std::vector<std::vector<float>>& matrix2) {
     int matrix1_length = matrix1.size();
     int matrix2_width = matrix2[0].size();
     int matrix2_length = matrix2.size();
@@ -25,7 +25,7 @@ std::vector<float> matrix_multiply_cpu_2(const std::vector<float>& matrix1, cons
     return output_matrix;
 }
 
-int main2() {
+int main() {
     // tet what chentd
     std::vector<float> A = {0.5, 1.2, -0.7, 3.4};
     std::vector<std::vector<float>> B = {
@@ -36,13 +36,13 @@ int main2() {
     };
 
     std::vector<float> output = matrix_multiply_cpu(A, B, 1, 4, 3);
-    std::vector<float> output2 = matrix_multiply_cpu_2(A, B);
+    std::vector<float> output2 = matrix_multiply_cpu_proper(A, B);
     std::cout << "matrix_multiply_cpu: ";
     for (float& value : output) {
         std::cout << value << " ";
     }
     std::cout << std::endl;
-    std::cout << "matrix_multiply_cpu_2: ";
+    std::cout << "matrix_multiply_cpu_proper: ";
     for (float& value : output2) {
         std::cout << value << " ";
     }

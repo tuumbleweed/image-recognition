@@ -8,4 +8,5 @@ cmake --build build # build using makefile
 
 # together
 cmake -B build -S . && cmake --build build && ./build/ImageRecognition
+cmake -B build -S . && cmake --build build && ./build/ImageRecognitionTest
 ```
