@@ -12,7 +12,7 @@ void forward_propagation_gpu(const std::vector<float>& input,
 #ifdef __CUDACC__ // This ensures the following code is only compiled by nvcc
 __device__ double sigmoid_gpu(double x);
 __global__ void apply_sigmoid_gpu(float* input, int size);
-__global__ void matrix_multiply_gpu(const float* A, const float* B, float* C, int M, int N, int K);
+__global__ void matrix_multiply_gpu(const float* A, const float* B, float* result, int b_length, int b_width);
 #endif
 
 #endif // GPU_H

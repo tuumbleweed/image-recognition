@@ -1,11 +1,14 @@
 #include "cpu.h"
+#include "gpu.h"
 #include <iostream>
+
+std::vector<float> multiply_on_gpu(const std::vector<float>& A, const std::vector<std::vector<float>>& B);
 
 // Function for matrix multiplication
 // matrix1 is one dimentional, matrix2 is 2D
 // matrix1 length should be equal to matrix2 length
 // (number of float elements in matrix1 == number of std::vector<float> in matrix2)
-std::vector<float> matrix_multiply_cpu_proper(const std::vector<float>& matrix1, const std::vector<std::vector<float>>& matrix2) {
+std::vector<float> matrix_multiply_cpu_control(const std::vector<float>& matrix1, const std::vector<std::vector<float>>& matrix2) {
     int matrix1_length = matrix1.size();
     int matrix2_width = matrix2[0].size();
     int matrix2_length = matrix2.size();
@@ -36,18 +39,26 @@ int main() {
         {0.7, -0.8, 1.9}
     };
 
-    std::vector<float> output = matrix_multiply_cpu(A, B, 4, 3);
-    std::vector<float> output2 = matrix_multiply_cpu_proper(A, B);
+    std::vector<float> cpu_control_output = matrix_multiply_cpu_control(A, B);
+    std::vector<float> cpu_output = matrix_multiply_cpu(A, B, 4, 3);
+	std::vector<float> gpu_output = multiply_on_gpu(A, B);
+    std::cout << "matrix_multiply_cpu_control: ";
+    for (float& value : cpu_control_output) {
+        std::cout << value << " ";
+    }
+    std::cout << std::endl;
     std::cout << "matrix_multiply_cpu: ";
-    for (float& value : output) {
+    for (float& value : cpu_output) {
         std::cout << value << " ";
     }
     std::cout << std::endl;
-    std::cout << "matrix_multiply_cpu_proper: ";
-    for (float& value : output2) {
-        std::cout << value << " ";
-    }
-    std::cout << std::endl;
+
+	// Print the result
+	std::cout << "multiply_on_gpu: ";
+	for (float& value : gpu_output) {
+		std::cout << value << " ";
+	}
+	std::cout << std::endl;
 
     return 0;
 }

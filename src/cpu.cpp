@@ -24,16 +24,16 @@ void apply_sigmoid_cpu(std::vector<float>& input) {
 
 // Function for matrix multiplication
 std::vector<float> matrix_multiply_cpu(const std::vector<float>& A, const std::vector<std::vector<float>>& B, int b_length, int b_width) {
-    std::vector<float> C(b_width);
+    std::vector<float> result(b_width);
     for (int b_col = 0; b_col < b_width; ++b_col) {
         float sum = 0.0f;
         for (int a_index = 0; a_index < b_length; ++a_index) {
             sum += A[a_index] * B[a_index][b_col];
         }
-        C[b_col] = sum;
+        result[b_col] = sum;
     }
 
-    return C;
+    return result;
 }
 
 // Function to initialize memory, copy data, and run forward propagation

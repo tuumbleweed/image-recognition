@@ -32,16 +32,16 @@ __global__ void apply_sigmoid_gpu(float* input, int size) {
     }
 }
 
-__global__ void matrix_multiply_gpu(const float* A, const float* B, float* C, int M, int N, int K) {
+__global__ void matrix_multiply_gpu(const float* A, const float* B, float* result, int b_length, int b_width) {
     int row = blockIdx.y * blockDim.y + threadIdx.y;
     int col = blockIdx.x * blockDim.x + threadIdx.x;
 
-    if (row < M && col < K) {
-        float value = 0.0f;
-        for (int e = 0; e < N; ++e) {
-            value += A[row * N + e] * B[e * K + col];
+    if (row < 1 && col < b_width) {
+        float sum = 0.0f;
+        for (int e = 0; e < b_length; ++e) {
+            sum += A[row * b_length + e] * B[e * b_width + col];
         }
-        C[row * K + col] = value;
+        result[row * b_width + col] = sum;
     }
 }
 
@@ -97,7 +97,7 @@ void forward_propagation_gpu(const std::vector<float>& input,
         dim3 threadsPerBlock(16, 16);
         dim3 blocksPerGrid((layer_output_size + threadsPerBlock.x - 1) / threadsPerBlock.x,
                            (input_size + threadsPerBlock.y - 1) / threadsPerBlock.y);
-        matrix_multiply_gpu<<<blocksPerGrid, threadsPerBlock>>>(current_input, d_weights[i], current_output, 1, input_size, layer_output_size);
+        matrix_multiply_gpu<<<blocksPerGrid, threadsPerBlock>>>(current_input, d_weights[i], current_output, input_size, layer_output_size);
 
         // Debug: Check output after matrix multiplication
         std::vector<float> temp_output(layer_output_size);
