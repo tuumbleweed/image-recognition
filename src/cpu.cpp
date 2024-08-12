@@ -23,17 +23,15 @@ void apply_sigmoid_cpu(std::vector<float>& input) {
 }
 
 // Function for matrix multiplication
-std::vector<float> matrix_multiply_cpu(const std::vector<float>& A, const std::vector<std::vector<float>>& B, int M, int N, int K) {
-    std::vector<float> C;
-    C.resize(K);
-    for (int row = 0; row < M; ++row) {
-        for (int col = 0; col < K; ++col) {
-            float value = 0.0f;
-            for (int e = 0; e < N; ++e) {
-                value += A[row * N + e] * B[col][e];
-            }
-            C[row * K + col] = value;
+std::vector<float> matrix_multiply_cpu(const std::vector<float>& A, const std::vector<std::vector<float>>& B, int b_length, int b_width) {
+    std::vector<float> C(b_width);
+    for (int b_col = 0; b_col < b_width; ++b_col) {
+        float sum = 0.0f;
+        for (int a_index = 0; a_index < b_length; ++a_index) {
+            sum += A[a_index] * B[a_index][b_col];
         }
+        C[b_col] = sum;
+        std::cout << "| == " << sum << std::endl;
     }
 
     return C;
@@ -55,7 +53,7 @@ void forward_propagation_cpu(const std::vector<float>& input,
         int layer_output_size = network[i].weights.size();
 
         // Perform matrix multiplication
-        current_output = matrix_multiply_cpu(current_input, network[i].weights, 1, input_size, layer_output_size);
+        current_output = matrix_multiply_cpu(current_input, network[i].weights, input_size, layer_output_size);
 
         std::cout << "Layer " << i << " Pre-Activation Output (CPU):" << GREY << std::endl;
         // Debug: Check output after matrix multiplication

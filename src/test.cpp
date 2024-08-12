@@ -11,6 +11,7 @@ std::vector<float> matrix_multiply_cpu_proper(const std::vector<float>& matrix1,
     int matrix2_length = matrix2.size();
     std::vector<float> output_matrix(matrix2_width);
 
+    std::cout << "matrix_multiply_cpu_proper operations:\n";
     for (int matrix2_col = 0; matrix2_col < matrix2_width; matrix2_col++) {
         float sum = 0.0f;
         for (int matrix1_index=0; matrix1_index < matrix1_length; matrix1_index++) {
@@ -35,7 +36,7 @@ int main() {
         {0.7, -0.8, 1.9}
     };
 
-    std::vector<float> output = matrix_multiply_cpu(A, B, 1, 4, 3);
+    std::vector<float> output = matrix_multiply_cpu(A, B, 4, 3);
     std::vector<float> output2 = matrix_multiply_cpu_proper(A, B);
     std::cout << "matrix_multiply_cpu: ";
     for (float& value : output) {
