@@ -1,19 +1,23 @@
 #include "layer.h"
-#include "colors.h"
-#include <random>
+
 #include <cmath>
 #include <iostream>
+#include <random>
+
+#include "colors.h"
 
 // Helper function to initialize the weights of a layer
 std::vector<std::vector<float>> initialize_weights(int input_dim, int output_dim) {
     std::vector<std::vector<float>> layer_weights(output_dim, std::vector<float>(input_dim));
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::normal_distribution<float> dist(0.0f, 1.0f / std::sqrt(input_dim)); // Xavier initialization
+    std::normal_distribution<float> dist(0.0f, 1.0f / std::sqrt(input_dim));  // Xavier initialization
 
-    std::cout << "------------------------------------Initialize weights (" << input_dim << 'x' << output_dim << ")------------------------------------" << std::endl;
+    std::cout << "------------------------------------Initialize weights (" << input_dim << 'x' << output_dim
+              << ")------------------------------------" << std::endl;
     for (int i = 0; i < output_dim; ++i) {
-        std::cout << "Initialize weights (" << input_dim << 'x' << output_dim << "), " << i+1 << '/' << output_dim << ":" << GREY << std::endl;
+        std::cout << "Initialize weights (" << input_dim << 'x' << output_dim << "), " << i + 1 << '/' << output_dim
+                  << ":" << GREY << std::endl;
         for (int j = 0; j < input_dim; ++j) {
             layer_weights[i][j] = dist(gen);
             std::cout << layer_weights[i][j] << " ";

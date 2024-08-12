@@ -1,5 +1,6 @@
-#include "gpu.h"
 #include <cuda_runtime.h>
+
+#include "gpu.h"
 
 // Function to perform matrix multiplication on the GPU
 std::vector<float> multiply_on_gpu(const std::vector<float>& A, const std::vector<std::vector<float>>& B) {
@@ -11,8 +12,8 @@ std::vector<float> multiply_on_gpu(const std::vector<float>& A, const std::vecto
 
     int A_length = A.size();
     int B_length = B_flat.size();
-    int b_length = B.size(); // Number of rows in B
-    int b_width = B[0].size(); // Number of columns in B
+    int b_length = B.size();    // Number of rows in B
+    int b_width = B[0].size();  // Number of columns in B
 
     // Allocate memory on the device (GPU)
     float *d_A, *d_B, *d_result;

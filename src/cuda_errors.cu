@@ -1,9 +1,11 @@
 // cuda_errors.cu
-#include "colors.h"
 #include <cuda_runtime.h>
-#include <iostream>
-#include <cstdlib>
 #include <execinfo.h>  // For backtrace
+
+#include <cstdlib>
+#include <iostream>
+
+#include "colors.h"
 
 inline void printBacktrace() {
     const int maxFrames = 100;
@@ -11,7 +13,7 @@ inline void printBacktrace() {
     int frameCount = backtrace(frames, maxFrames);
     char** symbols = backtrace_symbols(frames, frameCount);
 
-    std::cerr << GREY << "Backtrace:"  << std::endl;
+    std::cerr << GREY << "Backtrace:" << std::endl;
     for (int i = 0; i < frameCount; ++i) {
         std::cerr << symbols[i] << std::endl;
     }
@@ -22,8 +24,8 @@ inline void printBacktrace() {
 
 inline void checkCudaError(cudaError_t error, const char* file, int line) {
     if (error != cudaSuccess) {
-        std::cerr << RED << "CUDA Error: " << cudaGetErrorString(error)
-                  << " at " << file << ":" << line << RESET << std::endl;
+        std::cerr << RED << "CUDA Error: " << cudaGetErrorString(error) << " at " << file << ":" << line << RESET
+                  << std::endl;
         printBacktrace();
         std::exit(EXIT_FAILURE);
     }
@@ -33,9 +35,7 @@ inline void checkCudaError(cudaError_t error, const char* file, int line) {
 #define CUDA_CHECK_ERROR(call) checkCudaError((call), __FILE__, __LINE__)
 
 // Wrapper for cudaMalloc with the same signature
-void cudaMallocWrapper(void** ptr, size_t size) {
-    CUDA_CHECK_ERROR(cudaMalloc(ptr, size));
-}
+void cudaMallocWrapper(void** ptr, size_t size) { CUDA_CHECK_ERROR(cudaMalloc(ptr, size)); }
 
 // Wrapper for cudaMemcpy
 void cudaMemcpyWrapper(void* dst, const void* src, size_t size, cudaMemcpyKind kind) {
@@ -43,6 +43,4 @@ void cudaMemcpyWrapper(void* dst, const void* src, size_t size, cudaMemcpyKind k
 }
 
 // Wrapper for cudaFree
-void cudaFreeWrapper(void* ptr) {
-    CUDA_CHECK_ERROR(cudaFree(ptr));
-}
+void cudaFreeWrapper(void* ptr) { CUDA_CHECK_ERROR(cudaFree(ptr)); }

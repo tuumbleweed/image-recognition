@@ -1,7 +1,8 @@
 #include "io_utils.h"
-#include <iostream>
+
 #include <fstream>
 #include <iomanip>
+#include <iostream>
 #include <tuple>
 
 void print_image(std::vector<float>& image, int& rows, int& cols) {

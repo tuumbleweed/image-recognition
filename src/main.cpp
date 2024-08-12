@@ -1,13 +1,14 @@
-#include "io_utils.h"
-#include "normalize.h"
-#include "layer.h"
-#include "gpu.h"
-#include "cpu.h"
-#include "colors.h"
-#include <iostream>
-#include <vector>
 #include <cstdint>
+#include <iostream>
 #include <tuple>
+#include <vector>
+
+#include "colors.h"
+#include "cpu.h"
+#include "gpu.h"
+#include "io_utils.h"
+#include "layer.h"
+#include "normalize.h"
 
 void print_network(const std::vector<Layer>& network) {
     for (size_t layer_index = 0; layer_index < network.size(); ++layer_index) {
@@ -32,10 +33,10 @@ int main() {
     std::vector<std::vector<float>> train_images_norm = normalize_all(train_images);
     std::vector<std::vector<float>> test_images_norm = normalize_all(test_images);
 
-    int input_size = 28 * 28; // 784 for 28x28 images
+    int input_size = 28 * 28;  // 784 for 28x28 images
     int hidden_size1 = 16;
     int hidden_size2 = 16;
-    int output_size = 10; // 10 classes for digit recognition
+    int output_size = 10;  // 10 classes for digit recognition
 
     std::vector<Layer> network = initialize_network(input_size, hidden_size1, hidden_size2, output_size);
 
