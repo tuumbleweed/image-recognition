@@ -31,7 +31,6 @@ std::vector<float> matrix_multiply_cpu(const std::vector<float>& A, const std::v
             sum += A[a_index] * B[a_index][b_col];
         }
         C[b_col] = sum;
-        std::cout << "| == " << sum << std::endl;
     }
 
     return C;
