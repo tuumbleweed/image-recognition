@@ -53,12 +53,12 @@ int main() {
     }
     std::cout << std::endl;
 
-	// Print the result
-	std::cout << "multiply_on_gpu: ";
-	for (float& value : gpu_output) {
-		std::cout << value << " ";
-	}
-	std::cout << std::endl;
+    // Print the result
+    std::cout << "multiply_on_gpu: ";
+    for (float& value : gpu_output) {
+    std::cout << value << " ";
+    }
+    std::cout << std::endl;
 
     return 0;
 }
