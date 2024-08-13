@@ -35,16 +35,15 @@ __global__ void apply_sigmoid_gpu(float* input, int size) {
     }
 }
 
-__global__ void matrix_multiply_gpu(const float* A, const float* B, float* result, int b_length, int b_width) {
-    int row = blockIdx.y * blockDim.y + threadIdx.y;
-    int col = blockIdx.x * blockDim.x + threadIdx.x;
+__global__ void matrix_multiply_gpu(const float* A, const float* B, float* result, int a_length_b_width, int b_length) {
+    int b_row = blockIdx.x * blockDim.x + threadIdx.x;
 
-    if (row < 1 && col < b_width) {
+    if (b_row < b_length) {
         float sum = 0.0f;
-        for (int e = 0; e < b_length; ++e) {
-            sum += A[row * b_length + e] * B[e * b_width + col];
+        for (int ab_index = 0; ab_index < a_length_b_width; ++ab_index) {
+            sum += A[ab_index] * B[b_row * a_length_b_width + ab_index];
         }
-        result[row * b_width + col] = sum;
+        result[b_row] = sum;
     }
 }
 
