@@ -54,13 +54,13 @@ void forward_propagation_gpu(const std::vector<float>& input, const std::vector<
     int output_size = network.back().weights.size();
 
     // Allocate memory on the GPU
-    float* d_input;
-    float* d_output;
+    float* gpu_input;
+    float* gpu_output;
 
     // Allocate memory for input
-    cudaMallocWrapper(reinterpret_cast<void**>(&d_input), input_size * sizeof(float));
+    cudaMallocWrapper(reinterpret_cast<void**>(&gpu_input), input_size * sizeof(float));
     // Allocate memory for output
-    cudaMallocWrapper(reinterpret_cast<void**>(&d_output), output_size * sizeof(float));
+    cudaMallocWrapper(reinterpret_cast<void**>(&gpu_output), output_size * sizeof(float));
 
     // Allocate and copy weights for each layer to the GPU
     std::vector<float*> d_weights(network.size());
@@ -80,11 +80,11 @@ void forward_propagation_gpu(const std::vector<float>& input, const std::vector<
     }
 
     // Copy the input data to the GPU
-    cudaMemcpyWrapper(d_input, input.data(), input_size * sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpyWrapper(gpu_input, input.data(), input_size * sizeof(float), cudaMemcpyHostToDevice);
     std::cout << std::endl;
 
     // Forward propagation through the layers
-    float* current_input = d_input;
+    float* current_input = gpu_input;
     float* current_output = nullptr;
 
     std::cout << "------------------------------------Activation Output (GPU)------------------------------------"
@@ -96,7 +96,7 @@ void forward_propagation_gpu(const std::vector<float>& input, const std::vector<
         cudaMallocWrapper(reinterpret_cast<void**>(&current_output), layer_output_size * sizeof(float));
 
         // Launch matrix multiplication kernel
-        dim3 threadsPerBlock(16, 16);
+        dim3 threadsPerBlock(256, 1);
         dim3 blocksPerGrid((layer_output_size + threadsPerBlock.x - 1) / threadsPerBlock.x,
                            (input_size + threadsPerBlock.y - 1) / threadsPerBlock.y);
         matrix_multiply_gpu<<<blocksPerGrid, threadsPerBlock>>>(current_input, d_weights[i], current_output, input_size,
@@ -127,6 +127,7 @@ void forward_propagation_gpu(const std::vector<float>& input, const std::vector<
         std::cout << RESET << std::endl;
 
         current_input = current_output;  // Update input for next layer
+        input_size = layer_output_size;
     }
 
     // Copy the result back to the host
@@ -134,7 +135,7 @@ void forward_propagation_gpu(const std::vector<float>& input, const std::vector<
     cudaMemcpyWrapper(output.data(), current_output, output_size * sizeof(float), cudaMemcpyDeviceToHost);
 
     // Free GPU memory
-    cudaFreeWrapper(d_input);
+    cudaFreeWrapper(gpu_input);
     cudaFreeWrapper(current_output);
     for (auto& d_weight : d_weights) {
         cudaFreeWrapper(d_weight);
