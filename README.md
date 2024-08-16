@@ -18,6 +18,7 @@ cmake -B build -S . && cmake --build build && ./build/ImageRecognitionTest
 - ~~Normalize image values from 0-255 to 0-1~~
 - ~~Initialize network with random values between 0-1~~
 - ~~Forward propagation~~
+- ~~Add biases~~
 - Loss function
 - Backpropagation
 - Update parameters

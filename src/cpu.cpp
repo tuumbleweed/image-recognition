@@ -27,7 +27,7 @@ void apply_sigmoid_cpu(std::vector<float>& input) {
 
 // Function for matrix multiplication
 std::vector<float> matrix_multiply_cpu(const std::vector<float>& A, const std::vector<std::vector<float>>& B,
-                                       int a_length_b_width, int b_length) {
+                                       const std::vector<float>& biases, int a_length_b_width, int b_length) {
     std::vector<float> result(b_length);
     int a_length_size = A.size();
     int b_length_size = B.size();
@@ -46,7 +46,7 @@ std::vector<float> matrix_multiply_cpu(const std::vector<float>& A, const std::v
         for (int ab_index = 0; ab_index < a_length_b_width; ++ab_index) {
             sum += A[ab_index] * B[b_row][ab_index];
         }
-        result[b_row] = sum;
+        result[b_row] = sum + biases[b_row];
     }
 
     return result;
@@ -68,7 +68,7 @@ void forward_propagation_cpu(const std::vector<float>& input, const std::vector<
         int layer_output_size = network[i].weights.size();
 
         // Perform matrix multiplication
-        current_output = matrix_multiply_cpu(current_input, network[i].weights, input_size, layer_output_size);
+        current_output = matrix_multiply_cpu(current_input, network[i].weights, network[i].biases, input_size, layer_output_size);
 
         std::cout << "Layer " << i << " Pre-Activation Output (CPU):" << GREY << std::endl;
         // Debug: Check output after matrix multiplication
@@ -94,4 +94,15 @@ void forward_propagation_cpu(const std::vector<float>& input, const std::vector<
 
     // Set the final output
     output = current_output;
+}
+
+
+// Function to calculate cross-entropy loss
+float cross_entropy_loss_cpu(const std::vector<float>& predicted, const std::vector<float>& actual) {
+    float loss = 0.0f;
+    for (size_t i = 0; i < predicted.size(); ++i) {
+        loss -= actual[i] * std::log(predicted[i] + 1e-15f); // Add small epsilon to avoid log(0)
+    }
+
+    return loss;
 }

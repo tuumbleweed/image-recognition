@@ -35,7 +35,7 @@ __global__ void apply_sigmoid_gpu(float* input, int size) {
     }
 }
 
-__global__ void matrix_multiply_gpu(const float* A, const float* B, float* result, int a_length_b_width, int b_length) {
+__global__ void matrix_multiply_gpu(const float* A, const float* B, const float* biases, float* result, int a_length_b_width, int b_length) {
     int b_row = blockIdx.x * blockDim.x + threadIdx.x;
 
     if (b_row < b_length) {
@@ -43,7 +43,7 @@ __global__ void matrix_multiply_gpu(const float* A, const float* B, float* resul
         for (int ab_index = 0; ab_index < a_length_b_width; ++ab_index) {
             sum += A[ab_index] * B[b_row * a_length_b_width + ab_index];
         }
-        result[b_row] = sum;
+        result[b_row] = sum + biases[b_row];
     }
 }
 
@@ -64,19 +64,24 @@ void forward_propagation_gpu(const std::vector<float>& input, const std::vector<
 
     // Allocate and copy weights for each layer to the GPU
     std::vector<float*> d_weights(network.size());
+    std::vector<float*> d_biases(network.size());
     for (size_t i = 0; i < network.size(); ++i) {
         int layer_input_size = network[i].weights[0].size();
         int layer_output_size = network[i].weights.size();
-        size_t mem_size = layer_input_size * layer_output_size * sizeof(float);
+        size_t mem_size_weights = layer_input_size * layer_output_size * sizeof(float);
+        size_t mem_size_biases = layer_output_size * sizeof(float);
 
         // Allocate memory for weights
-        cudaMallocWrapper(reinterpret_cast<void**>(&d_weights[i]), mem_size);
+        cudaMallocWrapper(reinterpret_cast<void**>(&d_weights[i]), mem_size_weights);
+        cudaMallocWrapper(reinterpret_cast<void**>(&d_biases[i]), mem_size_biases);
         // Copy weights to the GPU
         std::vector<float> flattened_weights;
         for (const std::vector<float>& row : network[i].weights) {
             flattened_weights.insert(flattened_weights.end(), row.begin(), row.end());
         }
-        cudaMemcpyWrapper(d_weights[i], flattened_weights.data(), mem_size, cudaMemcpyHostToDevice);
+        cudaMemcpyWrapper(d_weights[i], flattened_weights.data(), mem_size_weights, cudaMemcpyHostToDevice);
+        // Copy biases to the GPU
+        cudaMemcpyWrapper(d_biases[i], network[i].biases.data(), mem_size_biases, cudaMemcpyHostToDevice);
     }
 
     // Copy the input data to the GPU
@@ -96,10 +101,10 @@ void forward_propagation_gpu(const std::vector<float>& input, const std::vector<
         cudaMallocWrapper(reinterpret_cast<void**>(&current_output), layer_output_size * sizeof(float));
 
         // Launch matrix multiplication kernel
-        dim3 threadsPerBlock(256, 1);
+        dim3 threadsPerBlock(16, 16);
         dim3 blocksPerGrid((layer_output_size + threadsPerBlock.x - 1) / threadsPerBlock.x,
                            (input_size + threadsPerBlock.y - 1) / threadsPerBlock.y);
-        matrix_multiply_gpu<<<blocksPerGrid, threadsPerBlock>>>(current_input, d_weights[i], current_output, input_size,
+        matrix_multiply_gpu<<<blocksPerGrid, threadsPerBlock>>>(current_input, d_weights[i], d_biases[i], current_output, input_size,
                                                                 layer_output_size);
 
         // Debug: Check output after matrix multiplication

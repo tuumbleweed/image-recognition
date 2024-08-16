@@ -6,6 +6,13 @@
 // Structure to represent a layer in the neural network
 struct Layer {
     std::vector<std::vector<float>> weights;
+    std::vector<float> biases;
+
+    // Constructor to initialize weights and biases with given lengths
+    Layer(size_t input_dim, size_t output_dim) {
+        weights = std::vector<std::vector<float>>(output_dim, std::vector<float>(input_dim, 0.0f));
+        biases = std::vector<float>(output_dim, 0.0f);
+    }
 };
 
 // Helper function to initialize the weights of a layer
