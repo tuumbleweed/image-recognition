@@ -23,4 +23,6 @@ std::vector<std::vector<float>> initialize_weights(int input_dim, int output_dim
 // Function to initialize the network layers and their weights
 std::vector<Layer> initialize_network(int input_size, int hidden_size1, int hidden_size2, int output_size);
 
+void print_network(const std::vector<Layer>& network);
+
 #endif // LAYER_H

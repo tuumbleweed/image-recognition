@@ -54,3 +54,28 @@ std::vector<Layer> initialize_network(int input_size, int hidden_size1, int hidd
 
     return network;
 }
+
+void print_network(const std::vector<Layer>& network) {
+    for (int k = 0; k < network.size(); ++k) {
+        const Layer& layer = network[k];
+        std::cout << "------------------------------------Layer " << k+1 << "------------------------------------" << std::endl;
+        for (int i = 0; i < layer.weights.size(); ++i) {
+            std::cout << "Weights " << i + 1 << '/' << layer.weights.size()
+                    << ":" << GREY << std::endl;
+            for (const float& weight : layer.weights[i]) {
+                 std::cout << weight << " ";
+            }
+            std::cout << RESET << std::endl;
+        }
+        std::cout << "Biases (" << 1 << 'x' << layer.biases.size() << "):" << GREY << std::endl;
+        for (int i = 0; i < layer.biases.size(); ++i) {
+            std::cout << layer.biases[i] << " ";
+        }
+        std::cout << RESET << "\n" << std::endl;
+        std::cout << "Activations (" << 1 << 'x' << layer.output.size() << "):" << GREY << std::endl;
+        for (int i = 0; i < layer.output.size(); ++i) {
+            std::cout << layer.output[i] << " ";
+        }
+        std::cout << RESET << "\n" << std::endl;
+    }
+}
