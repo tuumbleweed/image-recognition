@@ -55,7 +55,7 @@ int main() {
     std::cout << "Cost: " << BLUE << cost << RESET << std::endl;
 
     backpropagation_cpu(first_train_image, one_hot, network, 0.001);
-    // print_network(network);
+    print_network(network);
 
     // std::cout << "Outputs (CPU):" << std::endl;
     // for (size_t i = 0; i < network.size(); ++i) {
