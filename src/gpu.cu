@@ -86,7 +86,6 @@ void forward_propagation_gpu(const std::vector<float>& input, const std::vector<
 
     // Copy the input data to the GPU
     cudaMemcpyWrapper(gpu_input, input.data(), input_size * sizeof(float), cudaMemcpyHostToDevice);
-    std::cout << std::endl;
 
     // Forward propagation through the layers
     float* current_input = gpu_input;

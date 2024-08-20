@@ -15,8 +15,12 @@ std::vector<float> matrix_multiply_cpu(const std::vector<float>& A, const std::v
 
 // Function to initialize memory, copy data, and run forward propagation
 void forward_propagation_cpu(const std::vector<float>& input,
-                             const std::vector<Layer>& network,
-                             std::vector<float>& output);
+                             std::vector<Layer>& network);
+
+float cost_cpu(const std::vector<float>& predicted, const std::vector<float>& actual);
+
+void backpropagation_cpu(const std::vector<float>& input, const std::vector<float>& actual, 
+                         std::vector<Layer>& network, float learning_rate);
 
 
 #endif // CPU_H

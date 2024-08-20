@@ -7,11 +7,13 @@
 struct Layer {
     std::vector<std::vector<float>> weights;
     std::vector<float> biases;
+    std::vector<float> output;
 
     // Constructor to initialize weights and biases with given lengths
     Layer(size_t input_dim, size_t output_dim) {
         weights = std::vector<std::vector<float>>(output_dim, std::vector<float>(input_dim, 0.0f));
         biases = std::vector<float>(output_dim, 0.0f);
+        output = std::vector<float>(output_dim, 0.0f);
     }
 };
 

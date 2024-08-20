@@ -24,6 +24,14 @@ void print_network(const std::vector<Layer>& network) {
     }
 }
 
+std::vector<float> generate_one_hot_vector(uint8_t label, uint8_t length = 10) {
+    std::vector<float> one_hot_vector(length, 0.0f);
+    if (label < length) {
+        one_hot_vector[label] = 1.0f;
+    }
+    return one_hot_vector;
+}
+
 int main() {
     auto [train_images, train_rows, train_cols] = read_images("tmp/train-images.idx3-ubyte");
     std::vector<uint8_t> train_labels = read_labels("tmp/train-labels.idx1-ubyte");
@@ -38,28 +46,47 @@ int main() {
     int hidden_size2 = 16;
     int output_size = 10;  // 10 classes for digit recognition
 
-    std::vector<Layer> network = initialize_network(input_size, hidden_size1, hidden_size2, output_size);
 
     // Example: Using the first training image for forward propagation
     std::vector<float>& first_train_image = train_images_norm[0];
-    std::vector<float> output;
+    uint8_t first_train_label = test_labels[0];
+    // std::vector<float> output;
+
+    std::vector<Layer> network = initialize_network(input_size, hidden_size1, hidden_size2, output_size);
+    std::vector<float> one_hot = generate_one_hot_vector(first_train_label);
 
     // Perform forward propagation on the GPU
-    forward_propagation_cpu(first_train_image, network, output);
-    // Print the output (softmax probabilities)
+    forward_propagation_cpu(first_train_image, network);
+    // Print the output
+    std::vector<float> output = network[network.size() - 1].output;
     std::cout << "Output probabilities (CPU):" << GREY << std::endl;
     for (size_t i = 0; i < output.size(); ++i) {
         std::cout << i << ": " << output[i] << ", ";
     }
-    std::cout << RESET << std::endl << std::endl;
+    std::cout << RESET << std::endl;
 
-    forward_propagation_gpu(first_train_image, network, output);
-    // Print the output (softmax probabilities)
-    std::cout << "Output probabilities (GPU):" << GREY << std::endl;
-    for (size_t i = 0; i < output.size(); ++i) {
-        std::cout << i << ": " << output[i] << ", ";
-    }
-    std::cout << RESET << std::endl << std::endl;
+    float cost = cost_cpu(output, one_hot);
+    std::cout << "Cost: " << BLUE << cost << RESET << std::endl;
+
+    backpropagation_cpu(first_train_image, one_hot, network, 0.001);
+
+    // std::cout << "Outputs (CPU):" << std::endl;
+    // for (size_t i = 0; i < network.size(); ++i) {
+    //     std::cout << "Output " << i << ":" << GREY << std::endl;
+    //     for (size_t k = 0; k < network[i].output.size(); ++k) {
+    //         std::cout << network[i].output[k] << " ";
+    //     }
+    //     std::cout << RESET << std::endl << std::endl;
+    // }
+    // std::cout << RESET << std::endl << std::endl;
+
+    // forward_propagation_gpu(first_train_image, network, output);
+    // // Print the output (softmax probabilities)
+    // std::cout << "Output probabilities (GPU):" << GREY << std::endl;
+    // for (size_t i = 0; i < output.size(); ++i) {
+    //     std::cout << i << ": " << output[i] << ", ";
+    // }
+    // std::cout << RESET << std::endl << std::endl;
 
     return 0;
 }
