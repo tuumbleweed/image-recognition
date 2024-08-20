@@ -49,6 +49,14 @@ std::vector<float> matrix_multiply_cpu_control(const std::vector<float>& A,
 }
 
 int main() {
+    std::vector<float> delta(10, 1.0f);  // Vector of size 10
+
+    // Resize vector to size 16
+    delta.resize(8);
+
+    delta[5] = 0.0f;
+    std::cout << "Delta: " << delta[5] << " " << delta[7] << std::endl;
+
     // tet what chentd
     std::vector<float> A = {0.5, 1.2, -0.7, 3.4};
     std::vector<std::vector<float>> B = {

@@ -10,20 +10,6 @@
 #include "layer.h"
 #include "normalize.h"
 
-void print_network(const std::vector<Layer>& network) {
-    for (size_t layer_index = 0; layer_index < network.size(); ++layer_index) {
-        std::cout << "Layer " << layer_index << " weights:" << std::endl;
-        const auto& layer = network[layer_index];
-        for (size_t i = 0; i < layer.weights.size(); ++i) {
-            for (size_t j = 0; j < layer.weights[i].size(); ++j) {
-                std::cout << layer.weights[i][j] << " ";
-            }
-            std::cout << std::endl;
-        }
-        std::cout << std::endl;
-    }
-}
-
 std::vector<float> generate_one_hot_vector(uint8_t label, uint8_t length = 10) {
     std::vector<float> one_hot_vector(length, 0.0f);
     if (label < length) {
@@ -69,6 +55,7 @@ int main() {
     std::cout << "Cost: " << BLUE << cost << RESET << std::endl;
 
     backpropagation_cpu(first_train_image, one_hot, network, 0.001);
+    // print_network(network);
 
     // std::cout << "Outputs (CPU):" << std::endl;
     // for (size_t i = 0; i < network.size(); ++i) {
