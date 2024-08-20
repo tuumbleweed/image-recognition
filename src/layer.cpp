@@ -14,8 +14,8 @@ Layer initialize_weights_and_biases(int input_dim, int output_dim) {
     std::mt19937 gen(rd());
     std::normal_distribution<float> dist(0.0f, 1.0f / std::sqrt(input_dim));  // Xavier initialization
 
-    std::cout << "------------------------------------Initialize weights (" << input_dim << 'x' << output_dim
-              << ")------------------------------------" << std::endl;
+    std::cout << "------------------------------------ Initialize weights (" << input_dim << 'x' << output_dim
+              << ") ------------------------------------" << std::endl;
     for (int i = 0; i < output_dim; ++i) {
         std::cout << "Initialize weights (" << input_dim << 'x' << output_dim << "), " << i + 1 << '/' << output_dim
                   << ":" << GREY << std::endl;
@@ -58,7 +58,7 @@ std::vector<Layer> initialize_network(int input_size, int hidden_size1, int hidd
 void print_network(const std::vector<Layer>& network) {
     for (int k = 0; k < network.size(); ++k) {
         const Layer& layer = network[k];
-        std::cout << "------------------------------------Layer " << k+1 << "------------------------------------" << std::endl;
+        std::cout << "------------------------------------ Layer " << k << " ------------------------------------" << std::endl;
         for (int i = 0; i < layer.weights.size(); ++i) {
             std::cout << "Weights " << i + 1 << '/' << layer.weights.size()
                     << ":" << GREY << std::endl;

@@ -91,7 +91,7 @@ void forward_propagation_gpu(const std::vector<float>& input, const std::vector<
     float* current_input = gpu_input;
     float* current_output = nullptr;
 
-    std::cout << "------------------------------------Activation Output (GPU)------------------------------------"
+    std::cout << "------------------------------------ Activation Output (GPU) ------------------------------------"
               << std::endl;
     for (size_t i = 0; i < network.size(); ++i) {
         int layer_output_size = network[i].weights.size();
