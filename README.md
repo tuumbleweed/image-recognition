@@ -19,8 +19,8 @@ cmake -B build -S . && cmake --build build && ./build/ImageRecognitionTest
 - ~~Initialize network with random values between 0-1~~
 - ~~Forward propagation~~
 - ~~Add biases~~
-- Loss function
-- Backpropagation
-- Update parameters
+- ~~Cost function~~
+- ~~Backpropagation~~
+- ~~Update weights and biases~~
 - Training loop
 - Testing using test images
