@@ -7,6 +7,7 @@
 
 #include "colors.h"
 #include "layer.h"
+#include "log.h"
 
 // Sigmoid function for CPU
 float sigmoid_cpu(float x) {

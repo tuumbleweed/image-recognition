@@ -5,6 +5,7 @@
 
 #include "colors.h"
 #include "gpu.h"
+#include "log.h"
 
 extern void* cudaMallocWrapper(void** ptr, size_t size);
 extern void cudaMemcpyWrapper(void* dst, const void* src, size_t size, cudaMemcpyKind kind);

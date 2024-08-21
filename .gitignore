@@ -5,3 +5,6 @@ tmp/*
 build/*
 
 !README.md
+
+cfg/*
+!cfg/example*

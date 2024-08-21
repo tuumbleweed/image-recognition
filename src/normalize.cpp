@@ -1,6 +1,5 @@
 #include "normalize.h"
-// #include <vector>
-// #include <cstdint>
+#include "log.h"
 
 // Function to normalize a vector of uint8_t values to a vector of float values
 std::vector<float> normalize(const std::vector<uint8_t>& input) {

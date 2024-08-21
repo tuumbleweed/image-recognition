@@ -9,6 +9,7 @@
 #include "io_utils.h"
 #include "layer.h"
 #include "normalize.h"
+#include "log.h"
 
 std::vector<float> generate_one_hot_vector(uint8_t label, uint8_t length = 10) {
     std::vector<float> one_hot_vector(length, 0.0f);
@@ -19,6 +20,8 @@ std::vector<float> generate_one_hot_vector(uint8_t label, uint8_t length = 10) {
 }
 
 int main() {
+    SimpleLogger::load_config("cfg/config.ini");
+
     auto [train_images, train_rows, train_cols] = read_images("tmp/train-images.idx3-ubyte");
     std::vector<uint8_t> train_labels = read_labels("tmp/train-labels.idx1-ubyte");
     auto [test_images, test_rows, test_cols] = read_images("tmp/t10k-images.idx3-ubyte");
@@ -31,7 +34,6 @@ int main() {
     int hidden_size1 = 16;
     int hidden_size2 = 16;
     int output_size = 10;  // 10 classes for digit recognition
-
 
     // Example: Using the first training image for forward propagation
     std::vector<float>& first_train_image = train_images_norm[0];

@@ -5,6 +5,7 @@
 #include <random>
 
 #include "colors.h"
+#include "log.h"
 
 // Helper function to initialize the weights of a layer
 Layer initialize_weights_and_biases(int input_dim, int output_dim) {

@@ -1,9 +1,11 @@
 #include <cuda_runtime.h>
 
-#include "gpu.h"
-
 #include <iostream>
 #include <cstdlib> // For the exit function
+
+#include "gpu.h"
+#include "log.h"
+
 
 // Function to perform matrix multiplication on the GPU
 std::vector<float> multiply_on_gpu(const std::vector<float>& A, const std::vector<std::vector<float>>& B, const std::vector<float>& biases) {

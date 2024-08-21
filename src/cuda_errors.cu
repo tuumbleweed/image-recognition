@@ -6,6 +6,7 @@
 #include <iostream>
 
 #include "colors.h"
+#include "log.h"
 
 inline void printBacktrace() {
     const int maxFrames = 100;
