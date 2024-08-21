@@ -8,6 +8,9 @@ std::mutex SimpleLogger::log_mutex_;
 SimpleLogger::SimpleLogger(LogLevel level) : log_level_(level) {}
 
 SimpleLogger::~SimpleLogger() {
+    // The mutex will remain locked for the duration of the guard object's lifetime.
+    // Once the guard object goes out of scope (typically at the end of the
+    // block in which it is declared), its destructor is called, which automatically unlocks the mutex.
     std::lock_guard<std::mutex> guard(log_mutex_);
     std::cerr << oss_.str();
     if (log_level_ == FATAL) {
@@ -40,6 +43,7 @@ void SimpleLogger::load_config(const std::string& config_file) {
         return;
     }
 
+    // read key and value split by '='
     std::string line;
     while (std::getline(file, line)) {
         size_t pos = line.find('=');
