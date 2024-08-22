@@ -8,8 +8,7 @@
 #include "log.h"
 
 // Helper function to initialize the weights of a layer
-Layer initialize_weights_and_biases(int input_dim, int output_dim) {
-    // std::vector<std::vector<float>> layer_weights(output_dim, std::vector<float>(input_dim));
+Layer initialize_weights_and_biases(const int input_dim, const int output_dim) {
     Layer layer(input_dim, output_dim);
     std::random_device rd;
     std::mt19937 gen(rd());
@@ -36,7 +35,7 @@ Layer initialize_weights_and_biases(int input_dim, int output_dim) {
 }
 
 // Function to initialize the network layers and their weights
-std::vector<Layer> initialize_network(int input_size, int hidden_size1, int hidden_size2, int output_size) {
+std::vector<Layer> initialize_network(const int input_size, const int hidden_size1, const int hidden_size2, const int output_size) {
     LOG(SL::INFO) << "Initializing network " << BLUE << input_size << 'x' << hidden_size1;
     LOG(SL::INFO) << 'x' << hidden_size2 << 'x' << output_size << RESET << std::endl;
     std::vector<Layer> network;
