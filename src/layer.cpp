@@ -80,11 +80,15 @@ void print_network(const std::vector<Layer>& network) {
             LOG(SL::DEBUG) << layer.biases[i] << " ";
         }
         LOG(SL::DEBUG) << RESET << "\n" << std::endl;
-        LOG(SL::INFO) << "Activations (" << 1 << 'x' << layer.output.size() << "): " << GREY;
-        for (int i = 0; i < layer.output.size(); ++i) {
-            LOG(SL::INFO) << layer.output[i] << " ";
+        SL::LogLevel log_level = SL::INFO;
+        if (k == network.size()-1) {
+            log_level = SL::NOTICE;
         }
-        LOG(SL::INFO) << RESET << std::endl;
+        LOG(log_level) << "Activations (" << 1 << 'x' << layer.output.size() << "): " << GREY;
+        for (int i = 0; i < layer.output.size(); ++i) {
+            LOG(log_level) << layer.output[i] << " ";
+        }
+        LOG(log_level) << RESET << std::endl;
     }
 }
 

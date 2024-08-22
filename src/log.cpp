@@ -78,6 +78,7 @@ std::string SL::log_level_to_string(LogLevel level) {
         case FATAL:   return "FATAL";
         case ERROR:   return "ERROR";
         case WARNING: return "WARNING";
+        case NOTICE:    return "NOTICE";
         case INFO:    return "INFO";
         case DEBUG:   return "DEBUG";
         case TRACE:   return "TRACE";
@@ -89,6 +90,7 @@ SL::LogLevel SL::string_to_log_level(const std::string& level_str) {
     if (level_str == "FATAL") return FATAL;
     if (level_str == "ERROR") return ERROR;
     if (level_str == "WARNING") return WARNING;
+    if (level_str == "NOTICE") return NOTICE;
     if (level_str == "INFO") return INFO;
     if (level_str == "DEBUG") return DEBUG;
     if (level_str == "TRACE") return TRACE;

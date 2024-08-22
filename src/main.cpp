@@ -28,24 +28,9 @@ int main() {
     int output_size = 10;  // 10 classes for digit recognition
     std::vector<Layer> network = initialize_network(input_size, hidden_size1, hidden_size2, output_size);
 
-    // Example: Using the first training image for forward propagation
-    const std::vector<float>& first_train_image = train_images_norm[0];
-    const uint8_t first_train_label = test_labels[0];
-
     for (size_t i=0; i<train_images_norm.size(); i++) {
-
+        train_on_one_image_cpu(i, train_labels[i], train_images_norm[i], network);
     }
-    train_on_one_image_cpu(first_train_label, first_train_image, network);
-
-    // LOG(SL::DEBUG) << "Outputs (CPU):" << std::endl;
-    // for (size_t i = 0; i < network.size(); ++i) {
-    //     LOG(SL::DEBUG) << "Output " << i << ":" << GREY << std::endl;
-    //     for (size_t k = 0; k < network[i].output.size(); ++k) {
-    //         LOG(SL::DEBUG) << network[i].output[k] << " ";
-    //     }
-    //     LOG(SL::DEBUG) << RESET << std::endl << std::endl;
-    // }
-    // LOG(SL::DEBUG) << RESET << std::endl << std::endl;
 
     // forward_propagation_gpu(first_train_image, network, output);
     // // Print the output (softmax probabilities)

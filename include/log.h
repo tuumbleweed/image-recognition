@@ -14,9 +14,10 @@ public:
         FATAL = 0,
         ERROR = 1,
         WARNING = 2,
-        INFO = 3,
-        DEBUG = 4,
-        TRACE = 5
+        NOTICE = 3,
+        INFO = 4,
+        DEBUG = 5,
+        TRACE = 6
     };
 
     SL(LogLevel level);
