@@ -45,11 +45,11 @@ std::vector<float> matrix_multiply_cpu(const std::vector<float>& A, const std::v
         LOG(SL::ERROR) << "a_length != b_width, " << a_length_size << " != " << b_width_size << std::endl;
         exit(EXIT_FAILURE);
     }
-    // LOG(SL::DEBUG) << "A length (size()): " << a_length_size << std::endl;
-    // LOG(SL::DEBUG) << "B length (size()): " << b_length_size << std::endl;
-    // LOG(SL::DEBUG) << "B width (size()): " << b_width_size << std::endl;
-    // LOG(SL::DEBUG) << "a_length_b_width: " << a_length_b_width << std::endl;
-    // LOG(SL::DEBUG) << "b_length: " << b_length << std::endl;
+    LOG(SL::TRACE) << "A length (size()): " << a_length_size << std::endl;
+    LOG(SL::TRACE) << "B length (size()): " << b_length_size << std::endl;
+    LOG(SL::TRACE) << "B width (size()): " << b_width_size << std::endl;
+    LOG(SL::TRACE) << "a_length_b_width: " << a_length_b_width << std::endl;
+    LOG(SL::TRACE) << "b_length: " << b_length << std::endl;
     for (int b_row = 0; b_row < b_length; ++b_row) {
         float sum = 0.0f;
         for (int ab_index = 0; ab_index < a_length_b_width; ++ab_index) {

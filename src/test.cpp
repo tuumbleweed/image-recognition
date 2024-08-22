@@ -18,9 +18,9 @@ std::vector<float> matrix_multiply_cpu_control(const std::vector<float>& A,
     int a_length = A.size();
     int b_length = B.size();
     int b_width = B[0].size();
-    // LOG(SL::DEBUG) << "a_length: " << a_length << std::endl;
-    // LOG(SL::DEBUG) << "b_length: " << b_length << std::endl;
-    // LOG(SL::DEBUG) << "b_width: " << b_width << std::endl;
+    LOG(SL::TRACE) << "a_length: " << a_length << std::endl;
+    LOG(SL::TRACE) << "b_length: " << b_length << std::endl;
+    LOG(SL::TRACE) << "b_width: " << b_width << std::endl;
     if (a_length != b_width) {
         LOG(SL::ERROR) << "a_length != b_width, " << a_length << " != " << b_width << std::endl;
         exit(EXIT_FAILURE);
@@ -51,12 +51,6 @@ std::vector<float> matrix_multiply_cpu_control(const std::vector<float>& A,
 
 int main() {
     SL::load_config("cfg/config.ini");
-
-    // LOG(SL::TRACE) << "This is a trace message." << "Msg2";
-    // LOG(SL::DEBUG) << "This is a debug message." << "Msg2";
-    // LOG(SL::INFO) << "This is an info message." << "Msg2" << std::endl;
-    // LOG(SL::ERROR) << "This is an error message." << "Msg2" << "\n";
-    // LOG(SL::FATAL) << "This is a fatal message." << "Msg2";
 
     std::vector<float> delta(10, 1.0f);  // Vector of size 10
 
