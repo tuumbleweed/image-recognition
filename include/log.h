@@ -8,27 +8,28 @@
 #include <fstream>
 #include <map>
 
-class SimpleLogger {
+class SL {
 public:
     enum LogLevel {
         FATAL = 0,
         ERROR = 1,
-        INFO = 2,
-        DEBUG = 3,
-        TRACE = 4
+        WARNING = 2,
+        INFO = 3,
+        DEBUG = 4,
+        TRACE = 5
     };
 
-    SimpleLogger(LogLevel level);
-    ~SimpleLogger();
+    SL(LogLevel level);
+    ~SL();
 
     template <typename T>
-    SimpleLogger& operator<<(const T& value) {
+    SL& operator<<(const T& value) {
         oss_ << value;
         return *this;
     }
 
     // Overload for handling std::endl and other manipulators
-    SimpleLogger& operator<<(std::ostream& (*manip)(std::ostream&)) {
+    SL& operator<<(std::ostream& (*manip)(std::ostream&)) {
         oss_ << manip;
         return *this;
     }
@@ -48,6 +49,6 @@ private:
     static std::string trim(const std::string& str);
 };
 
-#define LOG(level) if (SimpleLogger::should_log(level)) SimpleLogger(level)
+#define LOG(level) if (SL::should_log(level)) SL(level)
 
 #endif // SIMPLE_LOGGER_H
