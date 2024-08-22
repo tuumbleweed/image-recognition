@@ -54,7 +54,7 @@ int main() {
     LOG(SL::DEBUG) << RESET << std::endl;
 
     float cost = cost_cpu(output, one_hot);
-    LOG(SL::DEBUG) << "Cost: " << BLUE << cost << RESET << std::endl;
+    LOG(SL::INFO) << "Cost: " << BLUE << cost << RESET << std::endl;
 
     backpropagation_cpu(first_train_image, one_hot, network, 0.001);
     print_network(network);

@@ -37,8 +37,8 @@ Layer initialize_weights_and_biases(int input_dim, int output_dim) {
 
 // Function to initialize the network layers and their weights
 std::vector<Layer> initialize_network(int input_size, int hidden_size1, int hidden_size2, int output_size) {
-    LOG(SL::DEBUG) << "Initializing network " << input_size << 'x' << hidden_size1;
-    LOG(SL::DEBUG) << 'x' << hidden_size2 << 'x' << output_size << std::endl;
+    LOG(SL::INFO) << "Initializing network " << BLUE << input_size << 'x' << hidden_size1;
+    LOG(SL::INFO) << 'x' << hidden_size2 << 'x' << output_size << RESET << std::endl;
     std::vector<Layer> network;
 
     // Initialize weights between input layer and first hidden layer
@@ -57,6 +57,14 @@ std::vector<Layer> initialize_network(int input_size, int hidden_size1, int hidd
 }
 
 void print_network(const std::vector<Layer>& network) {
+    LOG(SL::INFO) << "Printing network with " << network.size() << " layers: " << BLUE;
+    for (int k = 0; k < network.size(); ++k) {
+        LOG(SL::INFO) << "(" << network[k].weights.size() << "x" << network[k].weights[0].size() << ")";
+        if (k < network.size()-1) {
+            LOG(SL::INFO) << "x";
+        }
+    }
+    LOG(SL::INFO) << RESET << std::endl;
     for (int k = 0; k < network.size(); ++k) {
         const Layer& layer = network[k];
         LOG(SL::DEBUG) << "------------------------------------ Layer " << k << " ------------------------------------" << std::endl;
@@ -73,10 +81,10 @@ void print_network(const std::vector<Layer>& network) {
             LOG(SL::DEBUG) << layer.biases[i] << " ";
         }
         LOG(SL::DEBUG) << RESET << "\n" << std::endl;
-        LOG(SL::DEBUG) << "Activations (" << 1 << 'x' << layer.output.size() << "):" << GREY << std::endl;
+        LOG(SL::INFO) << "Activations (" << 1 << 'x' << layer.output.size() << "): " << GREY;
         for (int i = 0; i < layer.output.size(); ++i) {
-            LOG(SL::DEBUG) << layer.output[i] << " ";
+            LOG(SL::INFO) << layer.output[i] << " ";
         }
-        LOG(SL::DEBUG) << RESET << "\n" << std::endl;
+        LOG(SL::INFO) << RESET << std::endl;
     }
 }

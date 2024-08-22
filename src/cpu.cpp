@@ -70,6 +70,7 @@ void forward_propagation_cpu(const std::vector<float>& input, std::vector<Layer>
     std::vector<float> current_input = input;
     std::vector<float> current_output;
 
+    LOG(SL::INFO) << "Forward Propagation:" << std::endl;
     LOG(SL::DEBUG) << "------------------------------------ Activation Output (CPU) ------------------------------------"
               << std::endl;
     for (size_t i = 0; i < network.size(); ++i) {
@@ -99,6 +100,7 @@ void forward_propagation_cpu(const std::vector<float>& input, std::vector<Layer>
         // Prepare input for the next layer
         current_input = current_output;
         input_size = layer_output_size;
+        LOG(SL::INFO) << DIM_GREEN << "layer " << i << RESET << std::endl;
     }
 }
 
@@ -120,9 +122,8 @@ void backpropagation_cpu(const std::vector<float>& input, const std::vector<floa
     // Compute gradients and update weights and biases in reverse order
     std::vector<float> delta;
 
-    LOG(SL::DEBUG) << "Backpropagation:" << std::endl;
+    LOG(SL::INFO) << "Backpropagation:" << std::endl;
     for (int i = network.size() - 1; i >= 0; --i) {
-        LOG(SL::DEBUG) << "layer " << i << std::endl;
         const std::vector<float>& output = network[i].output;
         // previous output equal to derivatives of z in respect to all weights connected to this z
         const std::vector<float>& previous_output = (i == 0) ? input : network[i - 1].output;
@@ -183,5 +184,6 @@ void backpropagation_cpu(const std::vector<float>& input, const std::vector<floa
             LOG(SL::DEBUG) << RESET << std::endl;
         }
         LOG(SL::DEBUG) << RESET << std::endl;
+        LOG(SL::INFO) << DIM_GREEN << "layer " << i << RESET << std::endl;
     }
 }
