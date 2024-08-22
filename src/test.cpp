@@ -50,13 +50,13 @@ std::vector<float> matrix_multiply_cpu_control(const std::vector<float>& A,
 }
 
 int main() {
-    SimpleLogger::load_config("cfg/config.ini");
+    SL::load_config("cfg/config.ini");
 
-    LOG(SimpleLogger::TRACE) << "This is a trace message." << "Msg2";
-    LOG(SimpleLogger::DEBUG) << "This is a debug message." << "Msg2";
-    LOG(SimpleLogger::INFO) << "This is an info message." << "Msg2" << std::endl;
-    LOG(SimpleLogger::ERROR) << "This is an error message." << "Msg2" << "\n";
-    LOG(SimpleLogger::FATAL) << "This is a fatal message." << "Msg2";
+    LOG(SL::TRACE) << "This is a trace message." << "Msg2";
+    LOG(SL::DEBUG) << "This is a debug message." << "Msg2";
+    LOG(SL::INFO) << "This is an info message." << "Msg2" << std::endl;
+    LOG(SL::ERROR) << "This is an error message." << "Msg2" << "\n";
+    LOG(SL::FATAL) << "This is a fatal message." << "Msg2";
 
     std::vector<float> delta(10, 1.0f);  // Vector of size 10
 

@@ -111,16 +111,6 @@ float cost_cpu(const std::vector<float>& predicted, const std::vector<float>& ac
     return cost;
 }
 
-// // Function to calculate cross-entropy loss
-// float cross_entropy_loss_cpu(const std::vector<float>& predicted, const std::vector<float>& actual) {
-//     float loss = 0.0f;
-//     for (size_t i = 0; i < predicted.size(); ++i) {
-//         loss -= actual[i] * std::log(predicted[i] + 1e-15f); // Add small epsilon to avoid log(0)
-//     }
-
-//     return loss;
-// }
-
 // for now just change network after each training example
 // later batch them together and calculate average. Then change.
 // when working with "next" and "previous" keep in mind that we walk backwards here

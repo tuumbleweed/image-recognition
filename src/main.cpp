@@ -20,7 +20,7 @@ std::vector<float> generate_one_hot_vector(uint8_t label, uint8_t length = 10) {
 }
 
 int main() {
-    SimpleLogger::load_config("cfg/config.ini");
+    SL::load_config("cfg/config.ini");
 
     auto [train_images, train_rows, train_cols] = read_images("tmp/train-images.idx3-ubyte");
     std::vector<uint8_t> train_labels = read_labels("tmp/train-labels.idx1-ubyte");
