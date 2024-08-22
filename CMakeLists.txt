@@ -19,6 +19,11 @@ list(FILTER SOURCES EXCLUDE REGEX ${MAIN_FILE})
 list(FILTER SOURCES EXCLUDE REGEX ${TEST_FILE})
 message("SOURCES: ${SOURCES}")
 
+# ----------------------------------- DEPENDENCIES ------------------------------------
+# Find Boost
+find_package(Boost 1.65 REQUIRED COMPONENTS program_options)
+include_directories(${Boost_INCLUDE_DIRS})
+
 # ----------------------------------- MAIN ------------------------------------
 # Add the main executable (including main.cpp and test.cpp)
 add_executable(ImageRecognition ${SOURCES} ${MAIN_FILE})
@@ -27,7 +32,7 @@ set_target_properties(ImageRecognition PROPERTIES
     CUDA_SEPARABLE_COMPILATION ON)  # Allows for separate compilation of CUDA code
 # Link CUDA libraries if needed
 find_package(CUDA REQUIRED)
-target_link_libraries(ImageRecognition ${CUDA_LIBRARIES})
+target_link_libraries(ImageRecognition ${CUDA_LIBRARIES} ${Boost_LIBRARIES})
 # Include directories for headers
 target_include_directories(ImageRecognition PRIVATE include)
 
@@ -39,6 +44,6 @@ message("SOURCES TEST: ${SOURCES}")
 set_target_properties(ImageRecognitionTest PROPERTIES
     CUDA_SEPARABLE_COMPILATION ON)
 # Link CUDA libraries for the test executable if needed
-target_link_libraries(ImageRecognitionTest ${CUDA_LIBRARIES})
+target_link_libraries(ImageRecognitionTest ${CUDA_LIBRARIES} ${Boost_LIBRARIES})
 # Include directories for headers in the test executable
 target_include_directories(ImageRecognitionTest PRIVATE include)

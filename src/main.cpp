@@ -10,9 +10,12 @@
 #include "normalize.h"
 #include "log.h"
 #include "train.h"
+#include "cml.h"
 
-int main() {
-    SL::load_config("cfg/config.ini");
+
+int main(int argc, char *argv[]) {
+    po::variables_map vm = parse_command_line(argc, argv);
+    SL::load_config(vm["config"].as<std::string>());
 
     const auto [train_images, train_rows, train_cols] = read_images("tmp/train-images.idx3-ubyte");
     const std::vector<uint8_t> train_labels = read_labels("tmp/train-labels.idx1-ubyte");
@@ -28,8 +31,10 @@ int main() {
     int output_size = 10;  // 10 classes for digit recognition
     std::vector<Layer> network = initialize_network(input_size, hidden_size1, hidden_size2, output_size);
 
-    // size_t how_many = train_images_norm.size();
-    size_t how_many = 10000;
+    size_t how_many = vm["number"].as<size_t>();
+    if (how_many == -1) {
+        how_many = train_images_norm.size();
+    }
     for (size_t i=0; i<how_many; i++) {
         train_on_one_image_cpu(i, train_labels[i], train_images_norm[i], network);
     }
