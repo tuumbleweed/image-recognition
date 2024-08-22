@@ -18,8 +18,8 @@ void train_on_one_image_cpu(const int counter, const uint8_t& label, const std::
     LOG(SL::DEBUG) << RESET << std::endl;
 
     float cost = cost_cpu(output, one_hot);
-    LOG(SL::INFO) << "Cost: " << BLUE << cost << RESET << std::endl;
+    LOG(SL::NOTICE) << "Cost: " << BLUE << cost << RESET << std::endl;
 
-    backpropagation_cpu(train_image, one_hot, network, 0.001);
+    backpropagation_cpu(train_image, one_hot, network, 0.0001);
     print_network(network);
 }
