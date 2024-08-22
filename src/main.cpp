@@ -1,4 +1,3 @@
-#include <cstdint>
 #include <iostream>
 #include <tuple>
 #include <vector>
@@ -10,14 +9,6 @@
 #include "layer.h"
 #include "normalize.h"
 #include "log.h"
-
-std::vector<float> generate_one_hot_vector(uint8_t label, uint8_t length = 10) {
-    std::vector<float> one_hot_vector(length, 0.0f);
-    if (label < length) {
-        one_hot_vector[label] = 1.0f;
-    }
-    return one_hot_vector;
-}
 
 int main() {
     SL::load_config("cfg/config.ini");

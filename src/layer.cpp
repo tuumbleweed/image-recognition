@@ -88,3 +88,11 @@ void print_network(const std::vector<Layer>& network) {
         LOG(SL::INFO) << RESET << std::endl;
     }
 }
+
+std::vector<float> generate_one_hot_vector(uint8_t label, uint8_t length) {
+    std::vector<float> one_hot_vector(length, 0.0f);
+    if (label < length) {
+        one_hot_vector[label] = 1.0f;
+    }
+    return one_hot_vector;
+}

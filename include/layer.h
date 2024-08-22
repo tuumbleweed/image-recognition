@@ -2,6 +2,7 @@
 #define LAYER_H
 
 #include <vector>
+#include <cstdint>
 
 // Structure to represent a layer in the neural network
 struct Layer {
@@ -24,5 +25,7 @@ std::vector<std::vector<float>> initialize_weights(int input_dim, int output_dim
 std::vector<Layer> initialize_network(int input_size, int hidden_size1, int hidden_size2, int output_size);
 
 void print_network(const std::vector<Layer>& network);
+
+std::vector<float> generate_one_hot_vector(uint8_t label, uint8_t length = 10);
 
 #endif // LAYER_H
