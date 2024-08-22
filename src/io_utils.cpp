@@ -7,7 +7,7 @@
 
 #include "log.h"
 
-void print_image(std::vector<float>& image, int& rows, int& cols) {
+void print_image(const std::vector<float>& image, const int& rows, const int& cols) {
     for (int r = 0; r < rows; ++r) {
         for (int c = 0; c < cols; ++c) {
             if (image[r * cols + c] == 0.0f) {

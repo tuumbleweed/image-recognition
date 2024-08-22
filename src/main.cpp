@@ -28,7 +28,9 @@ int main() {
     int output_size = 10;  // 10 classes for digit recognition
     std::vector<Layer> network = initialize_network(input_size, hidden_size1, hidden_size2, output_size);
 
-    for (size_t i=0; i<train_images_norm.size(); i++) {
+    // size_t how_many = train_images_norm.size();
+    size_t how_many = 10000;
+    for (size_t i=0; i<how_many; i++) {
         train_on_one_image_cpu(i, train_labels[i], train_images_norm[i], network);
     }
 
