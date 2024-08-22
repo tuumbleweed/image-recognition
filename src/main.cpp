@@ -9,6 +9,7 @@
 #include "layer.h"
 #include "normalize.h"
 #include "log.h"
+#include "train.h"
 
 int main() {
     SL::load_config("cfg/config.ini");
@@ -25,30 +26,13 @@ int main() {
     int hidden_size1 = 16;
     int hidden_size2 = 16;
     int output_size = 10;  // 10 classes for digit recognition
+    std::vector<Layer> network = initialize_network(input_size, hidden_size1, hidden_size2, output_size);
 
     // Example: Using the first training image for forward propagation
     std::vector<float>& first_train_image = train_images_norm[0];
     uint8_t first_train_label = test_labels[0];
-    // std::vector<float> output;
 
-    std::vector<Layer> network = initialize_network(input_size, hidden_size1, hidden_size2, output_size);
-    std::vector<float> one_hot = generate_one_hot_vector(first_train_label);
-
-    // Perform forward propagation on the GPU
-    forward_propagation_cpu(first_train_image, network);
-    // Print the output
-    std::vector<float> output = network[network.size() - 1].output;
-    LOG(SL::DEBUG) << "Output probabilities (CPU):" << GREY << std::endl;
-    for (size_t i = 0; i < output.size(); ++i) {
-        LOG(SL::DEBUG) << i << ": " << output[i] << ", ";
-    }
-    LOG(SL::DEBUG) << RESET << std::endl;
-
-    float cost = cost_cpu(output, one_hot);
-    LOG(SL::INFO) << "Cost: " << BLUE << cost << RESET << std::endl;
-
-    backpropagation_cpu(first_train_image, one_hot, network, 0.001);
-    print_network(network);
+    train_on_one_image_cpu(first_train_label, first_train_image, network);
 
     // LOG(SL::DEBUG) << "Outputs (CPU):" << std::endl;
     // for (size_t i = 0; i < network.size(); ++i) {
