@@ -75,13 +75,13 @@ void SL::load_config(const std::string& config_file) {
 
 std::string SL::log_level_to_string(LogLevel level) {
     switch (level) {
-        case FATAL: return "FATAL";
-        case ERROR: return "ERROR";
+        case FATAL:   return "FATAL";
+        case ERROR:   return "ERROR";
         case WARNING: return "WARNING";
-        case INFO:  return "INFO";
-        case DEBUG: return "DEBUG";
-        case TRACE: return "TRACE";
-        default:    return "UNKNOWN";
+        case INFO:    return "INFO";
+        case DEBUG:   return "DEBUG";
+        case TRACE:   return "TRACE";
+        default:      return "UNKNOWN";
     }
 }
 
