@@ -14,18 +14,18 @@ inline void printBacktrace() {
     int frameCount = backtrace(frames, maxFrames);
     char** symbols = backtrace_symbols(frames, frameCount);
 
-    std::cerr << GREY << "Backtrace:" << std::endl;
+    LOG(SL::ERROR) << GREY << "Backtrace:" << std::endl;
     for (int i = 0; i < frameCount; ++i) {
-        std::cerr << symbols[i] << std::endl;
+        LOG(SL::ERROR) << symbols[i] << std::endl;
     }
-    std::cerr << RESET;
+    LOG(SL::ERROR) << RESET;
 
     free(symbols);
 }
 
 inline void checkCudaError(cudaError_t error, const char* file, int line) {
     if (error != cudaSuccess) {
-        std::cerr << RED << "CUDA Error: " << cudaGetErrorString(error) << " at " << file << ":" << line << RESET
+        LOG(SL::ERROR) << RED << "CUDA Error: " << cudaGetErrorString(error) << " at " << file << ":" << line << RESET
                   << std::endl;
         printBacktrace();
         std::exit(EXIT_FAILURE);

@@ -23,7 +23,7 @@ void print_image(std::vector<float>& image, int& rows, int& cols) {
 std::tuple<std::vector<std::vector<uint8_t>>, int, int> read_images(const std::string& filename) {
     std::ifstream file(filename, std::ios::binary);
     if (!file) {
-        std::cerr << "Cannot open file: " << filename << std::endl;
+        LOG(SL::ERROR) << "Cannot open file: " << filename << std::endl;
         return {};
     }
 
@@ -55,7 +55,7 @@ std::tuple<std::vector<std::vector<uint8_t>>, int, int> read_images(const std::s
 std::vector<uint8_t> read_labels(const std::string& filename) {
     std::ifstream file(filename, std::ios::binary);
     if (!file) {
-        std::cerr << "Cannot open file: " << filename << std::endl;
+        LOG(SL::ERROR) << "Cannot open file: " << filename << std::endl;
         return {};
     }
 

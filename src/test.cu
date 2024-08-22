@@ -25,7 +25,7 @@ std::vector<float> multiply_on_gpu(const std::vector<float>& A, const std::vecto
     // LOG(SL::DEBUG) << "b_length: " << b_length << std::endl;
     // LOG(SL::DEBUG) << "b_width: " << b_width << std::endl;
     if (a_length != b_width) {
-        std::cerr << "a_length != b_width, " << a_length << " != " << b_width << std::endl;
+        LOG(SL::ERROR) << "a_length != b_width, " << a_length << " != " << b_width << std::endl;
         exit(EXIT_FAILURE);
     }
     int a_length_b_width = b_width;
