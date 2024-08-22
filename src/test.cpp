@@ -18,9 +18,9 @@ std::vector<float> matrix_multiply_cpu_control(const std::vector<float>& A,
     int a_length = A.size();
     int b_length = B.size();
     int b_width = B[0].size();
-    // std::cout << "a_length: " << a_length << std::endl;
-    // std::cout << "b_length: " << b_length << std::endl;
-    // std::cout << "b_width: " << b_width << std::endl;
+    // LOG(SL::DEBUG) << "a_length: " << a_length << std::endl;
+    // LOG(SL::DEBUG) << "b_length: " << b_length << std::endl;
+    // LOG(SL::DEBUG) << "b_width: " << b_width << std::endl;
     if (a_length != b_width) {
         std::cerr << "a_length != b_width, " << a_length << " != " << b_width << std::endl;
         exit(EXIT_FAILURE);
@@ -28,7 +28,7 @@ std::vector<float> matrix_multiply_cpu_control(const std::vector<float>& A,
     int a_length_b_width = b_width;
     std::vector<float> result(b_length);
 
-    std::cout << "matrix_multiply_cpu_proper operations:\n";
+    LOG(SL::DEBUG) << "matrix_multiply_cpu_proper operations:\n";
     for (int b_row = 0; b_row < b_length; b_row++) {
         float sum = 0.0f;
         float bias_value = biases[b_row];
@@ -37,13 +37,13 @@ std::vector<float> matrix_multiply_cpu_control(const std::vector<float>& A,
             float b_value = B[b_row][ab_index];
             float value = a_value * b_value;
             sum += value;
-            std::cout << a_value << "*" << b_value << "=" << value << " ";
+            LOG(SL::DEBUG) << a_value << "*" << b_value << "=" << value << " ";
             if (ab_index < a_length_b_width-1) {
-                std::cout << "+ ";
+                LOG(SL::DEBUG) << "+ ";
             }
         }
         result[b_row] = sum + bias_value;
-        std::cout << "+ " << bias_value << " | == " << sum << std::endl;
+        LOG(SL::DEBUG) << "+ " << bias_value << " | == " << sum << std::endl;
     }
 
     return result;
@@ -52,11 +52,11 @@ std::vector<float> matrix_multiply_cpu_control(const std::vector<float>& A,
 int main() {
     SL::load_config("cfg/config.ini");
 
-    LOG(SL::TRACE) << "This is a trace message." << "Msg2";
-    LOG(SL::DEBUG) << "This is a debug message." << "Msg2";
-    LOG(SL::INFO) << "This is an info message." << "Msg2" << std::endl;
-    LOG(SL::ERROR) << "This is an error message." << "Msg2" << "\n";
-    LOG(SL::FATAL) << "This is a fatal message." << "Msg2";
+    // LOG(SL::TRACE) << "This is a trace message." << "Msg2";
+    // LOG(SL::DEBUG) << "This is a debug message." << "Msg2";
+    // LOG(SL::INFO) << "This is an info message." << "Msg2" << std::endl;
+    // LOG(SL::ERROR) << "This is an error message." << "Msg2" << "\n";
+    // LOG(SL::FATAL) << "This is a fatal message." << "Msg2";
 
     std::vector<float> delta(10, 1.0f);  // Vector of size 10
 
@@ -64,7 +64,7 @@ int main() {
     delta.resize(8);
 
     delta[5] = 0.0f;
-    std::cout << "Delta: " << delta[5] << " " << delta[7] << std::endl;
+    LOG(SL::DEBUG) << "Delta: " << delta[5] << " " << delta[7] << std::endl;
 
     // tet what chentd
     std::vector<float> A = {0.5, 1.2, -0.7, 3.4};
@@ -78,23 +78,23 @@ int main() {
     std::vector<float> cpu_control_output = matrix_multiply_cpu_control(A, B, biases);
     std::vector<float> cpu_output = matrix_multiply_cpu(A, B, biases, 4, 3);
     std::vector<float> gpu_output = multiply_on_gpu(A, B, biases);
-    std::cout << "matrix_multiply_cpu_control: ";
+    LOG(SL::DEBUG) << "matrix_multiply_cpu_control: ";
     for (float& value : cpu_control_output) {
-        std::cout << value << " ";
+        LOG(SL::DEBUG) << value << " ";
     }
-    std::cout << std::endl;
-    std::cout << "matrix_multiply_cpu: ";
+    LOG(SL::DEBUG) << std::endl;
+    LOG(SL::DEBUG) << "matrix_multiply_cpu: ";
     for (float& value : cpu_output) {
-        std::cout << value << " ";
+        LOG(SL::DEBUG) << value << " ";
     }
-    std::cout << std::endl;
+    LOG(SL::DEBUG) << std::endl;
 
     // Print the result
-    std::cout << "multiply_on_gpu: ";
+    LOG(SL::DEBUG) << "multiply_on_gpu: ";
     for (float& value : gpu_output) {
-        std::cout << value << " ";
+        LOG(SL::DEBUG) << value << " ";
     }
-    std::cout << std::endl;
+    LOG(SL::DEBUG) << std::endl;
 
     return 0;
 }

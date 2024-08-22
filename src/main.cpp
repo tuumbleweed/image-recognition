@@ -47,35 +47,35 @@ int main() {
     forward_propagation_cpu(first_train_image, network);
     // Print the output
     std::vector<float> output = network[network.size() - 1].output;
-    std::cout << "Output probabilities (CPU):" << GREY << std::endl;
+    LOG(SL::DEBUG) << "Output probabilities (CPU):" << GREY << std::endl;
     for (size_t i = 0; i < output.size(); ++i) {
-        std::cout << i << ": " << output[i] << ", ";
+        LOG(SL::DEBUG) << i << ": " << output[i] << ", ";
     }
-    std::cout << RESET << std::endl;
+    LOG(SL::DEBUG) << RESET << std::endl;
 
     float cost = cost_cpu(output, one_hot);
-    std::cout << "Cost: " << BLUE << cost << RESET << std::endl;
+    LOG(SL::DEBUG) << "Cost: " << BLUE << cost << RESET << std::endl;
 
     backpropagation_cpu(first_train_image, one_hot, network, 0.001);
     print_network(network);
 
-    // std::cout << "Outputs (CPU):" << std::endl;
+    // LOG(SL::DEBUG) << "Outputs (CPU):" << std::endl;
     // for (size_t i = 0; i < network.size(); ++i) {
-    //     std::cout << "Output " << i << ":" << GREY << std::endl;
+    //     LOG(SL::DEBUG) << "Output " << i << ":" << GREY << std::endl;
     //     for (size_t k = 0; k < network[i].output.size(); ++k) {
-    //         std::cout << network[i].output[k] << " ";
+    //         LOG(SL::DEBUG) << network[i].output[k] << " ";
     //     }
-    //     std::cout << RESET << std::endl << std::endl;
+    //     LOG(SL::DEBUG) << RESET << std::endl << std::endl;
     // }
-    // std::cout << RESET << std::endl << std::endl;
+    // LOG(SL::DEBUG) << RESET << std::endl << std::endl;
 
     // forward_propagation_gpu(first_train_image, network, output);
     // // Print the output (softmax probabilities)
-    // std::cout << "Output probabilities (GPU):" << GREY << std::endl;
+    // LOG(SL::DEBUG) << "Output probabilities (GPU):" << GREY << std::endl;
     // for (size_t i = 0; i < output.size(); ++i) {
-    //     std::cout << i << ": " << output[i] << ", ";
+    //     LOG(SL::DEBUG) << i << ": " << output[i] << ", ";
     // }
-    // std::cout << RESET << std::endl << std::endl;
+    // LOG(SL::DEBUG) << RESET << std::endl << std::endl;
 
     return 0;
 }

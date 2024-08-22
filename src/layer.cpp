@@ -15,30 +15,30 @@ Layer initialize_weights_and_biases(int input_dim, int output_dim) {
     std::mt19937 gen(rd());
     std::normal_distribution<float> dist(0.0f, 1.0f / std::sqrt(input_dim));  // Xavier initialization
 
-    std::cout << "------------------------------------ Initialize weights (" << input_dim << 'x' << output_dim
+    LOG(SL::DEBUG) << "------------------------------------ Initialize weights (" << input_dim << 'x' << output_dim
               << ") ------------------------------------" << std::endl;
     for (int i = 0; i < output_dim; ++i) {
-        std::cout << "Initialize weights (" << input_dim << 'x' << output_dim << "), " << i + 1 << '/' << output_dim
+        LOG(SL::DEBUG) << "Initialize weights (" << input_dim << 'x' << output_dim << "), " << i + 1 << '/' << output_dim
                   << ":" << GREY << std::endl;
         for (int j = 0; j < input_dim; ++j) {
             layer.weights[i][j] = dist(gen);
-            std::cout << layer.weights[i][j] << " ";
+            LOG(SL::DEBUG) << layer.weights[i][j] << " ";
         }
-        std::cout << RESET << std::endl;
+        LOG(SL::DEBUG) << RESET << std::endl;
         layer.biases[i] = dist(gen);
     }
-    std::cout << "Initialize Biases (" << 1 << 'x' << output_dim << "):" << GREY << std::endl;
+    LOG(SL::DEBUG) << "Initialize Biases (" << 1 << 'x' << output_dim << "):" << GREY << std::endl;
     for (int i = 0; i < output_dim; ++i) {
-        std::cout << layer.biases[i] << " ";
+        LOG(SL::DEBUG) << layer.biases[i] << " ";
     }
-    std::cout << RESET << "\n" << std::endl;
+    LOG(SL::DEBUG) << RESET << "\n" << std::endl;
     return layer;
 }
 
 // Function to initialize the network layers and their weights
 std::vector<Layer> initialize_network(int input_size, int hidden_size1, int hidden_size2, int output_size) {
-    std::cout << "Initializing network " << input_size << 'x' << hidden_size1;
-    std::cout << 'x' << hidden_size2 << 'x' << output_size << std::endl;
+    LOG(SL::DEBUG) << "Initializing network " << input_size << 'x' << hidden_size1;
+    LOG(SL::DEBUG) << 'x' << hidden_size2 << 'x' << output_size << std::endl;
     std::vector<Layer> network;
 
     // Initialize weights between input layer and first hidden layer
@@ -59,24 +59,24 @@ std::vector<Layer> initialize_network(int input_size, int hidden_size1, int hidd
 void print_network(const std::vector<Layer>& network) {
     for (int k = 0; k < network.size(); ++k) {
         const Layer& layer = network[k];
-        std::cout << "------------------------------------ Layer " << k << " ------------------------------------" << std::endl;
+        LOG(SL::DEBUG) << "------------------------------------ Layer " << k << " ------------------------------------" << std::endl;
         for (int i = 0; i < layer.weights.size(); ++i) {
-            std::cout << "Weights " << i + 1 << '/' << layer.weights.size()
+            LOG(SL::DEBUG) << "Weights " << i + 1 << '/' << layer.weights.size()
                     << ":" << GREY << std::endl;
             for (const float& weight : layer.weights[i]) {
-                 std::cout << weight << " ";
+                 LOG(SL::DEBUG) << weight << " ";
             }
-            std::cout << RESET << std::endl;
+            LOG(SL::DEBUG) << RESET << std::endl;
         }
-        std::cout << "Biases (" << 1 << 'x' << layer.biases.size() << "):" << GREY << std::endl;
+        LOG(SL::DEBUG) << "Biases (" << 1 << 'x' << layer.biases.size() << "):" << GREY << std::endl;
         for (int i = 0; i < layer.biases.size(); ++i) {
-            std::cout << layer.biases[i] << " ";
+            LOG(SL::DEBUG) << layer.biases[i] << " ";
         }
-        std::cout << RESET << "\n" << std::endl;
-        std::cout << "Activations (" << 1 << 'x' << layer.output.size() << "):" << GREY << std::endl;
+        LOG(SL::DEBUG) << RESET << "\n" << std::endl;
+        LOG(SL::DEBUG) << "Activations (" << 1 << 'x' << layer.output.size() << "):" << GREY << std::endl;
         for (int i = 0; i < layer.output.size(); ++i) {
-            std::cout << layer.output[i] << " ";
+            LOG(SL::DEBUG) << layer.output[i] << " ";
         }
-        std::cout << RESET << "\n" << std::endl;
+        LOG(SL::DEBUG) << RESET << "\n" << std::endl;
     }
 }

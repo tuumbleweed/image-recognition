@@ -20,10 +20,10 @@ std::vector<float> multiply_on_gpu(const std::vector<float>& A, const std::vecto
     int b_length = B.size();    // Number of rows in B
     int b_width = B[0].size();  // Number of columns in B
     int biases_length = biases.size();
-    // std::cout << "a_length: " << a_length << std::endl;
-    // std::cout << "b_flat_length: " << b_flat_length << std::endl;
-    // std::cout << "b_length: " << b_length << std::endl;
-    // std::cout << "b_width: " << b_width << std::endl;
+    // LOG(SL::DEBUG) << "a_length: " << a_length << std::endl;
+    // LOG(SL::DEBUG) << "b_flat_length: " << b_flat_length << std::endl;
+    // LOG(SL::DEBUG) << "b_length: " << b_length << std::endl;
+    // LOG(SL::DEBUG) << "b_width: " << b_width << std::endl;
     if (a_length != b_width) {
         std::cerr << "a_length != b_width, " << a_length << " != " << b_width << std::endl;
         exit(EXIT_FAILURE);

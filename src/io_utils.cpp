@@ -11,12 +11,12 @@ void print_image(std::vector<float>& image, int& rows, int& cols) {
     for (int r = 0; r < rows; ++r) {
         for (int c = 0; c < cols; ++c) {
             if (image[r * cols + c] == 0.0f) {
-                std::cout << std::setw(5) << 0 << " ";
+                LOG(SL::DEBUG) << std::setw(5) << 0 << " ";
             } else {
-                std::cout << std::fixed << std::setprecision(3) << std::setw(5) << image[r * cols + c] << " ";
+                LOG(SL::DEBUG) << std::fixed << std::setprecision(3) << std::setw(5) << image[r * cols + c] << " ";
             }
         }
-        std::cout << std::endl;
+        LOG(SL::DEBUG) << std::endl;
     }
 }
 

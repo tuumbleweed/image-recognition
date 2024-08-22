@@ -92,7 +92,7 @@ void forward_propagation_gpu(const std::vector<float>& input, const std::vector<
     float* current_input = gpu_input;
     float* current_output = nullptr;
 
-    std::cout << "------------------------------------ Activation Output (GPU) ------------------------------------"
+    LOG(SL::DEBUG) << "------------------------------------ Activation Output (GPU) ------------------------------------"
               << std::endl;
     for (size_t i = 0; i < network.size(); ++i) {
         int layer_output_size = network[i].weights.size();
@@ -112,11 +112,11 @@ void forward_propagation_gpu(const std::vector<float>& input, const std::vector<
         cudaMemcpyWrapper(temp_output.data(), current_output, layer_output_size * sizeof(float),
                           cudaMemcpyDeviceToHost);
 
-        std::cout << "Layer " << i << " Pre-Activation Output (GPU):" << GREY << std::endl;
+        LOG(SL::DEBUG) << "Layer " << i << " Pre-Activation Output (GPU):" << GREY << std::endl;
         for (int j = 0; j < layer_output_size; ++j) {
-            std::cout << temp_output[j] << " ";
+            LOG(SL::DEBUG) << temp_output[j] << " ";
         }
-        std::cout << RESET << std::endl;
+        LOG(SL::DEBUG) << RESET << std::endl;
 
         // Apply Sigmoid activation function
         apply_sigmoid_gpu<<<(layer_output_size + 255) / 256, 256>>>(current_output, layer_output_size);
@@ -125,11 +125,11 @@ void forward_propagation_gpu(const std::vector<float>& input, const std::vector<
         cudaMemcpyWrapper(temp_output.data(), current_output, layer_output_size * sizeof(float),
                           cudaMemcpyDeviceToHost);
 
-        std::cout << "Layer " << i << " Post-Activation Output (GPU):" << GREY << std::endl;
+        LOG(SL::DEBUG) << "Layer " << i << " Post-Activation Output (GPU):" << GREY << std::endl;
         for (int j = 0; j < layer_output_size; ++j) {
-            std::cout << temp_output[j] << " ";
+            LOG(SL::DEBUG) << temp_output[j] << " ";
         }
-        std::cout << RESET << std::endl;
+        LOG(SL::DEBUG) << RESET << std::endl;
 
         current_input = current_output;  // Update input for next layer
         input_size = layer_output_size;
