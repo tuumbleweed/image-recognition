@@ -27,6 +27,16 @@ const std::string BRIGHT_MAGENTA = "\033[95m";// (🟪) Bright Magenta
 const std::string BRIGHT_CYAN = "\033[96m";   // (🟦🟩) Bright Cyan
 const std::string BRIGHT_WHITE = "\033[97m";  // (⬜) Bright White
 
+// Dim text colors
+const std::string DIM_BLACK = "\033[2;30m";   // (⚫) Dim Black
+const std::string DIM_RED = "\033[2;31m";     // (🟥) Dim Red
+const std::string DIM_GREEN = "\033[2;32m";   // (🟩) Dim Green
+const std::string DIM_YELLOW = "\033[2;33m";  // (🟨) Dim Yellow
+const std::string DIM_BLUE = "\033[2;34m";    // (🟦) Dim Blue
+const std::string DIM_MAGENTA = "\033[2;35m"; // (🟪) Dim Magenta
+const std::string DIM_CYAN = "\033[2;36m";    // (🟦🟩) Dim Cyan
+const std::string DIM_WHITE = "\033[2;37m";   // (⬜) Dim White
+
 // Background colors
 const std::string BG_BLACK = "\033[40m";      // (⚫) Black background
 const std::string BG_RED = "\033[41m";        // (🟥) Red background
@@ -50,6 +60,7 @@ const std::string BG_BRIGHT_WHITE = "\033[107m";  // (⬜) Bright White backgrou
 
 // Text styles
 const std::string BOLD = "\033[1m";           // Bold text
+const std::string DIM = "\033[2m";            // Dim text
 const std::string UNDERLINE = "\033[4m";      // Underlined text
 const std::string INVERSE = "\033[7m";        // Inverse (swap foreground and background colors)
 const std::string HIDDEN = "\033[8m";         // Hidden text
