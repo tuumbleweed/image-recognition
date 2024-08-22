@@ -5,6 +5,6 @@
 
 #include "layer.h"
 
-void train_on_one_image_cpu(uint8_t& label, std::vector<float>& train_image, std::vector<Layer>& network);
+void train_on_one_image_cpu(const uint8_t& label, const std::vector<float>& train_image, std::vector<Layer>& network);
 
 #endif // TRAIN_H

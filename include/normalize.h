@@ -8,6 +8,6 @@
 std::vector<float> normalize(const std::vector<uint8_t>& input);
 
 // Function to normalize all images
-std::vector<std::vector<float>> normalize_all(std::vector<std::vector<uint8_t>>& images);
+std::vector<std::vector<float>> normalize_all(const std::vector<std::vector<uint8_t>>& images);
 
 #endif // NORMALIZE_H

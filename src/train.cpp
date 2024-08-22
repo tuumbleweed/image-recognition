@@ -4,7 +4,7 @@
 #include "log.h"
 #include "cpu.h"
 
-void train_on_one_image_cpu(uint8_t& label, std::vector<float>& train_image, std::vector<Layer>& network) {
+void train_on_one_image_cpu(const uint8_t& label, const std::vector<float>& train_image, std::vector<Layer>& network) {
     std::vector<float> one_hot = generate_one_hot_vector(label);
     // Perform forward propagation on the GPU
     forward_propagation_cpu(train_image, network);
