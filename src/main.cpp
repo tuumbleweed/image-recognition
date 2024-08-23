@@ -1,6 +1,8 @@
 #include <iostream>
 #include <tuple>
 #include <vector>
+#include <iomanip>
+#include <thread>
 
 #include "colors.h"
 #include "cpu.h"
@@ -11,7 +13,6 @@
 #include "log.h"
 #include "train.h"
 #include "cml.h"
-#include <iomanip>
 
 
 int main(int argc, char *argv[]) {
@@ -26,17 +27,20 @@ int main(int argc, char *argv[]) {
     const std::vector<std::vector<float>> train_images_norm = normalize_all(train_images);
     const std::vector<std::vector<float>> test_images_norm = normalize_all(test_images);
 
-    int input_size = train_rows * train_cols;  // 784 for 28x28 images
-    int hidden_size1 = 16;
-    int hidden_size2 = 16;
-    int output_size = 10;  // 10 classes for digit recognition
-    int learning_rate = 0.0001;
+    const int input_size = train_rows * train_cols;  // 784 for 28x28 images
+    const int hidden_size1 = 16;
+    const int hidden_size2 = 16;
+    const int output_size = 10;  // 10 classes for digit recognition
+    const float learning_rate = 0.01;
     std::vector<Layer> network = initialize_network(input_size, hidden_size1, hidden_size2, output_size);
 
     size_t how_many = vm["number"].as<size_t>();
     if (how_many == -1) {
         how_many = train_images_norm.size();
     }
+    LOG(SL::NOTICE) << "(CPU) Training network with " << BLUE << how_many << RESET << " images and " << BLUE << learning_rate << RESET << " learning rate\n";
+    std::this_thread::sleep_for(std::chrono::seconds(1)); // Waits for 1 second
+    LOG(SL::NOTICE) << std::endl;
     for (size_t i=0; i<how_many; i++) {
         train_on_one_image_cpu(i, learning_rate, train_labels[i], train_images_norm[i], network);
     }
