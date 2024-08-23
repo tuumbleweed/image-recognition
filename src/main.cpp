@@ -11,6 +11,7 @@
 #include "log.h"
 #include "train.h"
 #include "cml.h"
+#include <iomanip>
 
 
 int main(int argc, char *argv[]) {
@@ -38,6 +39,19 @@ int main(int argc, char *argv[]) {
     for (size_t i=0; i<how_many; i++) {
         train_on_one_image_cpu(i, train_labels[i], train_images_norm[i], network);
     }
+
+    int correct_count = 0;
+    int total_tests = test_labels.size();
+
+    for (int i = 0; i < total_tests; ++i) {
+        bool correct = test_one_image_cpu(i, test_labels[i], test_images_norm[i], network);
+        if (correct) {
+            ++correct_count;
+        }
+    }
+
+    double success_rate = (static_cast<double>(correct_count) / total_tests) * 100.0;
+    std::cout << "Success rate: " << std::fixed << std::setprecision(2) << success_rate << "%" << std::endl;
 
     // forward_propagation_gpu(first_train_image, network, output);
     // // Print the output (softmax probabilities)

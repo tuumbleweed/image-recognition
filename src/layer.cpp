@@ -90,6 +90,7 @@ void print_network(const std::vector<Layer>& network) {
         }
         LOG(log_level) << RESET << std::endl;
     }
+    LOG(SL::INFO) << std::endl;
 }
 
 std::vector<float> generate_one_hot_vector(uint8_t label, uint8_t length) {
