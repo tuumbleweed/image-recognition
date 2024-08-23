@@ -24,5 +24,6 @@ cmake -B build -S . && cmake --build build && ./build/ImageRecognitionTest
 - ~~Update weights and biases~~
 - ~~Training loop~~
 - ~~Testing using test images~~
-- It isn't training correctly, stuck at 0.9 cost
-    - Feed data in batches of N
+- ~~It isn't training correctly, stuck at 0.9 cost~~
+- Experiment with learning rate
+- Feed data in batches of N
