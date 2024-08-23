@@ -7,7 +7,7 @@
 #include "cpu.h"
 #include "io_utils.h"
 
-void train_on_one_image_cpu(const int counter, const uint8_t& label, const std::vector<float>& train_image, std::vector<Layer>& network) {
+void train_on_one_image_cpu(const int counter, float learning_rate, const uint8_t& label, const std::vector<float>& train_image, std::vector<Layer>& network) {
     print_image(train_image, 28, 28);
     LOG(SL::NOTICE) << "(CPU) Processing image " << BLUE << counter << RESET << ", label: " << BLUE << static_cast<int>(label) << RESET << std::endl;
     std::vector<float> one_hot = generate_one_hot_vector(label);
@@ -24,7 +24,7 @@ void train_on_one_image_cpu(const int counter, const uint8_t& label, const std::
     float cost = cost_cpu(output, one_hot);
     LOG(SL::NOTICE) << "Cost: " << BLUE << cost << RESET << std::endl;
 
-    backpropagation_cpu(train_image, one_hot, network, 0.0001);
+    backpropagation_cpu(train_image, one_hot, network, learning_rate);
     print_network(network);
 }
 

@@ -30,6 +30,7 @@ int main(int argc, char *argv[]) {
     int hidden_size1 = 16;
     int hidden_size2 = 16;
     int output_size = 10;  // 10 classes for digit recognition
+    int learning_rate = 0.001;  // 10 classes for digit recognition
     std::vector<Layer> network = initialize_network(input_size, hidden_size1, hidden_size2, output_size);
 
     size_t how_many = vm["number"].as<size_t>();
@@ -37,7 +38,7 @@ int main(int argc, char *argv[]) {
         how_many = train_images_norm.size();
     }
     for (size_t i=0; i<how_many; i++) {
-        train_on_one_image_cpu(i, train_labels[i], train_images_norm[i], network);
+        train_on_one_image_cpu(i, learning_rate, train_labels[i], train_images_norm[i], network);
     }
 
     int correct_count = 0;
