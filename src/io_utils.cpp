@@ -5,6 +5,7 @@
 #include <iostream>
 #include <tuple>
 
+#include "colors.h"
 #include "log.h"
 
 void print_image(const std::vector<float>& image, const int& rows, const int& cols) {
@@ -21,6 +22,7 @@ void print_image(const std::vector<float>& image, const int& rows, const int& co
 }
 
 std::tuple<std::vector<std::vector<uint8_t>>, int, int> read_images(const std::string& filename) {
+    LOG(SL::NOTICE) << "Reading images " << BLUE << filename << RESET << std::endl;
     std::ifstream file(filename, std::ios::binary);
     if (!file) {
         LOG(SL::ERROR) << "Cannot open file: " << filename << std::endl;
@@ -53,6 +55,7 @@ std::tuple<std::vector<std::vector<uint8_t>>, int, int> read_images(const std::s
 }
 
 std::vector<uint8_t> read_labels(const std::string& filename) {
+    LOG(SL::NOTICE) << "Reading labels " << BLUE << filename << RESET << std::endl;
     std::ifstream file(filename, std::ios::binary);
     if (!file) {
         LOG(SL::ERROR) << "Cannot open file: " << filename << std::endl;

@@ -3,6 +3,7 @@
 #include <cmath>
 #include <iostream>
 #include <random>
+#include <thread>
 
 #include "colors.h"
 #include "log.h"
@@ -36,8 +37,8 @@ Layer initialize_weights_and_biases(const int input_dim, const int output_dim) {
 
 // Function to initialize the network layers and their weights
 std::vector<Layer> initialize_network(const int input_size, const int hidden_size1, const int hidden_size2, const int output_size) {
-    LOG(SL::INFO) << "Initializing network " << BLUE << input_size << 'x' << hidden_size1;
-    LOG(SL::INFO) << 'x' << hidden_size2 << 'x' << output_size << RESET << std::endl;
+    LOG(SL::NOTICE) << "Initializing network " << BLUE << input_size << 'x' << hidden_size1;
+    LOG(SL::NOTICE) << 'x' << hidden_size2 << 'x' << output_size << RESET << std::endl;
     std::vector<Layer> network;
 
     // Initialize weights between input layer and first hidden layer
@@ -51,6 +52,9 @@ std::vector<Layer> initialize_network(const int input_size, const int hidden_siz
     // Initialize weights between second hidden layer and output layer
     Layer hidden2_to_output = initialize_weights_and_biases(hidden_size2, output_size);
     network.push_back(hidden2_to_output);
+
+    std::this_thread::sleep_for(std::chrono::seconds(1)); // Waits for 1 second
+    LOG(SL::NOTICE) << std::endl;
 
     return network;
 }

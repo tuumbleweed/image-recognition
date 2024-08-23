@@ -1,4 +1,6 @@
 #include "normalize.h"
+
+#include "colors.h"
 #include "log.h"
 
 // Function to normalize a vector of uint8_t values to a vector of float values
@@ -12,6 +14,7 @@ std::vector<float> normalize(const std::vector<uint8_t>& input) {
 
 // Function to normalize all images
 std::vector<std::vector<float>> normalize_all(const std::vector<std::vector<uint8_t>>& images) {
+    LOG(SL::NOTICE) << "Normalizing " << BLUE << images.size() << RESET << " images" << std::endl;
     std::vector<std::vector<float>> normalized_images;
     normalized_images.reserve(images.size());
 
