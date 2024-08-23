@@ -25,3 +25,4 @@ cmake -B build -S . && cmake --build build && ./build/ImageRecognitionTest
 - ~~Training loop~~
 - ~~Testing using test images~~
 - It isn't training correctly, stuck at 0.9 cost
+    - Feed data in batches of N
