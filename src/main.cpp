@@ -26,11 +26,11 @@ int main(int argc, char *argv[]) {
     const std::vector<std::vector<float>> train_images_norm = normalize_all(train_images);
     const std::vector<std::vector<float>> test_images_norm = normalize_all(test_images);
 
-    int input_size = 28 * 28;  // 784 for 28x28 images
+    int input_size = train_rows * train_cols;  // 784 for 28x28 images
     int hidden_size1 = 16;
     int hidden_size2 = 16;
     int output_size = 10;  // 10 classes for digit recognition
-    int learning_rate = 0.001;  // 10 classes for digit recognition
+    int learning_rate = 0.0001;
     std::vector<Layer> network = initialize_network(input_size, hidden_size1, hidden_size2, output_size);
 
     size_t how_many = vm["number"].as<size_t>();
