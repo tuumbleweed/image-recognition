@@ -23,5 +23,5 @@ cmake -B build -S . && cmake --build build && ./build/ImageRecognitionTest
 - ~~Backpropagation~~
 - ~~Update weights and biases~~
 - ~~Training loop~~
+- ~~Testing using test images~~
 - It isn't training correctly, stuck at 0.9 cost
-- Testing using test images
