@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
     const int hidden_size1 = 16;
     const int hidden_size2 = 16;
     const int output_size = 10;  // 10 classes for digit recognition
-    const float learning_rate = 0.1;
+    const float learning_rate = 0.04;
     std::vector<Layer> network = initialize_network(input_size, hidden_size1, hidden_size2, output_size);
 
     size_t how_many = vm["number"].as<size_t>();
@@ -55,8 +55,8 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    double success_rate = (static_cast<double>(correct_count) / total_tests) * 100.0;
-    std::cout << "Success rate: " << std::fixed << std::setprecision(2) << success_rate << "%" << std::endl;
+    float success_rate = (static_cast<float>(correct_count) / total_tests) * 100.0;
+    LOG(SL::NOTICE) << "Got success rate " << GREEN << std::fixed << std::setprecision(2) << success_rate << "%" << RESET << " for learing rate " << GREEN << learning_rate << RESET << std::endl;
 
     // forward_propagation_gpu(first_train_image, network, output);
     // // Print the output (softmax probabilities)
