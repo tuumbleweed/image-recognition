@@ -170,7 +170,7 @@ void backpropagation_cpu(const std::vector<float>& input, const std::vector<floa
         LOG(SL::DEBUG) << "Change weights and biases for layer " << i << ":"<< std::endl;
         // Update weights and biases
         for (size_t j = 0; j < network[i].weights.size(); ++j) {
-            LOG(SL::DEBUG) << "Weights " << j << ":" << GREY  << std::endl;
+            LOG(SL::DEBUG) << "Weights " << j << "x" << network[i].weights[j].size() << ":" << GREY  << std::endl;
             for (size_t k = 0; k < network[i].weights[j].size(); ++k) {
                 // dC/dw(L) = a(L-1)*delta
                 LOG(SL::DEBUG) << network[i].weights[j][k] << "-=" << learning_rate << "*" << delta[j] << "*" << previous_output[k] << " ";
