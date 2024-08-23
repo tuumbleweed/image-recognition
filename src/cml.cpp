@@ -7,7 +7,8 @@ po::variables_map parse_command_line(int argc, char *argv[]) {
     desc.add_options()
         ("help,h", "produce help message")
         ("number,n", po::value<size_t>()->default_value(-1), "How many images to train on, default is the whole data set")
-        ("config,c", po::value<std::string>()->default_value("cfg/config.ini"), "Config file");
+        ("config,c", po::value<std::string>()->default_value("cfg/config.ini"), "Config file")
+        ("learning-rate,lr", po::value<float>()->default_value(0.05f), "Learning rate");
 
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);

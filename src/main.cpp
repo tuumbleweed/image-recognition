@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
     const int hidden_size1 = 16;
     const int hidden_size2 = 16;
     const int output_size = 10;  // 10 classes for digit recognition
-    const float learning_rate = 0.04;
+    const float learning_rate = vm["learning-rate"].as<float>();
     std::vector<Layer> network = initialize_network(input_size, hidden_size1, hidden_size2, output_size);
 
     size_t how_many = vm["number"].as<size_t>();
