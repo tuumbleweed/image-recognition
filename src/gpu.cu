@@ -49,8 +49,7 @@ __global__ void matrix_multiply_gpu(const float* A, const float* B, const float*
 }
 
 // Function to initialize memory, copy data, and run forward propagation
-void forward_propagation_gpu(const std::vector<float>& input, const std::vector<Layer>& network,
-                             std::vector<float>& output) {
+void forward_propagation_gpu(const std::vector<float>& input, std::vector<Layer>& network) {
     int input_size = input.size();
     int output_size = network.back().weights.size();
 
@@ -133,11 +132,8 @@ void forward_propagation_gpu(const std::vector<float>& input, const std::vector<
 
         current_input = current_output;  // Update input for next layer
         input_size = layer_output_size;
+        network[i].output = temp_output;
     }
-
-    // Copy the result back to the host
-    output.resize(output_size);
-    cudaMemcpyWrapper(output.data(), current_output, output_size * sizeof(float), cudaMemcpyDeviceToHost);
 
     // Free GPU memory
     cudaFreeWrapper(gpu_input);

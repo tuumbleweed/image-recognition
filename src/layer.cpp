@@ -25,13 +25,15 @@ Layer initialize_weights_and_biases(const int input_dim, const int output_dim) {
             LOG(SL::DEBUG) << layer.weights[i][j] << " ";
         }
         LOG(SL::DEBUG) << RESET << std::endl;
-        layer.biases[i] = dist(gen);
     }
     LOG(SL::DEBUG) << "Initialize Biases (" << 1 << 'x' << output_dim << "):" << GREY << std::endl;
+    // 2 loops only because I want to print stuff separately
     for (int i = 0; i < output_dim; ++i) {
+        layer.biases[i] = dist(gen);
         LOG(SL::DEBUG) << layer.biases[i] << " ";
     }
     LOG(SL::DEBUG) << RESET << "\n" << std::endl;
+
     return layer;
 }
 

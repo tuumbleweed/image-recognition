@@ -5,9 +5,7 @@
 #include <vector>
 
 // Forward declaration of functions that are used in main.cpp
-void forward_propagation_gpu(const std::vector<float>& input,
-                             const std::vector<Layer>& network,
-                             std::vector<float>& output);
+void forward_propagation_gpu(const std::vector<float>& input, std::vector<Layer>& network);
 
 #ifdef __CUDACC__ // This ensures the following code is only compiled by nvcc
 __device__ double sigmoid_gpu(double x);

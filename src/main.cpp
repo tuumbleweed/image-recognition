@@ -3,6 +3,7 @@
 #include <vector>
 #include <iomanip>
 #include <thread>
+#include <chrono>
 
 #include "colors.h"
 #include "cpu.h"
@@ -38,15 +39,18 @@ int main(int argc, char *argv[]) {
     if (how_many == -1) {
         how_many = train_images_norm.size();
     }
+    int total_tests = test_labels.size();
+
+    auto cpu_start_time = std::chrono::high_resolution_clock::now();
     LOG(SL::NOTICE) << "(CPU) Training network with " << BLUE << how_many << RESET << " images and " << BLUE << learning_rate << RESET << " learning rate\n";
     std::this_thread::sleep_for(std::chrono::seconds(1)); // Waits for 1 second
     LOG(SL::NOTICE) << std::endl;
     for (size_t i=0; i<how_many; i++) {
         train_on_one_image_cpu(i, learning_rate, train_labels[i], train_images_norm[i], network);
     }
+    auto cpu_train_end_time = std::chrono::high_resolution_clock::now();
 
     int correct_count = 0;
-    int total_tests = test_labels.size();
 
     for (int i = 0; i < total_tests; ++i) {
         bool correct = test_one_image_cpu(i, test_labels[i], test_images_norm[i], network);
@@ -54,15 +58,45 @@ int main(int argc, char *argv[]) {
             ++correct_count;
         }
     }
+    float cpu_success_rate = (static_cast<float>(correct_count) / total_tests) * 100.0;
+    auto cpu_test_end_time = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> cpu_train_duration = cpu_train_end_time - cpu_start_time;
+    std::chrono::duration<double> cpu_test_duration = cpu_test_end_time - cpu_train_end_time;
+    LOG(SL::NOTICE) << "(CPU) Got success rate " << GREEN << std::fixed << std::setprecision(2) << cpu_success_rate << "%"
+        << RESET << " for learing rate " << GREEN << learning_rate << RESET
+        << " train duration: " << GREEN << cpu_train_duration.count() << RESET
+        << " test duration: " << GREEN << cpu_test_duration.count() << RESET << std::endl;
 
-    float success_rate = (static_cast<float>(correct_count) / total_tests) * 100.0;
-    LOG(SL::NOTICE) << "Got success rate " << GREEN << std::fixed << std::setprecision(2) << success_rate << "%" << RESET << " for learing rate " << GREEN << learning_rate << RESET << std::endl;
+    auto gpu_start_time = std::chrono::high_resolution_clock::now();
+    LOG(SL::NOTICE) << "(GPU) Training network with " << BLUE << how_many << RESET << " images and " << BLUE << learning_rate << RESET << " learning rate\n";
+    std::this_thread::sleep_for(std::chrono::seconds(1)); // Waits for 1 second
+    LOG(SL::NOTICE) << std::endl;
+    for (size_t i=0; i<how_many; i++) {
+        train_on_one_image_gpu(i, learning_rate, train_labels[i], train_images_norm[i], network);
+    }
+    auto gpu_train_end_time = std::chrono::high_resolution_clock::now();
 
-    // forward_propagation_gpu(first_train_image, network, output);
-    // // Print the output (softmax probabilities)
+    int gpu_correct_count = 0;
+
+    for (int i = 0; i < total_tests; ++i) {
+        bool correct = test_one_image_cpu(i, test_labels[i], test_images_norm[i], network);
+        if (correct) {
+            ++correct_count;
+        }
+    }
+    float gpu_success_rate = (static_cast<float>(correct_count) / total_tests) * 100.0;
+    auto gpu_test_end_time = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> gpu_train_duration = gpu_train_end_time - gpu_start_time;
+    std::chrono::duration<double> gpu_test_duration = gpu_test_end_time - gpu_train_end_time;
+    LOG(SL::NOTICE) << "(GPU) Got success rate " << GREEN << std::fixed << std::setprecision(2) << gpu_success_rate << "%"
+        << RESET << " for learing rate " << GREEN << learning_rate << RESET
+        << " train duration: " << GREEN << gpu_train_duration.count() << RESET
+        << " test duration: " << GREEN << gpu_test_duration.count() << RESET << std::endl;
+
+    // forward_propagation_gpu(train_images_norm[0], network);
     // LOG(SL::DEBUG) << "Output probabilities (GPU):" << GREY << std::endl;
-    // for (size_t i = 0; i < output.size(); ++i) {
-    //     LOG(SL::DEBUG) << i << ": " << output[i] << ", ";
+    // for (size_t i = 0; i < network[network.size()-1].output.size(); ++i) {
+    //     LOG(SL::DEBUG) << i << ": " << network[network.size()-1].output[i] << ", ";
     // }
     // LOG(SL::DEBUG) << RESET << std::endl << std::endl;
 
