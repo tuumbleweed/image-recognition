@@ -18,7 +18,7 @@
 
 int main(int argc, char *argv[]) {
     po::variables_map vm = parse_command_line(argc, argv);
-    SL::load_config(vm["config"].as<std::string>());
+    SL::set_log_level(SL::string_to_log_level(vm["log"].as<std::string>()));
 
     const auto [train_images, train_rows, train_cols] = read_images("tmp/train-images.idx3-ubyte");
     const std::vector<uint8_t> train_labels = read_labels("tmp/train-labels.idx1-ubyte");

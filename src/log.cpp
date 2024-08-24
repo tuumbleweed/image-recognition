@@ -35,6 +35,7 @@ SL::~SL() {
 }
 
 void SL::set_log_level(LogLevel level) {
+    std::cerr << "Setting log level to " << BLUE << log_level_to_string(level) << RESET << std::endl;
     global_log_level_ = level;
 }
 
@@ -87,6 +88,7 @@ std::string SL::log_level_to_string(LogLevel level) {
 }
 
 SL::LogLevel SL::string_to_log_level(const std::string& level_str) {
+    std::cerr << "-l is " << BLUE << level_str << RESET << std::endl;
     if (level_str == "FATAL") return FATAL;
     if (level_str == "ERROR") return ERROR;
     if (level_str == "WARNING") return WARNING;

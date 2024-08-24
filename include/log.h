@@ -38,6 +38,7 @@ public:
     static void set_log_level(LogLevel level);
     static bool should_log(LogLevel level);
     static void load_config(const std::string& config_file);
+    static LogLevel string_to_log_level(const std::string& level_str);
 
 private:
     LogLevel log_level_;
@@ -46,7 +47,6 @@ private:
     static std::mutex log_mutex_;
 
     static std::string log_level_to_string(LogLevel level);
-    static LogLevel string_to_log_level(const std::string& level_str);
     static std::string trim(const std::string& str);
 };
 
