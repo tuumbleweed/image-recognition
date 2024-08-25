@@ -25,7 +25,7 @@ inline void printBacktrace() {
 
 inline void checkCudaError(cudaError_t error, const char* file, int line) {
     if (error != cudaSuccess) {
-        LOG(SL::ERROR) << RED << "CUDA Error: " << cudaGetErrorString(error) << " at " << file << ":" << line << RESET
+        LOG(SL::ERROR) << RED << "\nCUDA Error: " << cudaGetErrorString(error) << " at " << file << ":" << line << RESET
                   << std::endl;
         printBacktrace();
         std::exit(EXIT_FAILURE);
