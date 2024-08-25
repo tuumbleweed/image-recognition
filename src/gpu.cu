@@ -231,19 +231,23 @@ void network_from_gpu_to_host(std::vector<Layer>& network, std::vector<GPULayer>
         Layer& cpu_layer = network[i];
         GPULayer& gpu_layer = gpu_network[i];
 
+        size_t input_dim = cpu_layer.weights[0].size();
+        size_t output_dim = cpu_layer.weights.size();
+
         // Copy weights from GPU to CPU
-        for (size_t j = 0; j < cpu_layer.weights.size(); ++j) {
-            for (size_t k = 0; k < cpu_layer.weights[j].size(); ++k) {
-                cpu_layer.weights[j][k] = gpu_layer.weights[j * cpu_layer.weights[j].size() + k];
-            }
+        for (size_t j = 0; j < output_dim; ++j) {
+            cudaMemcpyWrapper(cpu_layer.weights[j].data(), 
+                              gpu_layer.weights + j * input_dim, 
+                              input_dim * sizeof(float), 
+                              cudaMemcpyDeviceToHost);
         }
+
         // Copy biases from GPU to CPU
-        for (size_t j = 0; j < cpu_layer.biases.size(); ++j) {
-            cpu_layer.biases[j] = gpu_layer.biases[j];
-        }
+        cudaMemcpyWrapper(cpu_layer.biases.data(), gpu_layer.biases, 
+                          output_dim * sizeof(float), cudaMemcpyDeviceToHost);
+
         // Copy output from GPU to CPU
-        for (size_t j = 0; j < cpu_layer.output.size(); ++j) {
-            cpu_layer.output[j] = gpu_layer.output[j];
-        }
+        cudaMemcpyWrapper(cpu_layer.output.data(), gpu_layer.output, 
+                          output_dim * sizeof(float), cudaMemcpyDeviceToHost);
     }
 }
