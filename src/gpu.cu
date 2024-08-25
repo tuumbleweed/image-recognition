@@ -193,12 +193,13 @@ void backpropagation_gpu(const std::vector<float>& input, const std::vector<floa
 
     // Backward propagation through the layers
     for (int i = network.size() - 1; i >= 0; --i) {
+        LOG(SL::INFO) << "layer " << i << std::endl;
         const std::vector<float>& output = network[i].output;
         const std::vector<float>& previous_output = (i == 0) ? input : network[i - 1].output;
         float* gpu_previous_output = (i == 0) ? gpu_input : gpu_network[i - 1].output;
         // float* next_weights;
 
-        LOG(SL::DEBUG) << "Computing deltas:" << GREY << std::endl;
+        LOG(SL::DEBUG) << "Computing deltas for layer " << i << GREY << std::endl;
         if (i == network.size() - 1) {
             // For output layer
             compute_delta_output_gpu<<<(output.size() + 255) / 256, 256>>>(gpu_network[i].output, gpu_actual, delta, output.size());
@@ -217,7 +218,6 @@ void backpropagation_gpu(const std::vector<float>& input, const std::vector<floa
         // Update weights and biases
         update_weights_biases_gpu<<<(output.size() + 255) / 256, 256>>>(gpu_network[i].weights, gpu_network[i].biases, gpu_previous_output, delta, output.size(), previous_output.size(), learning_rate);
         LOG(SL::DEBUG) << RESET << std::endl;
-        LOG(SL::INFO) << DIM_GREEN << "layer " << i << RESET << std::endl;
     }
 
     // Free GPU memory
