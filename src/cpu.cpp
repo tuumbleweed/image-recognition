@@ -70,7 +70,7 @@ void forward_propagation_cpu(const std::vector<float>& input, std::vector<Layer>
     std::vector<float> current_input = input;
     std::vector<float> current_output;
 
-    LOG(SL::INFO) << "Forward Propagation:" << std::endl;
+    LOG(SL::INFO) << "(CPU) Forward Propagation:" << std::endl;
     LOG(SL::DEBUG) << "------------------------------------ Activation Output (CPU) ------------------------------------"
               << std::endl;
     for (size_t i = 0; i < network.size(); ++i) {
