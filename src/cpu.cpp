@@ -140,7 +140,7 @@ void backpropagation_cpu(const std::vector<float>& input, const std::vector<floa
                 // derivative of cost to a multiplied by derivative of a to z (sigmoid)
                 // can remove 2.0f and reflect it in learning rate to remove this multiplication
                 delta[j] = (output[j] - actual[j]) * sigmoid_derivative_cpu(output[j]);
-                LOG(SL::DEBUG) << "(" << output[j] << "-" << actual[j] << ")*" << sigmoid_derivative_cpu(output[j]) << "=";
+                LOG(SL::DEBUG) << output[j] << "-" << actual[j] << ") * " << sigmoid_derivative_cpu(output[j]) << " = ";
                 LOG(SL::DEBUG) << delta[j] << "\n";
             }
         } else {
@@ -162,8 +162,9 @@ void backpropagation_cpu(const std::vector<float>& input, const std::vector<floa
                         LOG(SL::DEBUG) << " + ";
                     }
                 }
-                delta[j] *= sigmoid_derivative_cpu(output[j]);
-                LOG(SL::DEBUG) << ") * " << sigmoid_derivative_cpu(output[j]) << " = " << delta[j] << std::endl;
+                float sigmoid_derivative = sigmoid_derivative_cpu(output[j]);
+                delta[j] *= sigmoid_derivative;
+                LOG(SL::DEBUG) << ") * " << sigmoid_derivative << " = " << delta[j] << std::endl;
             }
         }
         LOG(SL::DEBUG) << RESET << std::endl;
