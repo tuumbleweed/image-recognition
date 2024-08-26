@@ -41,7 +41,10 @@ bool test_one_image_cpu(const int counter, const uint8_t& label, const std::vect
     std::vector<float>& output = network.back().output;
     LOG(SL::DEBUG) << "Output probabilities (CPU):" << GREY << std::endl;
     for (size_t i = 0; i < output.size(); ++i) {
-        LOG(SL::DEBUG) << i << ": " << output[i] << ", ";
+        LOG(SL::DEBUG) << i << ": " << output[i];
+        if (i < output.size() - 1) {
+            LOG(SL::DEBUG) << ", ";
+        }
     }
     LOG(SL::DEBUG) << RESET << std::endl;
     print_network(network);
@@ -68,7 +71,10 @@ void train_on_one_image_gpu(const int counter, const float learning_rate, const 
     std::vector<float> output = network.back().output;
     LOG(SL::DEBUG) << "Output probabilities (GPU):" << GREY << std::endl;
     for (size_t i = 0; i < output.size(); ++i) {
-        LOG(SL::DEBUG) << i << ": " << output[i] << ", ";
+        LOG(SL::DEBUG) << i << ": " << output[i];
+        if (i < output.size() - 1) {
+            LOG(SL::DEBUG) << ", ";
+        }
     }
     LOG(SL::DEBUG) << RESET << std::endl;
 
