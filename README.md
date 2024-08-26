@@ -10,6 +10,7 @@ cmake --build build # build using makefile
 # together
 cmake -B build -S . && cmake --build build && ./build/ImageRecognition
 cmake -B build -S . && cmake --build build && ./build/ImageRecognitionTest
+cmake -B build -S . && cmake --build build && ./build/ImageRecognition --gpu --cpu -l DEBUG --test 0 -n 1
 ```
 
 
@@ -32,3 +33,4 @@ cmake -B build -S . && cmake --build build && ./build/ImageRecognitionTest
 - GPU testing
 - Stop moving data from gpu to host with each image (only after N images)
 - Feed data in batches of N
+
