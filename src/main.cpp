@@ -36,6 +36,7 @@ int main(int argc, char *argv[]) {
     const bool cpu = vm["cpu"].as<bool>();
     const bool gpu = vm["gpu"].as<bool>();
     std::vector<Layer> network = initialize_network(input_size, hidden_size1, hidden_size2, output_size);
+    std::vector<Layer> network_copy = network;
 
     size_t how_many = vm["number"].as<size_t>();
     if (how_many == -1) {
@@ -80,14 +81,14 @@ int main(int argc, char *argv[]) {
         std::this_thread::sleep_for(std::chrono::seconds(1)); // Waits for 1 second
         LOG(SL::NOTICE) << std::endl;
         for (size_t i=0; i<how_many; i++) {
-            train_on_one_image_gpu(i, learning_rate, train_labels[i], train_images_norm[i], network);
+            train_on_one_image_gpu(i, learning_rate, train_labels[i], train_images_norm[i], network_copy);
         }
         auto train_end_time = std::chrono::high_resolution_clock::now();
 
         int correct_count = 0;
 
         for (int i = 0; i < total_tests; ++i) {
-            bool correct = test_one_image_cpu(i, test_labels[i], test_images_norm[i], network);
+            bool correct = test_one_image_cpu(i, test_labels[i], test_images_norm[i], network_copy);
             if (correct) {
                 ++correct_count;
             }
