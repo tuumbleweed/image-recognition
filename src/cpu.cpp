@@ -130,12 +130,13 @@ void backpropagation_cpu(const std::vector<float>& input, const std::vector<floa
 
         // Calculate the error
         // dC to dA(L), dA(L) to dZ are calculeted separately
-        LOG(SL::DEBUG) << "Computing deltas:" << GREY << std::endl;
+        LOG(SL::DEBUG) << "Computing deltas for layer " << i << GREY << std::endl;
         if (i == network.size() - 1) {
             // For output layer, use one hot vector (actual) to calculate dC to dA(L)
             delta.resize(output.size());
             // for each output
             for (size_t j = 0; j < output.size(); ++j) {
+                LOG(SL::DEBUG) << "Delta " << j << ": (";
                 // derivative of cost to a multiplied by derivative of a to z (sigmoid)
                 // can remove 2.0f and reflect it in learning rate to remove this multiplication
                 delta[j] = (output[j] - actual[j]) * sigmoid_derivative_cpu(output[j]);
@@ -157,7 +158,7 @@ void backpropagation_cpu(const std::vector<float>& input, const std::vector<floa
                     // we are not in the last layer so i+1 is fine
                     delta[j] += next_delta[k] * network[i + 1].weights[k][j];
                     LOG(SL::DEBUG) << next_delta[k] << "*" << network[i + 1].weights[k][j];
-                    if (k > next_delta.size()-1) {
+                    if (k < next_delta.size()-1) {
                         LOG(SL::DEBUG) << " + ";
                     }
                 }
