@@ -41,7 +41,10 @@ int main(int argc, char *argv[]) {
     if (how_many == -1) {
         how_many = train_images_norm.size();
     }
-    int total_tests = test_labels.size();
+    size_t total_tests = vm["test"].as<size_t>();
+    if (total_tests == -1) {
+        total_tests = train_images_norm.size();
+    }
 
     if (cpu) {
         auto start_time = std::chrono::high_resolution_clock::now();
