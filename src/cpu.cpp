@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <cstdlib> // For the exit function
+#include <iomanip>
 
 #include "colors.h"
 #include "layer.h"
@@ -130,7 +131,7 @@ void backpropagation_cpu(const std::vector<float>& input, const std::vector<floa
 
         // Calculate the error
         // dC to dA(L), dA(L) to dZ are calculeted separately
-        LOG(SL::DEBUG) << "Computing deltas for layer " << i << GREY << std::endl;
+        LOG(SL::DEBUG) << "Computing deltas for layer " << i << " (CPU)" << GREY << std::endl;
         if (i == network.size() - 1) {
             // For output layer, use one hot vector (actual) to calculate dC to dA(L)
             delta.resize(output.size());
@@ -140,7 +141,7 @@ void backpropagation_cpu(const std::vector<float>& input, const std::vector<floa
                 // derivative of cost to a multiplied by derivative of a to z (sigmoid)
                 // can remove 2.0f and reflect it in learning rate to remove this multiplication
                 delta[j] = (output[j] - actual[j]) * sigmoid_derivative_cpu(output[j]);
-                LOG(SL::DEBUG) << output[j] << "-" << actual[j] << ") * " << sigmoid_derivative_cpu(output[j]) << " = ";
+                LOG(SL::DEBUG) << std::fixed << std::setprecision(6) << output[j] << "-" << actual[j] << ") * " << sigmoid_derivative_cpu(output[j]) << " = ";
                 LOG(SL::DEBUG) << delta[j] << "\n";
             }
         } else {
