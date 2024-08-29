@@ -36,6 +36,9 @@ cmake -B build -S . && cmake --build build && ./build/ImageRecognition --gpu --c
     - float* next_delta = delta + max_output_size - network[i + 1].output.size(); points to wrong location.
         16-10=6 next delta points to 6 instead of 0 and rest of values are 0
     - It's fixed, all GPU calculations are equal to CPU for both layer 0 and 1
+    - Finally both CPU an GPU work the same (60-80% accuracy)
+        (CPU) Got success rate 76.97% for learing rate 0.05 train duration: 59.26 test duration: 6.84
+        (GPU) Got success rate 71.57% for learing rate 0.05 train duration: 142.02 test duration: 6.19
 - GPU testing
 - Stop moving data from gpu to host with each image (only after N images)
 - Feed data in batches of N
