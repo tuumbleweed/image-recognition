@@ -28,14 +28,14 @@ cmake -B build -S . && cmake --build build && ./build/ImageRecognition --gpu --c
 - ~~It isn't training correctly, stuck at 0.9 cost~~
 - ~~Experiment with learning rate (Success rate of 60-80% is achieved with learning rate from 0.05 to 0.08)~~
 - ~~GPU training~~
-- Have an option to print all the calculations (gonna be very slow since we need to shadow all the calculations on cpu).
-- See why you get only 30-40% accuracy with GPU as opposed to 60-80% with CPU
+- ~~See why you get only 30-40% accuracy with GPU as opposed to 60-80% with CPU~~
     - Layer 2 is the same
     - Layer 1 is different
     - Error is most likely in compute_delta_hidden_gpu
     - in compute_delta_hidden_gpu it multiplies wrong things when computing deltas on layers 2 and 1
-        also in layer 1 lot's of values are 0 for some reason
+    - float* next_delta = delta + max_output_size - network[i + 1].output.size(); points to wrong location.
+        16-10=6 next delta points to 6 instead of 0 and rest of values are 0
+    - It's fixed, all GPU calculations are equal to CPU for both layer 0 and 1
 - GPU testing
 - Stop moving data from gpu to host with each image (only after N images)
 - Feed data in batches of N
-
