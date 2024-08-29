@@ -43,8 +43,8 @@ int main(int argc, char *argv[]) {
         how_many = train_images_norm.size();
     }
     size_t total_tests = vm["test"].as<size_t>();
-    if (total_tests == -1) {
-        total_tests = train_images_norm.size();
+    if ((total_tests == -1) || (total_tests > test_images_norm.size())) {
+        total_tests = test_images_norm.size();
     }
 
     if (cpu) {
@@ -59,6 +59,9 @@ int main(int argc, char *argv[]) {
 
         int correct_count = 0;
 
+        LOG(SL::NOTICE) << "(CPU) Testing network with " << BLUE << total_tests << RESET << " images\n";
+        std::this_thread::sleep_for(std::chrono::seconds(1)); // Waits for 1 second
+        LOG(SL::NOTICE) << std::endl;
         for (int i = 0; i < total_tests; ++i) {
             bool correct = test_one_image_cpu(i, test_labels[i], test_images_norm[i], network);
             if (correct) {
@@ -87,6 +90,9 @@ int main(int argc, char *argv[]) {
 
         int correct_count = 0;
 
+        LOG(SL::NOTICE) << "(GPU) Testing network with " << BLUE << total_tests << RESET << " images\n";
+        std::this_thread::sleep_for(std::chrono::seconds(1)); // Waits for 1 second
+        LOG(SL::NOTICE) << std::endl;
         for (int i = 0; i < total_tests; ++i) {
             bool correct = test_one_image_cpu(i, test_labels[i], test_images_norm[i], network_copy);
             if (correct) {
