@@ -68,9 +68,9 @@ __global__ void compute_delta_hidden_gpu(const float* next_delta, const float* n
         for (int k = 0; k < next_size; ++k) {
             sum += next_delta[k] * next_weights[k * current_size + j];
             // printf("%.6f*%.6f", next_delta[k], next_weights[k * current_size + j]);
-            if (k < next_size-1) {
-                printf(" + ");
-            }
+            // if (k < next_size-1) {
+            //     printf(" + ");
+            // }
         }
         delta[j] = sum * sigmoid_derivative_gpu(output[j]);
         // printf(") * %.6f = %.6f\n", sigmoid_derivative_gpu(output[j]), delta[j]);
