@@ -19,6 +19,7 @@
 int main(int argc, char *argv[]) {
     po::variables_map vm = parse_command_line(argc, argv);
     SL::set_log_level(SL::string_to_log_level(vm["log"].as<std::string>()));
+    unsigned int seed = vm["seed"].as<unsigned int>();
 
     const auto [train_images, train_rows, train_cols] = read_images("tmp/train-images.idx3-ubyte");
     const std::vector<uint8_t> train_labels = read_labels("tmp/train-labels.idx1-ubyte");
@@ -35,7 +36,7 @@ int main(int argc, char *argv[]) {
     const float learning_rate = vm["learning-rate"].as<float>();
     const bool cpu = vm["cpu"].as<bool>();
     const bool gpu = vm["gpu"].as<bool>();
-    std::vector<Layer> network = initialize_network(input_size, hidden_size1, hidden_size2, output_size);
+    std::vector<Layer> network = initialize_network(input_size, hidden_size1, hidden_size2, output_size, seed);
     std::vector<Layer> network_copy = network;
 
     size_t how_many = vm["number"].as<size_t>();

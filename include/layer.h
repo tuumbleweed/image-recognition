@@ -18,11 +18,10 @@ struct Layer {
     }
 };
 
-// Helper function to initialize the weights of a layer
-std::vector<std::vector<float>> initialize_weights(int input_dim, int output_dim);
+Layer initialize_weights_and_biases(const int input_dim, const int output_dim, unsigned int seed);
 
 // Function to initialize the network layers and their weights
-std::vector<Layer> initialize_network(int input_size, int hidden_size1, int hidden_size2, int output_size);
+std::vector<Layer> initialize_network(int input_size, int hidden_size1, int hidden_size2, int output_size, unsigned int seed);
 
 void print_network(const std::vector<Layer>& network);
 

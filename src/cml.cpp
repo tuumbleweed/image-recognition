@@ -12,7 +12,8 @@ po::variables_map parse_command_line(int argc, char *argv[]) {
         ("config,c", po::value<std::string>()->default_value("cfg/config.ini"), "Config file")
         ("cpu", po::bool_switch()->default_value(false), "Use cpu")
         ("gpu", po::bool_switch()->default_value(false), "Use gpu")
-        ("learning-rate,lr", po::value<float>()->default_value(0.05f), "Learning rate");
+        ("learning-rate,lr", po::value<float>()->default_value(0.05f), "Learning rate")
+        ("seed,s", po::value<unsigned int>()->default_value(0), "Seed for initializing network weights and biases. Set to 0 to use random seed.");
 
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
