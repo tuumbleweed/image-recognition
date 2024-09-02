@@ -11,10 +11,12 @@ struct GPULayer {
 };
 
 // Forward declaration of functions that are used in main.cpp
-std::vector<GPULayer> forward_propagation_gpu(const std::vector<float>& input, std::vector<Layer>& network);
+void forward_propagation_gpu(const std::vector<float>& input, std::vector<Layer>& network, std::vector<GPULayer>& gpu_network);
 void backpropagation_gpu(const std::vector<float>& input, const std::vector<float>& actual, 
                          std::vector<Layer>& network, std::vector<GPULayer>& gpu_network, float learning_rate);
 void network_from_gpu_to_host(std::vector<Layer>& network, std::vector<GPULayer>& gpu_network);
+std::vector<GPULayer> allocate_network_data_on_gpu(std::vector<Layer>& network);
+void deallocate_network_data_on_gpu(std::vector<GPULayer>& gpu_network);
 
 #ifdef __CUDACC__ // This ensures the following code is only compiled by nvcc
 __device__ float sigmoid_gpu(float x);

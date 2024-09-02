@@ -96,7 +96,7 @@ __global__ void matrix_multiply_gpu(const float* A, const float* B, const float*
     }
 }
 
-std::vector<GPULayer> allocate_network_data_on_gpu(const std::vector<float>& input, std::vector<Layer>& network) {
+std::vector<GPULayer> allocate_network_data_on_gpu(std::vector<Layer>& network) {
     // Allocate and copy weights for each layer to the GPU
     LOG(SL::INFO) << "Allocating data on gpu" << std::endl;
     std::vector<GPULayer> gpu_network(network.size());
@@ -123,8 +123,18 @@ std::vector<GPULayer> allocate_network_data_on_gpu(const std::vector<float>& inp
     return gpu_network;
 }
 
+void deallocate_network_data_on_gpu(std::vector<GPULayer>& gpu_network) {
+    // Allocate and copy weights for each layer to the GPU
+    LOG(SL::INFO) << "Deallocating data on gpu" << std::endl;
+    for (size_t i = 0; i < gpu_network.size(); ++i) {
+        cudaFreeWrapper(gpu_network[i].weights);
+        cudaFreeWrapper(gpu_network[i].biases);
+        cudaFreeWrapper(gpu_network[i].output);
+    }
+}
+
 // Function to initialize memory, copy data, and run forward propagation
-std::vector<GPULayer> forward_propagation_gpu(const std::vector<float>& input, std::vector<Layer>& network) {
+void forward_propagation_gpu(const std::vector<float>& input, std::vector<Layer>& network, std::vector<GPULayer>& gpu_network) {
     int input_size = input.size();
 
     float* d_input;
@@ -132,30 +142,25 @@ std::vector<GPULayer> forward_propagation_gpu(const std::vector<float>& input, s
     cudaMallocWrapper(reinterpret_cast<void**>(&d_input), input_size * sizeof(float));
     // Copy the input data to the GPU
     cudaMemcpyWrapper(d_input, input.data(), input_size * sizeof(float), cudaMemcpyHostToDevice);
-    std::vector<GPULayer> gpu_network = allocate_network_data_on_gpu(input, network);
 
     // Forward propagation through the layers
     float* current_input = d_input;
-    float* current_output = nullptr;
     LOG(SL::INFO) << "(GPU) Forward Propagation:" << std::endl;
     LOG(SL::DEBUG) << "------------------------------------ Activation Output (GPU) ------------------------------------"
               << std::endl;
     for (size_t i = 0; i < network.size(); ++i) {
         int layer_output_size = network[i].weights.size();
 
-        // Allocate memory for current_output
-        cudaMallocWrapper(reinterpret_cast<void**>(&current_output), layer_output_size * sizeof(float));
-
         // Launch matrix multiplication kernel
         dim3 threadsPerBlock(16, 16);
         dim3 blocksPerGrid((layer_output_size + threadsPerBlock.x - 1) / threadsPerBlock.x,
                            (input_size + threadsPerBlock.y - 1) / threadsPerBlock.y);
-        matrix_multiply_gpu<<<blocksPerGrid, threadsPerBlock>>>(current_input, gpu_network[i].weights, gpu_network[i].biases, current_output, input_size,
+        matrix_multiply_gpu<<<blocksPerGrid, threadsPerBlock>>>(current_input, gpu_network[i].weights, gpu_network[i].biases, gpu_network[i].output, input_size,
                                                                 layer_output_size);
 
         // Debug: Check output after matrix multiplication
         std::vector<float> temp_output(layer_output_size);
-        cudaMemcpyWrapper(temp_output.data(), current_output, layer_output_size * sizeof(float),
+        cudaMemcpyWrapper(temp_output.data(), gpu_network[i].output, layer_output_size * sizeof(float),
                           cudaMemcpyDeviceToHost);
 
         LOG(SL::DEBUG) << "Layer " << i << " Pre-Activation Output (GPU):" << GREY << std::endl;
@@ -165,10 +170,10 @@ std::vector<GPULayer> forward_propagation_gpu(const std::vector<float>& input, s
         LOG(SL::DEBUG) << RESET << std::endl;
 
         // Apply Sigmoid activation function
-        apply_sigmoid_gpu<<<(layer_output_size + 255) / 256, 256>>>(current_output, layer_output_size);
+        apply_sigmoid_gpu<<<(layer_output_size + 255) / 256, 256>>>(gpu_network[i].output, layer_output_size);
 
         // Debug: Check output after activation
-        cudaMemcpyWrapper(temp_output.data(), current_output, layer_output_size * sizeof(float),
+        cudaMemcpyWrapper(temp_output.data(), gpu_network[i].output, layer_output_size * sizeof(float),
                           cudaMemcpyDeviceToHost);
 
         LOG(SL::DEBUG) << "Layer " << i << " Post-Activation Output (GPU):" << GREY << std::endl;
@@ -177,13 +182,11 @@ std::vector<GPULayer> forward_propagation_gpu(const std::vector<float>& input, s
         }
         LOG(SL::DEBUG) << RESET << std::endl;
 
-        current_input = current_output;  // Update input for next layer
-        gpu_network[i].output = current_output;
+        current_input = gpu_network[i].output;  // Update input for next layer
         input_size = layer_output_size;
         network[i].output = temp_output;
     }
-
-    return gpu_network;
+    cudaFreeWrapper(d_input);
 }
 
 void backpropagation_gpu(const std::vector<float>& input, const std::vector<float>& actual, 

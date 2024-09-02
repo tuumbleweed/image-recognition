@@ -65,8 +65,9 @@ void train_on_one_image_gpu(const int counter, const float learning_rate, const 
     print_image(train_image, 28, 28);
     LOG(SL::NOTICE) << "(GPU) Processing image " << BLUE << counter << RESET << ", label: " << BLUE << static_cast<int>(label) << RESET << std::endl;
     std::vector<float> one_hot = generate_one_hot_vector(label);
+    std::vector<GPULayer> gpu_network = allocate_network_data_on_gpu(network);
     // Perform forward propagation on the GPU
-    std::vector<GPULayer> gpu_network = forward_propagation_gpu(train_image, network);
+    forward_propagation_gpu(train_image, network, gpu_network);
     // Print the output
     std::vector<float> output = network.back().output;
     LOG(SL::DEBUG) << "Output probabilities (GPU):" << GREY << std::endl;
@@ -84,13 +85,16 @@ void train_on_one_image_gpu(const int counter, const float learning_rate, const 
     backpropagation_gpu(train_image, one_hot, network, gpu_network, learning_rate);
     network_from_gpu_to_host(network, gpu_network);
     print_network(network);
+
+    deallocate_network_data_on_gpu(gpu_network);
 }
 
 bool test_one_image_gpu(const int counter, const uint8_t& label, const std::vector<float>& train_image, std::vector<Layer>& network) {
     print_image(train_image, 28, 28);
     LOG(SL::NOTICE) << "(GPU) Processing image " << BLUE << counter << RESET << ", label: " << BLUE << static_cast<int>(label) << RESET << std::endl;
+    std::vector<GPULayer> gpu_network = allocate_network_data_on_gpu(network);
     // Perform forward propagation on the GPU
-    std::vector<GPULayer> gpu_network = forward_propagation_gpu(train_image, network);
+    forward_propagation_gpu(train_image, network, gpu_network);
     // Print the output
     std::vector<float>& output = network.back().output;
     LOG(SL::DEBUG) << "Output probabilities (CPU):" << GREY << std::endl;
