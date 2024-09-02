@@ -94,7 +94,7 @@ int main(int argc, char *argv[]) {
         std::this_thread::sleep_for(std::chrono::seconds(1)); // Waits for 1 second
         LOG(SL::NOTICE) << std::endl;
         for (int i = 0; i < total_tests; ++i) {
-            bool correct = test_one_image_cpu(i, test_labels[i], test_images_norm[i], network_copy);
+            bool correct = test_one_image_gpu(i, test_labels[i], test_images_norm[i], network_copy);
             if (correct) {
                 ++correct_count;
             }

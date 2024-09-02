@@ -11,4 +11,6 @@ void train_on_one_image_gpu(const int counter, const float learning_rate, const 
 
 bool test_one_image_cpu(const int counter, const uint8_t& label, const std::vector<float>& train_image, std::vector<Layer>& network);
 
+bool test_one_image_gpu(const int counter, const uint8_t& label, const std::vector<float>& train_image, std::vector<Layer>& network);
+
 #endif // TRAIN_H
