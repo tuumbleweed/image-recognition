@@ -41,6 +41,6 @@ cmake -B build -S . && cmake --build build && ./build/ImageRecognition --gpu --c
         (GPU) Got success rate 71.57% for learing rate 0.05 train duration: 142.02 test duration: 6.19
 - ~~GPU testing~~
 - ~~Set seed using --seed flag~~
-- GPU memory leak
+- ~~GPU memory leak~~
 - Stop moving data from gpu to host with each image (only after N images)
 - Feed data in batches of N
