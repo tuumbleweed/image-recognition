@@ -250,6 +250,7 @@ void backpropagation_gpu(const std::vector<float>& input, const std::vector<floa
     cudaFreeWrapper(gpu_input);
     cudaFreeWrapper(gpu_actual);
     cudaFreeWrapper(delta);
+    cudaFreeWrapper(next_delta);
 }
 
 // just copy it back to cpu to print later
