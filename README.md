@@ -42,5 +42,6 @@ cmake -B build -S . && cmake --build build && ./build/ImageRecognition --gpu --c
 - ~~GPU testing~~
 - ~~Set seed using --seed flag~~
 - ~~GPU memory leak~~
+- ~~Allocate and deallocate memory only once on GPU.~~
 - Stop moving data from gpu to host with each image (only after N images)
 - Feed data in batches of N
