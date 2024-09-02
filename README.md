@@ -39,6 +39,7 @@ cmake -B build -S . && cmake --build build && ./build/ImageRecognition --gpu --c
     - Finally both CPU an GPU work the same (60-80% accuracy)
         (CPU) Got success rate 76.97% for learing rate 0.05 train duration: 59.26 test duration: 6.84
         (GPU) Got success rate 71.57% for learing rate 0.05 train duration: 142.02 test duration: 6.19
-- GPU testing
+- ~~GPU testing~~
+- GPU memory leak
 - Stop moving data from gpu to host with each image (only after N images)
 - Feed data in batches of N
