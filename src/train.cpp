@@ -85,8 +85,6 @@ void train_on_one_image_gpu(const int counter, const float learning_rate, const 
     backpropagation_gpu(train_image, one_hot, network, gpu_network, learning_rate);
     network_from_gpu_to_host(network, gpu_network);
     print_network(network);
-
-    deallocate_network_data_on_gpu(gpu_network);
 }
 
 bool test_one_image_gpu(const int counter, const uint8_t& label, const std::vector<float>& train_image, std::vector<Layer>& network) {
