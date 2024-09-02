@@ -278,6 +278,4 @@ void network_from_gpu_to_host(std::vector<Layer>& network, std::vector<GPULayer>
         cudaMemcpyWrapper(cpu_layer.output.data(), gpu_layer.output, 
                           output_dim * sizeof(float), cudaMemcpyDeviceToHost);
     }
-
-    deallocate_network_data_on_gpu(gpu_network);
 }
