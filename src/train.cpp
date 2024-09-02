@@ -1,12 +1,85 @@
 #include "train.h"
 
 #include <algorithm>
+#include <thread>
 
 #include "colors.h"
 #include "log.h"
 #include "cpu.h"
 #include "gpu.h"
 #include "io_utils.h"
+#include <iomanip>
+
+void train_on_all_images_cpu(const float& learning_rate, size_t& training_amount, size_t& testing_amount,
+                             const std::vector<uint8_t>& train_labels, const std::vector<uint8_t>& test_labels,
+                             const std::vector<std::vector<float>>& train_images_norm,
+                             const std::vector<std::vector<float>>& test_images_norm,
+                             std::vector<Layer> network) {
+    auto start_time = std::chrono::high_resolution_clock::now();
+    LOG(SL::NOTICE) << "(CPU) Training network with " << BLUE << training_amount << RESET << " images and " << BLUE << learning_rate << RESET << " learning rate\n";
+    std::this_thread::sleep_for(std::chrono::seconds(1)); // Waits for 1 second
+    LOG(SL::NOTICE) << std::endl;
+    for (size_t i=0; i<training_amount; i++) {
+        train_on_one_image_cpu(i, learning_rate, train_labels[i], train_images_norm[i], network);
+    }
+    auto train_end_time = std::chrono::high_resolution_clock::now();
+
+    int correct_count = 0;
+
+    LOG(SL::NOTICE) << "(CPU) Testing network with " << BLUE << testing_amount << RESET << " images\n";
+    std::this_thread::sleep_for(std::chrono::seconds(1)); // Waits for 1 second
+    LOG(SL::NOTICE) << std::endl;
+    for (int i = 0; i < testing_amount; ++i) {
+        bool correct = test_one_image_cpu(i, test_labels[i], test_images_norm[i], network);
+        if (correct) {
+            ++correct_count;
+        }
+    }
+    float success_rate = (static_cast<float>(correct_count) / testing_amount) * 100.0;
+    auto test_end_time = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> train_duration = train_end_time - start_time;
+    std::chrono::duration<double> test_duration = test_end_time - train_end_time;
+    LOG(SL::NOTICE) << "(CPU) Got success rate " << GREEN << std::fixed << std::setprecision(2) << success_rate << "%"
+        << RESET << " for learing rate " << GREEN << learning_rate << RESET
+        << " train duration: " << GREEN << train_duration.count() << RESET
+        << " test duration: " << GREEN << test_duration.count() << RESET << std::endl;
+}
+
+void train_on_all_images_gpu(const float& learning_rate, size_t& training_amount, size_t& testing_amount,
+                             const std::vector<uint8_t>& train_labels, const std::vector<uint8_t>& test_labels,
+                             const std::vector<std::vector<float>>& train_images_norm,
+                             const std::vector<std::vector<float>>& test_images_norm,
+                             std::vector<Layer> network) {
+
+    auto start_time = std::chrono::high_resolution_clock::now();
+    LOG(SL::NOTICE) << "(GPU) Training network with " << BLUE << training_amount << RESET << " images and " << BLUE << learning_rate << RESET << " learning rate\n";
+    std::this_thread::sleep_for(std::chrono::seconds(1)); // Waits for 1 second
+    LOG(SL::NOTICE) << std::endl;
+    for (size_t i=0; i<training_amount; i++) {
+        train_on_one_image_gpu(i, learning_rate, train_labels[i], train_images_norm[i], network);
+    }
+    auto train_end_time = std::chrono::high_resolution_clock::now();
+
+    int correct_count = 0;
+
+    LOG(SL::NOTICE) << "(GPU) Testing network with " << BLUE << testing_amount << RESET << " images\n";
+    std::this_thread::sleep_for(std::chrono::seconds(1)); // Waits for 1 second
+    LOG(SL::NOTICE) << std::endl;
+    for (int i = 0; i < testing_amount; ++i) {
+        bool correct = test_one_image_gpu(i, test_labels[i], test_images_norm[i], network);
+        if (correct) {
+            ++correct_count;
+        }
+    }
+    float success_rate = (static_cast<float>(correct_count) / testing_amount) * 100.0;
+    auto test_end_time = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> train_duration = train_end_time - start_time;
+    std::chrono::duration<double> test_duration = test_end_time - train_end_time;
+    LOG(SL::NOTICE) << "(GPU) Got success rate " << GREEN << std::fixed << std::setprecision(2) << success_rate << "%"
+        << RESET << " for learing rate " << GREEN << learning_rate << RESET
+        << " train duration: " << GREEN << train_duration.count() << RESET
+        << " test duration: " << GREEN << test_duration.count() << RESET << std::endl;
+}
 
 void train_on_one_image_cpu(const int counter, const float learning_rate, const uint8_t& label, const std::vector<float>& train_image, std::vector<Layer>& network) {
     print_image(train_image, 28, 28);
