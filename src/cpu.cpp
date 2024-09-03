@@ -7,7 +7,7 @@
 #include <iomanip>
 
 #include "io/colors.h"
-#include "io/init.h"
+#include "network/init.h"
 #include "io/log.h"
 
 // Sigmoid function for CPU

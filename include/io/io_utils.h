@@ -6,7 +6,7 @@
 #include <tuple>
 #include <vector>
 
-#include "io/init.h"
+#include "network/init.h"
 
 void print_image(const std::vector<float>& image, const int& rows, const int& cols);
 

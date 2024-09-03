@@ -1,4 +1,4 @@
-#include "io/init.h"
+#include "network/init.h"
 
 #include <cmath>
 #include <iostream>
@@ -7,6 +7,37 @@
 
 #include "io/colors.h"
 #include "io/log.h"
+
+// Function to initialize the network layers and their weights
+std::vector<Layer> initialize_network(const int input_size, const int hidden_size1, const int hidden_size2, const int output_size, unsigned int seed) {
+    LOG(SL::NOTICE) << "Initializing network " << BLUE << input_size << 'x' << hidden_size1;
+    LOG(SL::NOTICE) << 'x' << hidden_size2 << 'x' << output_size << RESET;
+    LOG(SL::NOTICE) << " with seed " << BLUE << seed << RESET;
+    if (seed == 0) {
+        LOG(SL::NOTICE) << BLUE << "(random)" << RESET;
+    }
+    LOG(SL::NOTICE) << std::endl;
+    std::this_thread::sleep_for(std::chrono::seconds(1)); // Waits for 1 second
+
+    std::vector<Layer> network;
+
+    // Initialize weights between input layer and first hidden layer
+    Layer input_to_hidden1 = initialize_weights_and_biases(input_size, hidden_size1, seed);
+    network.push_back(input_to_hidden1);
+
+    // Initialize weights between first hidden layer and second hidden layer
+    Layer hidden1_to_hidden2 = initialize_weights_and_biases(hidden_size1, hidden_size2, seed);
+    network.push_back(hidden1_to_hidden2);
+
+    // Initialize weights between second hidden layer and output layer
+    Layer hidden2_to_output = initialize_weights_and_biases(hidden_size2, output_size, seed);
+    network.push_back(hidden2_to_output);
+
+    std::this_thread::sleep_for(std::chrono::seconds(1)); // Waits for 1 second
+    LOG(SL::NOTICE) << std::endl;
+
+    return network;
+}
 
 // Helper function to initialize the weights of a layer
 Layer initialize_weights_and_biases(const int input_dim, const int output_dim, unsigned int seed) {
@@ -38,37 +69,6 @@ Layer initialize_weights_and_biases(const int input_dim, const int output_dim, u
     LOG(SL::DEBUG) << RESET << "\n" << std::endl;
 
     return layer;
-}
-
-// Function to initialize the network layers and their weights
-std::vector<Layer> initialize_network(const int input_size, const int hidden_size1, const int hidden_size2, const int output_size, unsigned int seed) {
-    LOG(SL::NOTICE) << "Initializing network " << BLUE << input_size << 'x' << hidden_size1;
-    LOG(SL::NOTICE) << 'x' << hidden_size2 << 'x' << output_size << RESET;
-    LOG(SL::NOTICE) << " with seed " << BLUE << seed << RESET;
-    if (seed == 0) {
-        LOG(SL::NOTICE) << BLUE << "(random)" << RESET;
-    }
-    LOG(SL::NOTICE) << std::endl;
-    std::this_thread::sleep_for(std::chrono::seconds(1)); // Waits for 1 second
-
-    std::vector<Layer> network;
-
-    // Initialize weights between input layer and first hidden layer
-    Layer input_to_hidden1 = initialize_weights_and_biases(input_size, hidden_size1, seed);
-    network.push_back(input_to_hidden1);
-
-    // Initialize weights between first hidden layer and second hidden layer
-    Layer hidden1_to_hidden2 = initialize_weights_and_biases(hidden_size1, hidden_size2, seed);
-    network.push_back(hidden1_to_hidden2);
-
-    // Initialize weights between second hidden layer and output layer
-    Layer hidden2_to_output = initialize_weights_and_biases(hidden_size2, output_size, seed);
-    network.push_back(hidden2_to_output);
-
-    std::this_thread::sleep_for(std::chrono::seconds(1)); // Waits for 1 second
-    LOG(SL::NOTICE) << std::endl;
-
-    return network;
 }
 
 std::vector<float> generate_one_hot_vector(uint8_t label, uint8_t length) {

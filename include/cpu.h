@@ -1,7 +1,7 @@
 #ifndef CPU_H
 #define CPU_H
 
-#include "io/init.h"
+#include "network/init.h"
 
 // Sigmoid function for CPU
 float sigmoid_cpu(float x);
