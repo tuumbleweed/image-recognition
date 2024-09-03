@@ -1,12 +1,12 @@
-#include "train.h"
+#include "network/train.h"
 
 #include <algorithm>
 #include <thread>
 
 #include "io/colors.h"
 #include "io/log.h"
-#include "cpu.h"
-#include "gpu.h"
+#include "network/cpu.h"
+#include "network/gpu.h"
 #include "io/io_utils.h"
 #include <iomanip>
 

@@ -1,8 +1,8 @@
 #include <iostream>
 #include <cstdlib> // For the exit function
 
-#include "cpu.h"
-#include "gpu.h"
+#include "network/cpu.h"
+#include "network/gpu.h"
 #include "io/log.h"
 
 

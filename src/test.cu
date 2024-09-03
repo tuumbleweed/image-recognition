@@ -3,7 +3,7 @@
 #include <iostream>
 #include <cstdlib> // For the exit function
 
-#include "gpu.h"
+#include "network/gpu.h"
 #include "io/log.h"
 
 

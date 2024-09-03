@@ -4,7 +4,7 @@
 #include <iostream>
 
 #include "io/colors.h"
-#include "gpu.h"
+#include "network/gpu.h"
 #include "io/log.h"
 
 #define GREY "\033[90m"

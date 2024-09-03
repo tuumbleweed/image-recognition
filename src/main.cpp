@@ -6,13 +6,13 @@
 #include <chrono>
 
 #include "io/colors.h"
-#include "cpu.h"
-#include "gpu.h"
+#include "network/cpu.h"
+#include "network/gpu.h"
 #include "io/io_utils.h"
 #include "network/init.h"
 #include "io/normalize.h"
 #include "io/log.h"
-#include "train.h"
+#include "network/train.h"
 #include "io/cml.h"
 
 

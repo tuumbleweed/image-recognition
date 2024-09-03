@@ -1,4 +1,4 @@
-#include "cpu.h"
+#include "network/cpu.h"
 
 #include <cmath>
 #include <iostream>
