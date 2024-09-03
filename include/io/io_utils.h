@@ -6,7 +6,7 @@
 #include <tuple>
 #include <vector>
 
-#include "layer.h"
+#include "io/init.h"
 
 void print_image(const std::vector<float>& image, const int& rows, const int& cols);
 

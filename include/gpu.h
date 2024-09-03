@@ -1,7 +1,7 @@
 #ifndef GPU_H
 #define GPU_H
 
-#include "layer.h"
+#include "io/init.h"
 #include <vector>
 
 struct GPULayer {

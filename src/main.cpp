@@ -9,7 +9,7 @@
 #include "cpu.h"
 #include "gpu.h"
 #include "io/io_utils.h"
-#include "layer.h"
+#include "io/init.h"
 #include "io/normalize.h"
 #include "io/log.h"
 #include "train.h"
