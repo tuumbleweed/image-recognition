@@ -1,24 +1,16 @@
 #ifndef SIMPLE_LOGGER_H
 #define SIMPLE_LOGGER_H
 
+#include <fstream>
 #include <iostream>
+#include <map>
+#include <mutex>
 #include <sstream>
 #include <string>
-#include <mutex>
-#include <fstream>
-#include <map>
 
 class SL {
-public:
-    enum LogLevel {
-        FATAL = 0,
-        ERROR = 1,
-        WARNING = 2,
-        NOTICE = 3,
-        INFO = 4,
-        DEBUG = 5,
-        TRACE = 6
-    };
+   public:
+    enum LogLevel { FATAL = 0, ERROR = 1, WARNING = 2, NOTICE = 3, INFO = 4, DEBUG = 5, TRACE = 6 };
 
     SL(LogLevel level);
     ~SL();
@@ -40,7 +32,7 @@ public:
     static void load_config(const std::string& config_file);
     static LogLevel string_to_log_level(const std::string& level_str);
 
-private:
+   private:
     LogLevel log_level_;
     std::ostringstream oss_;
     static LogLevel global_log_level_;
@@ -50,6 +42,7 @@ private:
     static std::string trim(const std::string& str);
 };
 
-#define LOG(level) if (SL::should_log(level)) SL(level)
+#define LOG(level) \
+    if (SL::should_log(level)) SL(level)
 
-#endif // SIMPLE_LOGGER_H
+#endif  // SIMPLE_LOGGER_H

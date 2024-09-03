@@ -1,14 +1,14 @@
 #include "network/cpu.h"
 
 #include <cmath>
+#include <cstdlib>  // For the exit function
+#include <iomanip>
 #include <iostream>
 #include <vector>
-#include <cstdlib> // For the exit function
-#include <iomanip>
 
 #include "io/colors.h"
-#include "network/init.h"
 #include "io/log.h"
+#include "network/init.h"
 
 // Sigmoid function for CPU
 float sigmoid_cpu(float x) {
@@ -72,13 +72,15 @@ void forward_propagation_cpu(const std::vector<float>& input, std::vector<Layer>
     std::vector<float> current_output;
 
     LOG(SL::INFO) << "(CPU) Forward Propagation:" << std::endl;
-    LOG(SL::DEBUG) << "------------------------------------ Activation Output (CPU) ------------------------------------"
-              << std::endl;
+    LOG(SL::DEBUG)
+        << "------------------------------------ Activation Output (CPU) ------------------------------------"
+        << std::endl;
     for (size_t i = 0; i < network.size(); ++i) {
         int layer_output_size = network[i].weights.size();
 
         // Perform matrix multiplication
-        current_output = matrix_multiply_cpu(current_input, network[i].weights, network[i].biases, input_size, layer_output_size);
+        current_output =
+            matrix_multiply_cpu(current_input, network[i].weights, network[i].biases, input_size, layer_output_size);
 
         LOG(SL::DEBUG) << "Layer " << i << " Pre-Activation Output (CPU):" << GREY << std::endl;
         // Debug: Check output after matrix multiplication
@@ -108,7 +110,7 @@ void forward_propagation_cpu(const std::vector<float>& input, std::vector<Layer>
 float cost_cpu(const std::vector<float>& predicted, const std::vector<float>& actual) {
     float cost = 0.0f;
     for (size_t i = 0; i < predicted.size(); ++i) {
-        cost += (predicted[i] - actual[i])*(predicted[i] - actual[i]);
+        cost += (predicted[i] - actual[i]) * (predicted[i] - actual[i]);
     }
 
     return cost;
@@ -118,8 +120,8 @@ float cost_cpu(const std::vector<float>& predicted, const std::vector<float>& ac
 // later batch them together and calculate average. Then change.
 // when working with "next" and "previous" keep in mind that we walk backwards here
 // from "next" to "previous".
-void backpropagation_cpu(const std::vector<float>& input, const std::vector<float>& actual, 
-                         std::vector<Layer>& network, float learning_rate) {
+void backpropagation_cpu(const std::vector<float>& input, const std::vector<float>& actual, std::vector<Layer>& network,
+                         float learning_rate) {
     // Compute gradients and update weights and biases in reverse order
     std::vector<float> delta;
 
@@ -141,7 +143,8 @@ void backpropagation_cpu(const std::vector<float>& input, const std::vector<floa
                 // derivative of cost to a multiplied by derivative of a to z (sigmoid)
                 // can remove 2.0f and reflect it in learning rate to remove this multiplication
                 delta[j] = (output[j] - actual[j]) * sigmoid_derivative_cpu(output[j]);
-                LOG(SL::DEBUG) << std::fixed << std::setprecision(6) << output[j] << "-" << actual[j] << ") * " << sigmoid_derivative_cpu(output[j]) << " = ";
+                LOG(SL::DEBUG) << std::fixed << std::setprecision(6) << output[j] << "-" << actual[j] << ") * "
+                               << sigmoid_derivative_cpu(output[j]) << " = ";
                 LOG(SL::DEBUG) << delta[j] << "\n";
             }
         } else {
@@ -154,12 +157,12 @@ void backpropagation_cpu(const std::vector<float>& input, const std::vector<floa
             delta.resize(output.size());
             for (size_t j = 0; j < output.size(); ++j) {
                 LOG(SL::DEBUG) << "Delta " << j << ": (";
-                delta[j] = 0.0f; // rewrite previous value
+                delta[j] = 0.0f;  // rewrite previous value
                 for (size_t k = 0; k < next_delta.size(); ++k) {
                     // we are not in the last layer so i+1 is fine
                     delta[j] += next_delta[k] * network[i + 1].weights[k][j];
                     LOG(SL::DEBUG) << next_delta[k] << "*" << network[i + 1].weights[k][j];
-                    if (k < next_delta.size()-1) {
+                    if (k < next_delta.size() - 1) {
                         LOG(SL::DEBUG) << " + ";
                     }
                 }
@@ -170,13 +173,14 @@ void backpropagation_cpu(const std::vector<float>& input, const std::vector<floa
         }
         LOG(SL::DEBUG) << RESET << std::endl;
 
-        LOG(SL::DEBUG) << "Change weights and biases for layer " << i << ":"<< std::endl;
+        LOG(SL::DEBUG) << "Change weights and biases for layer " << i << ":" << std::endl;
         // Update weights and biases
         for (size_t j = 0; j < network[i].weights.size(); ++j) {
-            LOG(SL::DEBUG) << "Weights " << j << "x" << network[i].weights[j].size() << ":" << GREY  << std::endl;
+            LOG(SL::DEBUG) << "Weights " << j << "x" << network[i].weights[j].size() << ":" << GREY << std::endl;
             for (size_t k = 0; k < network[i].weights[j].size(); ++k) {
                 // dC/dw(L) = a(L-1)*delta
-                LOG(SL::DEBUG) << network[i].weights[j][k] << "-=" << learning_rate << "*" << delta[j] << "*" << previous_output[k] << " ";
+                LOG(SL::DEBUG) << network[i].weights[j][k] << "-=" << learning_rate << "*" << delta[j] << "*"
+                               << previous_output[k] << " ";
                 network[i].weights[j][k] -= learning_rate * delta[j] * previous_output[k];
             }
             LOG(SL::DEBUG) << RESET << std::endl;

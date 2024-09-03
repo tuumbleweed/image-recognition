@@ -1,19 +1,18 @@
+#include <cstdlib>  // For the exit function
 #include <iostream>
-#include <cstdlib> // For the exit function
 
+#include "io/log.h"
 #include "network/cpu.h"
 #include "network/gpu.h"
-#include "io/log.h"
 
-
-std::vector<float> multiply_on_gpu(const std::vector<float>& A, const std::vector<std::vector<float>>& B, const std::vector<float>& biases);
+std::vector<float> multiply_on_gpu(const std::vector<float>& A, const std::vector<std::vector<float>>& B,
+                                   const std::vector<float>& biases);
 
 // Function for matrix multiplication
 // matrix1 is one dimentional, matrix2 is 2D
 // matrix1 length should be equal to matrix2 length
 // (number of float elements in matrix1 == number of std::vector<float> in matrix2)
-std::vector<float> matrix_multiply_cpu_control(const std::vector<float>& A,
-                                               const std::vector<std::vector<float>>& B,
+std::vector<float> matrix_multiply_cpu_control(const std::vector<float>& A, const std::vector<std::vector<float>>& B,
                                                const std::vector<float>& biases) {
     int a_length = A.size();
     int b_length = B.size();
@@ -38,7 +37,7 @@ std::vector<float> matrix_multiply_cpu_control(const std::vector<float>& A,
             float value = a_value * b_value;
             sum += value;
             LOG(SL::DEBUG) << a_value << "*" << b_value << "=" << value << " ";
-            if (ab_index < a_length_b_width-1) {
+            if (ab_index < a_length_b_width - 1) {
                 LOG(SL::DEBUG) << "+ ";
             }
         }
@@ -62,11 +61,7 @@ int main() {
 
     // tet what chentd
     std::vector<float> A = {0.5, 1.2, -0.7, 3.4};
-    std::vector<std::vector<float>> B = {
-        {0.1, -0.4, 2.3, 1.5},
-        {0.0, -1.2, -0.3, 4.1},
-        {2.2, 0.7, -0.8, 1.9}
-    };
+    std::vector<std::vector<float>> B = {{0.1, -0.4, 2.3, 1.5}, {0.0, -1.2, -0.3, 4.1}, {2.2, 0.7, -0.8, 1.9}};
     std::vector<float> biases = {2.0, 1.8, 1.9, 0.1};
 
     std::vector<float> cpu_control_output = matrix_multiply_cpu_control(A, B, biases);

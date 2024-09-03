@@ -9,7 +9,8 @@
 #include "io/log.h"
 
 // Function to initialize the network layers and their weights
-std::vector<Layer> initialize_network(const int input_size, const int hidden_size1, const int hidden_size2, const int output_size, unsigned int seed) {
+std::vector<Layer> initialize_network(const int input_size, const int hidden_size1, const int hidden_size2,
+                                      const int output_size, unsigned int seed) {
     LOG(SL::NOTICE) << "Initializing network " << BLUE << input_size << 'x' << hidden_size1;
     LOG(SL::NOTICE) << 'x' << hidden_size2 << 'x' << output_size << RESET;
     LOG(SL::NOTICE) << " with seed " << BLUE << seed << RESET;
@@ -17,7 +18,7 @@ std::vector<Layer> initialize_network(const int input_size, const int hidden_siz
         LOG(SL::NOTICE) << BLUE << "(random)" << RESET;
     }
     LOG(SL::NOTICE) << std::endl;
-    std::this_thread::sleep_for(std::chrono::seconds(1)); // Waits for 1 second
+    std::this_thread::sleep_for(std::chrono::seconds(1));  // Waits for 1 second
 
     std::vector<Layer> network;
 
@@ -33,7 +34,7 @@ std::vector<Layer> initialize_network(const int input_size, const int hidden_siz
     Layer hidden2_to_output = initialize_weights_and_biases(hidden_size2, output_size, seed);
     network.push_back(hidden2_to_output);
 
-    std::this_thread::sleep_for(std::chrono::seconds(1)); // Waits for 1 second
+    std::this_thread::sleep_for(std::chrono::seconds(1));  // Waits for 1 second
     LOG(SL::NOTICE) << std::endl;
 
     return network;
@@ -50,10 +51,10 @@ Layer initialize_weights_and_biases(const int input_dim, const int output_dim, u
     std::normal_distribution<float> dist(0.0f, 1.0f / std::sqrt(input_dim));  // Xavier initialization
 
     LOG(SL::DEBUG) << "------------------------------------ Initialize weights (" << input_dim << 'x' << output_dim
-              << ") ------------------------------------" << std::endl;
+                   << ") ------------------------------------" << std::endl;
     for (int i = 0; i < output_dim; ++i) {
-        LOG(SL::DEBUG) << "Initialize weights (" << input_dim << 'x' << output_dim << "), " << i + 1 << '/' << output_dim
-                  << ":" << GREY << std::endl;
+        LOG(SL::DEBUG) << "Initialize weights (" << input_dim << 'x' << output_dim << "), " << i + 1 << '/'
+                       << output_dim << ":" << GREY << std::endl;
         for (int j = 0; j < input_dim; ++j) {
             layer.weights[i][j] = dist(gen);
             LOG(SL::DEBUG) << layer.weights[i][j] << " ";

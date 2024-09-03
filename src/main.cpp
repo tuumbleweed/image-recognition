@@ -1,20 +1,19 @@
+#include <chrono>
+#include <iomanip>
 #include <iostream>
+#include <thread>
 #include <tuple>
 #include <vector>
-#include <iomanip>
-#include <thread>
-#include <chrono>
 
+#include "io/cml.h"
 #include "io/colors.h"
+#include "io/io_utils.h"
+#include "io/log.h"
+#include "io/normalize.h"
 #include "network/cpu.h"
 #include "network/gpu.h"
-#include "io/io_utils.h"
 #include "network/init.h"
-#include "io/normalize.h"
-#include "io/log.h"
 #include "network/train.h"
-#include "io/cml.h"
-
 
 int main(int argc, char *argv[]) {
     po::variables_map vm = parse_command_line(argc, argv);
@@ -49,17 +48,13 @@ int main(int argc, char *argv[]) {
     }
 
     if (cpu) {
-        train_on_all_images_cpu(
-            learning_rate, training_amount, testing_amount, train_labels, test_labels,
-            train_images_norm, test_images_norm, network
-        );
+        train_on_all_images_cpu(learning_rate, training_amount, testing_amount, train_labels, test_labels,
+                                train_images_norm, test_images_norm, network);
     }
 
     if (gpu) {
-        train_on_all_images_gpu(
-            learning_rate, training_amount, testing_amount, train_labels, test_labels,
-            train_images_norm, test_images_norm, network
-        );
+        train_on_all_images_gpu(learning_rate, training_amount, testing_amount, train_labels, test_labels,
+                                train_images_norm, test_images_norm, network);
     }
 
     return 0;

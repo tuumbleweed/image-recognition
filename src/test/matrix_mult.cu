@@ -1,14 +1,14 @@
 #include <cuda_runtime.h>
 
+#include <cstdlib>  // For the exit function
 #include <iostream>
-#include <cstdlib> // For the exit function
 
-#include "network/gpu.h"
 #include "io/log.h"
-
+#include "network/gpu.h"
 
 // Function to perform matrix multiplication on the GPU
-std::vector<float> multiply_on_gpu(const std::vector<float>& A, const std::vector<std::vector<float>>& B, const std::vector<float>& biases) {
+std::vector<float> multiply_on_gpu(const std::vector<float>& A, const std::vector<std::vector<float>>& B,
+                                   const std::vector<float>& biases) {
     // Flatten matrix B into a single array
     std::vector<float> B_flat;
     for (const auto& row : B) {
