@@ -12,11 +12,11 @@ message(STATUS "C++ Compiler: ${CMAKE_CXX_COMPILER}")
 file(GLOB_RECURSE SOURCES "src/*.cpp" "src/*.cu")
 message("SOURCES BEFORE: ${SOURCES}")
 
-# Exclude the main file from the test SOURCES list
+# Exclude the main file from the matrix mult SOURCES list
 set(MAIN_FILE "src/main.cpp")
-set(TEST_FILE "src/test.cpp")
+set(MATRIX_MULT_FILE "src/matrix_mult.cpp")
 list(FILTER SOURCES EXCLUDE REGEX ${MAIN_FILE})
-list(FILTER SOURCES EXCLUDE REGEX ${TEST_FILE})
+list(FILTER SOURCES EXCLUDE REGEX ${MATRIX_MULT_FILE})
 message("SOURCES: ${SOURCES}")
 
 # ----------------------------------- DEPENDENCIES ------------------------------------
@@ -25,7 +25,7 @@ find_package(Boost 1.65 REQUIRED COMPONENTS program_options)
 include_directories(${Boost_INCLUDE_DIRS})
 
 # ----------------------------------- MAIN ------------------------------------
-# Add the main executable (including main.cpp and test.cpp)
+# Add the main executable (including main.cpp and matrix mult.cpp)
 add_executable(ImageRecognition ${SOURCES} ${MAIN_FILE})
 # Ensure CUDA code is compiled and linked properly
 set_target_properties(ImageRecognition PROPERTIES
@@ -36,14 +36,14 @@ target_link_libraries(ImageRecognition ${CUDA_LIBRARIES} ${Boost_LIBRARIES})
 # Include directories for headers
 target_include_directories(ImageRecognition PRIVATE include)
 
-# ----------------------------------- TEST ------------------------------------
-# Add the test executable (excluding main.cpp and test.cpp)
-add_executable(ImageRecognitionTest ${SOURCES} ${TEST_FILE})
-message("SOURCES TEST: ${SOURCES}")
-# Ensure CUDA code is compiled and linked properly for the test
-set_target_properties(ImageRecognitionTest PROPERTIES
+# ----------------------------------- MATRIX MULT ------------------------------------
+# Add the matrix mult executable (excluding main.cpp and matrix_mult.cpp)
+add_executable(ImageRecognitionMatrixMult ${SOURCES} ${MATRIX_MULT_FILE})
+message("SOURCES matrix mult: ${SOURCES}")
+# Ensure CUDA code is compiled and linked properly for the matrix mult
+set_target_properties(ImageRecognitionMatrixMult PROPERTIES
     CUDA_SEPARABLE_COMPILATION ON)
-# Link CUDA libraries for the test executable if needed
-target_link_libraries(ImageRecognitionTest ${CUDA_LIBRARIES} ${Boost_LIBRARIES})
-# Include directories for headers in the test executable
-target_include_directories(ImageRecognitionTest PRIVATE include)
+# Link CUDA libraries for the matrix mult executable if needed
+target_link_libraries(ImageRecognitionMatrixMult ${CUDA_LIBRARIES} ${Boost_LIBRARIES})
+# Include directories for headers in the matrix mult executable
+target_include_directories(ImageRecognitionMatrixMult PRIVATE include)
