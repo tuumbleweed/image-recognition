@@ -23,8 +23,6 @@ Layer initialize_weights_and_biases(const int input_dim, const int output_dim, u
 // Function to initialize the network layers and their weights
 std::vector<Layer> initialize_network(int input_size, int hidden_size1, int hidden_size2, int output_size, unsigned int seed);
 
-void print_network(const std::vector<Layer>& network);
-
 std::vector<float> generate_one_hot_vector(uint8_t label, uint8_t length = 10);
 
 #endif // LAYER_H

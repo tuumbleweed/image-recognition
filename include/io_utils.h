@@ -1,10 +1,12 @@
 #ifndef IO_UTILS_H
 #define IO_UTILS_H
 
-#include <vector>
+#include <cstdint>
 #include <string>
 #include <tuple>
-#include <cstdint>
+#include <vector>
+
+#include "layer.h"
 
 void print_image(const std::vector<float>& image, const int& rows, const int& cols);
 
@@ -12,4 +14,6 @@ std::tuple<std::vector<std::vector<uint8_t>>, int, int> read_images(const std::s
 
 std::vector<uint8_t> read_labels(const std::string& filename);
 
-#endif // IO_UTILS_H
+void print_network(const std::vector<Layer>& network);
+
+#endif  // IO_UTILS_H

@@ -71,44 +71,6 @@ std::vector<Layer> initialize_network(const int input_size, const int hidden_siz
     return network;
 }
 
-void print_network(const std::vector<Layer>& network) {
-    LOG(SL::INFO) << "Printing network with " << network.size() << " layers: " << BLUE;
-    for (int k = 0; k < network.size(); ++k) {
-        LOG(SL::INFO) << "(" << network[k].weights.size() << "x" << network[k].weights[0].size() << ")";
-        if (k < network.size()-1) {
-            LOG(SL::INFO) << "x";
-        }
-    }
-    LOG(SL::INFO) << RESET << std::endl;
-    for (int k = 0; k < network.size(); ++k) {
-        const Layer& layer = network[k];
-        LOG(SL::DEBUG) << "------------------------------------ Layer " << k << " ------------------------------------" << std::endl;
-        for (int i = 0; i < layer.weights.size(); ++i) {
-            LOG(SL::DEBUG) << "Weights " << i + 1 << '/' << layer.weights.size()
-                    << ":" << GREY << std::endl;
-            for (const float& weight : layer.weights[i]) {
-                 LOG(SL::DEBUG) << weight << " ";
-            }
-            LOG(SL::DEBUG) << RESET << std::endl;
-        }
-        LOG(SL::DEBUG) << "Biases (" << 1 << 'x' << layer.biases.size() << "):" << GREY << std::endl;
-        for (int i = 0; i < layer.biases.size(); ++i) {
-            LOG(SL::DEBUG) << layer.biases[i] << " ";
-        }
-        LOG(SL::DEBUG) << RESET << "\n" << std::endl;
-        SL::LogLevel log_level = SL::INFO;
-        if (k == network.size()-1) {
-            log_level = SL::NOTICE;
-        }
-        LOG(log_level) << "Activations (" << 1 << 'x' << layer.output.size() << "): " << GREY;
-        for (int i = 0; i < layer.output.size(); ++i) {
-            LOG(log_level) << layer.output[i] << " ";
-        }
-        LOG(log_level) << RESET << std::endl;
-    }
-    LOG(SL::NOTICE) << std::endl;
-}
-
 std::vector<float> generate_one_hot_vector(uint8_t label, uint8_t length) {
     std::vector<float> one_hot_vector(length, 0.0f);
     if (label < length) {
