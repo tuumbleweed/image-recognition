@@ -14,7 +14,7 @@ message("SOURCES BEFORE: ${SOURCES}")
 
 # Exclude the main file from the matrix mult SOURCES list
 set(MAIN_FILE "src/main.cpp")
-set(MATRIX_MULT_FILE "src/matrix_mult.cpp")
+set(MATRIX_MULT_FILE "src/test/matrix_mult.cpp")
 list(FILTER SOURCES EXCLUDE REGEX ${MAIN_FILE})
 list(FILTER SOURCES EXCLUDE REGEX ${MATRIX_MULT_FILE})
 message("SOURCES: ${SOURCES}")
