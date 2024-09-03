@@ -1,6 +1,7 @@
+#include "io/cml.h"
+
 #include <iostream>
 
-#include "cml.h"
 
 po::variables_map parse_command_line(int argc, char *argv[]) {
     po::options_description desc("Allowed options");

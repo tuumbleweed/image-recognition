@@ -3,9 +3,9 @@
 
 #include <iostream>
 
-#include "colors.h"
+#include "io/colors.h"
 #include "gpu.h"
-#include "log.h"
+#include "io/log.h"
 
 #define GREY "\033[90m"
 #define RESET "\033[0m"

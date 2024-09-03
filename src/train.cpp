@@ -3,11 +3,11 @@
 #include <algorithm>
 #include <thread>
 
-#include "colors.h"
-#include "log.h"
+#include "io/colors.h"
+#include "io/log.h"
 #include "cpu.h"
 #include "gpu.h"
-#include "io_utils.h"
+#include "io/io_utils.h"
 #include <iomanip>
 
 void train_on_all_images_cpu(const float& learning_rate, size_t& training_amount, size_t& testing_amount,

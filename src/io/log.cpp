@@ -1,5 +1,6 @@
-#include "log.h"
-#include "colors.h"
+#include "io/log.h"
+
+#include "io/colors.h"
 
 // use info by default
 SL::LogLevel SL::global_log_level_ = SL::INFO;
@@ -29,7 +30,7 @@ SL::~SL() {
     }
     if (log_level_ == FATAL) {
         std::cerr << DIM_RED << "\nProgram terminated due to fatal error." << std::endl;
-        std::terminate(); // Terminate the program on fatal error
+        std::terminate();  // Terminate the program on fatal error
         std::cerr << RESET;
     }
 }
@@ -39,18 +40,14 @@ void SL::set_log_level(LogLevel level) {
     global_log_level_ = level;
 }
 
-bool SL::should_log(LogLevel level) {
-    return level <= global_log_level_;
-}
+bool SL::should_log(LogLevel level) { return level <= global_log_level_; }
 
 std::string SL::trim(const std::string& str) {
     size_t first = str.find_first_not_of(' ');
-    if (first == std::string::npos)
-        return str;
+    if (first == std::string::npos) return str;
     size_t last = str.find_last_not_of(' ');
     return str.substr(first, last - first + 1);
 }
-
 
 void SL::load_config(const std::string& config_file) {
     std::ifstream file(config_file);
@@ -76,14 +73,22 @@ void SL::load_config(const std::string& config_file) {
 
 std::string SL::log_level_to_string(LogLevel level) {
     switch (level) {
-        case FATAL:   return "FATAL";
-        case ERROR:   return "ERROR";
-        case WARNING: return "WARNING";
-        case NOTICE:    return "NOTICE";
-        case INFO:    return "INFO";
-        case DEBUG:   return "DEBUG";
-        case TRACE:   return "TRACE";
-        default:      return "UNKNOWN";
+        case FATAL:
+            return "FATAL";
+        case ERROR:
+            return "ERROR";
+        case WARNING:
+            return "WARNING";
+        case NOTICE:
+            return "NOTICE";
+        case INFO:
+            return "INFO";
+        case DEBUG:
+            return "DEBUG";
+        case TRACE:
+            return "TRACE";
+        default:
+            return "UNKNOWN";
     }
 }
 
@@ -96,5 +101,5 @@ SL::LogLevel SL::string_to_log_level(const std::string& level_str) {
     if (level_str == "INFO") return INFO;
     if (level_str == "DEBUG") return DEBUG;
     if (level_str == "TRACE") return TRACE;
-    return INFO; // Default to INFO if unknown
+    return INFO;  // Default to INFO if unknown
 }

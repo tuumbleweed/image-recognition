@@ -5,15 +5,15 @@
 #include <thread>
 #include <chrono>
 
-#include "colors.h"
+#include "io/colors.h"
 #include "cpu.h"
 #include "gpu.h"
-#include "io_utils.h"
+#include "io/io_utils.h"
 #include "layer.h"
-#include "normalize.h"
-#include "log.h"
+#include "io/normalize.h"
+#include "io/log.h"
 #include "train.h"
-#include "cml.h"
+#include "io/cml.h"
 
 
 int main(int argc, char *argv[]) {

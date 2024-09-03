@@ -4,7 +4,7 @@
 #include <cstdlib> // For the exit function
 
 #include "gpu.h"
-#include "log.h"
+#include "io/log.h"
 
 
 // Function to perform matrix multiplication on the GPU

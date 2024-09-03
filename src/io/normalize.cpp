@@ -1,7 +1,7 @@
-#include "normalize.h"
+#include "io/normalize.h"
 
-#include "colors.h"
-#include "log.h"
+#include "io/colors.h"
+#include "io/log.h"
 
 // Function to normalize a vector of uint8_t values to a vector of float values
 std::vector<float> normalize(const std::vector<uint8_t>& input) {

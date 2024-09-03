@@ -6,9 +6,9 @@
 #include <cstdlib> // For the exit function
 #include <iomanip>
 
-#include "colors.h"
+#include "io/colors.h"
 #include "layer.h"
-#include "log.h"
+#include "io/log.h"
 
 // Sigmoid function for CPU
 float sigmoid_cpu(float x) {

@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 message(STATUS "C Compiler: ${CMAKE_C_COMPILER}")
 message(STATUS "C++ Compiler: ${CMAKE_CXX_COMPILER}")
 
-# Use GLOB_RECURSE to find all .cpp and .cu files
+# Use GLOB_RECURSE to find all .cpp and .cu files, including module files src/.../*.cpp
 file(GLOB_RECURSE SOURCES "src/*.cpp" "src/*.cu")
 message("SOURCES BEFORE: ${SOURCES}")
 

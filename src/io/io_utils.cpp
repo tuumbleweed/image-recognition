@@ -1,12 +1,12 @@
-#include "io_utils.h"
+#include "io/io_utils.h"
 
 #include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <tuple>
 
-#include "colors.h"
-#include "log.h"
+#include "io/colors.h"
+#include "io/log.h"
 
 std::tuple<std::vector<std::vector<uint8_t>>, int, int> read_images(const std::string& filename) {
     LOG(SL::NOTICE) << "Reading images " << BLUE << filename << RESET << std::endl;

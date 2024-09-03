@@ -3,7 +3,7 @@
 
 #include "cpu.h"
 #include "gpu.h"
-#include "log.h"
+#include "io/log.h"
 
 
 std::vector<float> multiply_on_gpu(const std::vector<float>& A, const std::vector<std::vector<float>>& B, const std::vector<float>& biases);

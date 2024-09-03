@@ -5,8 +5,8 @@
 #include <cstdlib>
 #include <iostream>
 
-#include "colors.h"
-#include "log.h"
+#include "io/colors.h"
+#include "io/log.h"
 
 inline void printBacktrace() {
     const int maxFrames = 100;
