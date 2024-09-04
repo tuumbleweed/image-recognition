@@ -1,5 +1,6 @@
 # Image Recognition
-
+Take files containing lists of 60k training images and labels. Train neural network using this list.
+Take files containing lists of 10k testing images and labels. Measure neural network accuracy.
 
 ## Commands
 ```bash
