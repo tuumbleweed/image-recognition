@@ -57,8 +57,13 @@ void train_on_all_images_gpu(const float& learning_rate, size_t& training_amount
     std::vector<GPULayer> gpu_network = allocate_network_data_on_gpu(network);
     for (size_t i = 0; i < training_amount; i++) {
         train_on_one_image_gpu(i, learning_rate, train_labels[i], train_images_norm[i], network, gpu_network);
+        if (SL::should_log(SL::DEBUG)) {
+            network_from_gpu_to_host(network, gpu_network);
+        }
     }
     auto train_end_time = std::chrono::high_resolution_clock::now();
+    network_from_gpu_to_host(network, gpu_network);
+    print_network(network);
 
     int correct_count = 0;
 
@@ -165,7 +170,6 @@ void train_on_one_image_gpu(const int counter, const float learning_rate, const 
     LOG(SL::NOTICE) << "Cost: " << BLUE << cost << RESET << std::endl;
 
     backpropagation_gpu(train_image, one_hot, network, gpu_network, learning_rate);
-    network_from_gpu_to_host(network, gpu_network);
     print_network(network);
 }
 
@@ -176,6 +180,7 @@ bool test_one_image_gpu(const int counter, const uint8_t& label, const std::vect
                     << static_cast<int>(label) << RESET << std::endl;
     // Perform forward propagation on the GPU
     forward_propagation_gpu(train_image, network, gpu_network);
+    print_network(network);
     // Print the output
     std::vector<float>& output = network.back().output;
     LOG(SL::DEBUG) << "Output probabilities (CPU):" << GREY << std::endl;
@@ -186,8 +191,6 @@ bool test_one_image_gpu(const int counter, const uint8_t& label, const std::vect
         }
     }
     LOG(SL::DEBUG) << RESET << std::endl;
-    network_from_gpu_to_host(network, gpu_network);
-    print_network(network);
 
     // Find the index of the highest probability
     uint8_t max_index = std::distance(output.begin(), std::max_element(output.begin(), output.end()));

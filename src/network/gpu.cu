@@ -180,7 +180,7 @@ void forward_propagation_gpu(const std::vector<float>& input, std::vector<Layer>
         // Apply Sigmoid activation function
         apply_sigmoid_gpu<<<(layer_output_size + 255) / 256, 256>>>(gpu_network[i].output, layer_output_size);
 
-        if (SL::should_log(SL::DEBUG)) {
+        if ((SL::should_log(SL::DEBUG)) || (i == network.size()-1)) {
             // Debug: Check output after activation
             cudaMemcpyWrapper(temp_output.data(), gpu_network[i].output, layer_output_size * sizeof(float),
                             cudaMemcpyDeviceToHost);
@@ -189,6 +189,7 @@ void forward_propagation_gpu(const std::vector<float>& input, std::vector<Layer>
                 LOG(SL::DEBUG) << temp_output[j] << " ";
             }
             LOG(SL::DEBUG) << RESET << std::endl;
+            network[i].output = temp_output; // only when debugging or if it's the last activation
         }
 
         current_input = gpu_network[i].output;  // Update input for next layer
