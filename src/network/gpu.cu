@@ -165,33 +165,34 @@ void forward_propagation_gpu(const std::vector<float>& input, std::vector<Layer>
                                                                 gpu_network[i].biases, gpu_network[i].output,
                                                                 input_size, layer_output_size);
 
-        // Debug: Check output after matrix multiplication
         std::vector<float> temp_output(layer_output_size);
-        cudaMemcpyWrapper(temp_output.data(), gpu_network[i].output, layer_output_size * sizeof(float),
-                          cudaMemcpyDeviceToHost);
-
-        LOG(SL::DEBUG) << "Layer " << i << " Pre-Activation Output (GPU):" << GREY << std::endl;
-        for (int j = 0; j < layer_output_size; ++j) {
-            LOG(SL::DEBUG) << temp_output[j] << " ";
+        if (SL::should_log(SL::DEBUG)) {
+            // Debug: Check output after matrix multiplication
+            cudaMemcpyWrapper(temp_output.data(), gpu_network[i].output, layer_output_size * sizeof(float),
+                            cudaMemcpyDeviceToHost);
+            LOG(SL::DEBUG) << "Layer " << i << " Pre-Activation Output (GPU):" << GREY << std::endl;
+            for (int j = 0; j < layer_output_size; ++j) {
+                LOG(SL::DEBUG) << temp_output[j] << " ";
+            }
+            LOG(SL::DEBUG) << RESET << std::endl;
         }
-        LOG(SL::DEBUG) << RESET << std::endl;
 
         // Apply Sigmoid activation function
         apply_sigmoid_gpu<<<(layer_output_size + 255) / 256, 256>>>(gpu_network[i].output, layer_output_size);
 
-        // Debug: Check output after activation
-        cudaMemcpyWrapper(temp_output.data(), gpu_network[i].output, layer_output_size * sizeof(float),
-                          cudaMemcpyDeviceToHost);
-
-        LOG(SL::DEBUG) << "Layer " << i << " Post-Activation Output (GPU):" << GREY << std::endl;
-        for (int j = 0; j < layer_output_size; ++j) {
-            LOG(SL::DEBUG) << temp_output[j] << " ";
+        if (SL::should_log(SL::DEBUG)) {
+            // Debug: Check output after activation
+            cudaMemcpyWrapper(temp_output.data(), gpu_network[i].output, layer_output_size * sizeof(float),
+                            cudaMemcpyDeviceToHost);
+            LOG(SL::DEBUG) << "Layer " << i << " Post-Activation Output (GPU):" << GREY << std::endl;
+            for (int j = 0; j < layer_output_size; ++j) {
+                LOG(SL::DEBUG) << temp_output[j] << " ";
+            }
+            LOG(SL::DEBUG) << RESET << std::endl;
         }
-        LOG(SL::DEBUG) << RESET << std::endl;
 
         current_input = gpu_network[i].output;  // Update input for next layer
         input_size = layer_output_size;
-        network[i].output = temp_output;
     }
     cudaFreeWrapper(d_input);
 }
@@ -219,10 +220,8 @@ void backpropagation_gpu(const std::vector<float>& input, const std::vector<floa
     cudaMallocWrapper(reinterpret_cast<void**>(&next_delta), max_output_size * sizeof(float));
 
     LOG(SL::INFO) << "(GPU) Backpropagation:" << std::endl;
-
     // Backward propagation through the layers
     for (int i = network.size() - 1; i >= 0; --i) {
-        // Allocate GPU memory for the delta (error term)
         const std::vector<float>& output = network[i].output;
         const std::vector<float>& previous_output = (i == 0) ? input : network[i - 1].output;
         float* gpu_previous_output = (i == 0) ? gpu_input : gpu_network[i - 1].output;
@@ -249,7 +248,7 @@ void backpropagation_gpu(const std::vector<float>& input, const std::vector<floa
         cudaDeviceSynchronize();
         LOG(SL::DEBUG) << RESET << std::endl;
 
-        // LOG(SL::DEBUG) << "Changing weights and biases for layer " << i << ":" << std::endl;
+        LOG(SL::DEBUG) << "Changing weights and biases for layer " << i << std::endl;
         // Update weights and biases
         update_weights_biases_gpu<<<(output.size() + 255) / 256, 256>>>(gpu_network[i].weights, gpu_network[i].biases,
                                                                         gpu_previous_output, delta, output.size(),
