@@ -17,7 +17,7 @@ std::vector<float> matrix_multiply_cpu(const std::vector<float>& A, const std::v
 std::vector<std::vector<float>> forward_propagation_cpu(const std::vector<float>& input,
                              std::vector<Layer> network);
 
-float loss_cpu(const std::vector<float>& predicted, const std::vector<float>& actual);
+float cumulative_loss_cpu(const std::vector<float>& predicted, const std::vector<float>& actual);
 
 void backpropagation_cpu(const std::vector<float>& input, const std::vector<float>& actual, 
                          std::vector<Layer>& network, float learning_rate);

@@ -110,13 +110,13 @@ Activations forward_propagation_cpu(const std::vector<float>& input, std::vector
     return activations;
 }
 
-float loss_cpu(const std::vector<float>& predicted, const std::vector<float>& actual) {
-    float loss = 0.0f;
+float cumulative_loss_cpu(const std::vector<float>& predicted, const std::vector<float>& actual) {
+    float cumulative_loss = 0.0f;
     for (size_t i = 0; i < predicted.size(); ++i) {
-        loss += (predicted[i] - actual[i]) * (predicted[i] - actual[i]);
+        cumulative_loss += (predicted[i] - actual[i]) * (predicted[i] - actual[i]);
     }
 
-    return loss;
+    return cumulative_loss;
 }
 
 // for now just change network after each training example
