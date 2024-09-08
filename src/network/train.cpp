@@ -23,7 +23,6 @@ void train_on_all_images_cpu(const float& learning_rate, size_t& training_amount
         train_on_one_image_cpu(i, learning_rate, train_labels[i], train_images_norm[i], network);
     }
     auto train_end_time = std::chrono::high_resolution_clock::now();
-
     int correct_count = 0;
 
     LOG(SL::NOTICE) << "(CPU) Testing network with " << BLUE << testing_amount << RESET << " images\n";
@@ -64,7 +63,6 @@ void train_on_all_images_gpu(const float& learning_rate, size_t& training_amount
     auto train_end_time = std::chrono::high_resolution_clock::now();
     network_from_gpu_to_host(network, gpu_network);
     print_network(network);
-
     int correct_count = 0;
 
     LOG(SL::NOTICE) << "(GPU) Testing network with " << BLUE << testing_amount << RESET << " images\n";
@@ -94,7 +92,10 @@ void train_on_one_image_cpu(const int counter, const float learning_rate, const 
                     << static_cast<int>(label) << RESET << std::endl;
     std::vector<float> one_hot = generate_one_hot_vector(label);
     // Perform forward propagation on the GPU
-    forward_propagation_cpu(train_image, network);
+    std::vector<std::vector<float>> activations = forward_propagation_cpu(train_image, network);
+    for (size_t i = 0; i < activations.size(); i++) {
+        network[i].output = activations[i];
+    }
     // Print the output
     std::vector<float> output = network.back().output;
     LOG(SL::DEBUG) << "Output probabilities (CPU):" << GREY << std::endl;
@@ -119,7 +120,10 @@ bool test_one_image_cpu(const int counter, const uint8_t& label, const std::vect
     LOG(SL::NOTICE) << "(CPU) Processing image " << BLUE << counter << RESET << ", label: " << BLUE
                     << static_cast<int>(label) << RESET << std::endl;
     // Perform forward propagation on the GPU
-    forward_propagation_cpu(train_image, network);
+    std::vector<std::vector<float>> activations = forward_propagation_cpu(train_image, network);
+    for (size_t i = 0; i < activations.size(); i++) {
+        network[i].output = activations[i];
+    }
     // Print the output
     std::vector<float>& output = network.back().output;
     LOG(SL::DEBUG) << "Output probabilities (CPU):" << GREY << std::endl;

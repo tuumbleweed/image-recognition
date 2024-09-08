@@ -63,9 +63,10 @@ std::vector<float> matrix_multiply_cpu(const std::vector<float>& A, const std::v
 }
 
 // Function to initialize memory, copy data, and run forward propagation
-void forward_propagation_cpu(const std::vector<float>& input, std::vector<Layer>& network) {
+std::vector<std::vector<float>> forward_propagation_cpu(const std::vector<float>& input, std::vector<Layer> network) {
     int input_size = input.size();
     int output_size = network.back().weights.size();
+    std::vector<std::vector<float>> activations(network.size());
 
     // Allocate memory for the intermediate results
     std::vector<float> current_input = input;
@@ -99,12 +100,14 @@ void forward_propagation_cpu(const std::vector<float>& input, std::vector<Layer>
         }
         LOG(SL::DEBUG) << RESET << std::endl;
 
-        network[i].output = current_output;
+        activations[i] = current_output;
         // Prepare input for the next layer
         current_input = current_output;
         input_size = layer_output_size;
         LOG(SL::INFO) << DIM_GREEN << "layer " << i << RESET << std::endl;
     }
+
+    return activations;
 }
 
 float cost_cpu(const std::vector<float>& predicted, const std::vector<float>& actual) {

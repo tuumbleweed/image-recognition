@@ -14,8 +14,8 @@ std::vector<float> matrix_multiply_cpu(const std::vector<float>& A, const std::v
                                        const std::vector<float>& biases, int a_length_b_width, int b_length);
 
 // Function to initialize memory, copy data, and run forward propagation
-void forward_propagation_cpu(const std::vector<float>& input,
-                             std::vector<Layer>& network);
+std::vector<std::vector<float>> forward_propagation_cpu(const std::vector<float>& input,
+                             std::vector<Layer> network);
 
 float cost_cpu(const std::vector<float>& predicted, const std::vector<float>& actual);
 
