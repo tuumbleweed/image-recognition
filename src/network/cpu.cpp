@@ -110,13 +110,13 @@ Activations forward_propagation_cpu(const std::vector<float>& input, std::vector
     return activations;
 }
 
-float cost_cpu(const std::vector<float>& predicted, const std::vector<float>& actual) {
-    float cost = 0.0f;
+float loss_cpu(const std::vector<float>& predicted, const std::vector<float>& actual) {
+    float loss = 0.0f;
     for (size_t i = 0; i < predicted.size(); ++i) {
-        cost += (predicted[i] - actual[i]) * (predicted[i] - actual[i]);
+        loss += (predicted[i] - actual[i]) * (predicted[i] - actual[i]);
     }
 
-    return cost;
+    return loss;
 }
 
 // for now just change network after each training example
@@ -143,7 +143,7 @@ void backpropagation_cpu(const std::vector<float>& input, const std::vector<floa
             // for each output
             for (size_t j = 0; j < output.size(); ++j) {
                 LOG(SL::DEBUG) << "Delta " << j << ": (";
-                // derivative of cost to a multiplied by derivative of a to z (sigmoid)
+                // derivative of loss to a multiplied by derivative of a to z (sigmoid)
                 // can remove 2.0f and reflect it in learning rate to remove this multiplication
                 delta[j] = (output[j] - actual[j]) * sigmoid_derivative_cpu(output[j]);
                 LOG(SL::DEBUG) << std::fixed << std::setprecision(6) << output[j] << "-" << actual[j] << ") * "

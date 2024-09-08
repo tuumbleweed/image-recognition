@@ -26,7 +26,7 @@ cmake -B build -S . && cmake --build build && ./build/ImageRecognition --gpu --c
 - ~~Update weights and biases~~
 - ~~Training loop~~
 - ~~Testing using test images~~
-- ~~It isn't training correctly, stuck at 0.9 cost~~
+- ~~It isn't training correctly, stuck at 0.9 loss~~
 - ~~Experiment with learning rate (Success rate of 60-80% is achieved with learning rate from 0.05 to 0.08)~~
 - ~~GPU training~~
 - ~~See why you get only 30-40% accuracy with GPU as opposed to 60-80% with CPU~~

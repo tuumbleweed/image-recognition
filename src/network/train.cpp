@@ -85,6 +85,17 @@ void train_on_all_images_gpu(const float& learning_rate, size_t& training_amount
                     << std::endl;
 }
 
+void train_on_a_batch_cpu(const std::vector<int> counters, const float learning_rate, const std::vector<uint8_t>& labels,
+                          const std::vector<std::vector<float>>& images, std::vector<Layer>& network) {
+    LOG(SL::NOTICE) << "(CPU) Processing images " << BLUE << counters[0] << " - " << counters.back() << RESET;
+    // perform forward propagation for each image in a batch
+    for (size_t i = 0; i < images.size(); i++) {
+        Activations activations = forward_propagation_cpu(images[i], network);
+        // accumulate activations there
+
+    }
+}
+
 void train_on_one_image_cpu(const int counter, const float learning_rate, const uint8_t& label,
                             const std::vector<float>& train_image, std::vector<Layer>& network) {
     print_image(train_image, 28, 28);
@@ -107,8 +118,8 @@ void train_on_one_image_cpu(const int counter, const float learning_rate, const 
     }
     LOG(SL::DEBUG) << RESET << std::endl;
 
-    float cost = cost_cpu(output, one_hot);
-    LOG(SL::NOTICE) << "Cost: " << BLUE << cost << RESET << std::endl;
+    float loss = loss_cpu(output, one_hot);
+    LOG(SL::NOTICE) << "Loss: " << BLUE << loss << RESET << std::endl;
 
     backpropagation_cpu(train_image, one_hot, network, learning_rate);
     print_network(network);
@@ -170,8 +181,8 @@ void train_on_one_image_gpu(const int counter, const float learning_rate, const 
     }
     LOG(SL::DEBUG) << RESET << std::endl;
 
-    float cost = cost_cpu(output, one_hot);
-    LOG(SL::NOTICE) << "Cost: " << BLUE << cost << RESET << std::endl;
+    float loss = loss_cpu(output, one_hot);
+    LOG(SL::NOTICE) << "Loss: " << BLUE << loss << RESET << std::endl;
 
     backpropagation_gpu(train_image, one_hot, network, gpu_network, learning_rate);
     print_network(network);
