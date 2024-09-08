@@ -92,7 +92,7 @@ void train_on_one_image_cpu(const int counter, const float learning_rate, const 
                     << static_cast<int>(label) << RESET << std::endl;
     std::vector<float> one_hot = generate_one_hot_vector(label);
     // Perform forward propagation on the GPU
-    std::vector<std::vector<float>> activations = forward_propagation_cpu(train_image, network);
+    Activations activations = forward_propagation_cpu(train_image, network);
     for (size_t i = 0; i < activations.size(); i++) {
         network[i].output = activations[i];
     }
@@ -120,7 +120,7 @@ bool test_one_image_cpu(const int counter, const uint8_t& label, const std::vect
     LOG(SL::NOTICE) << "(CPU) Processing image " << BLUE << counter << RESET << ", label: " << BLUE
                     << static_cast<int>(label) << RESET << std::endl;
     // Perform forward propagation on the GPU
-    std::vector<std::vector<float>> activations = forward_propagation_cpu(train_image, network);
+    Activations activations = forward_propagation_cpu(train_image, network);
     for (size_t i = 0; i < activations.size(); i++) {
         network[i].output = activations[i];
     }

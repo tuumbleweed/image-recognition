@@ -18,6 +18,8 @@ struct Layer {
     }
 };
 
+using Activations = std::vector<std::vector<float>>;
+
 Layer initialize_weights_and_biases(const int input_dim, const int output_dim, unsigned int seed);
 
 // Function to initialize the network layers and their weights
