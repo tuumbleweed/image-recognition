@@ -63,10 +63,10 @@ std::vector<float> matrix_multiply_cpu(const std::vector<float>& A, const std::v
 }
 
 // Function to initialize memory, copy data, and run forward propagation
-Activations forward_propagation_cpu(const std::vector<float>& input, std::vector<Layer> network) {
+vec_float_2d forward_propagation_cpu(const std::vector<float>& input, std::vector<Layer> network) {
     int input_size = input.size();
     int output_size = network.back().weights.size();
-    Activations activations(network.size());
+    vec_float_2d activations(network.size());
 
     // Allocate memory for the intermediate results
     std::vector<float> current_input = input;
@@ -76,7 +76,7 @@ Activations forward_propagation_cpu(const std::vector<float>& input, std::vector
     LOG(SL::DEBUG)
         << "------------------------------------ Activation Output (CPU) ------------------------------------"
         << std::endl;
-    for (size_t i = 0; i < network.size(); ++i) {
+    for (int i = 0; i < network.size(); ++i) {
         int layer_output_size = network[i].weights.size();
 
         // Perform matrix multiplication
@@ -123,32 +123,30 @@ float cumulative_loss_cpu(const std::vector<float>& predicted, const std::vector
 // later batch them together and calculate average. Then change.
 // when working with "next" and "previous" keep in mind that we walk backwards here
 // from "next" to "previous".
-void backpropagation_cpu(const std::vector<float>& input, const std::vector<float>& actual, std::vector<Layer>& network,
-                         float learning_rate) {
+void backpropagation_cpu(const vec_float_2d& image_batch, const std::vector<float>& actual, std::vector<Layer>& network,
+                         const float learning_rate, const std::vector<vec_float_2d>& all_activations) {
     // Compute gradients and update weights and biases in reverse order
-    std::vector<float> delta;
+    vec_float_2d delta(network.size());
 
     LOG(SL::INFO) << "Backpropagation:" << std::endl;
     for (int i = network.size() - 1; i >= 0; --i) {
         const std::vector<float>& output = network[i].output;
-        // previous output equal to derivatives of z in respect to all weights connected to this z
-        const std::vector<float>& previous_output = (i == 0) ? input : network[i - 1].output;
 
         // Calculate the error
         // dC to dA(L), dA(L) to dZ are calculeted separately
         LOG(SL::DEBUG) << "Computing deltas for layer " << i << " (CPU)" << GREY << std::endl;
         if (i == network.size() - 1) {
             // For output layer, use one hot vector (actual) to calculate dC to dA(L)
-            delta.resize(output.size());
+            delta[i].resize(output.size());
             // for each output
             for (size_t j = 0; j < output.size(); ++j) {
                 LOG(SL::DEBUG) << "Delta " << j << ": (";
                 // derivative of loss to a multiplied by derivative of a to z (sigmoid)
                 // can remove 2.0f and reflect it in learning rate to remove this multiplication
-                delta[j] = (output[j] - actual[j]) * sigmoid_derivative_cpu(output[j]);
+                delta[i][j] = (output[j] - actual[j]) * sigmoid_derivative_cpu(output[j]);
                 LOG(SL::DEBUG) << std::fixed << std::setprecision(6) << output[j] << "-" << actual[j] << ") * "
                                << sigmoid_derivative_cpu(output[j]) << " = ";
-                LOG(SL::DEBUG) << delta[j] << "\n";
+                LOG(SL::DEBUG) << delta[i][j] << "\n";
             }
         } else {
             // For hidden layers, use previous(next) delta instead
@@ -156,44 +154,76 @@ void backpropagation_cpu(const std::vector<float>& input, const std::vector<floa
             // this way we can calculate dC to dA(L)(in this case da(L-1)) for the next layer
             // so 2.0f * (output[j] - actual[j]) is replaced by a sum of next_delta and weights
             // 2.0f * (output[j] - actual[j]) * sigmoid_derivative_cpu(output[j]) * sum of weights for j
-            std::vector<float> next_delta = delta;
-            delta.resize(output.size());
+            std::vector<float>& next_delta = delta[i+1];
+            delta[i].resize(output.size());
             for (size_t j = 0; j < output.size(); ++j) {
                 LOG(SL::DEBUG) << "Delta " << j << ": (";
-                delta[j] = 0.0f;  // rewrite previous value
+                delta[i][j] = 0.0f;  // rewrite previous value
                 for (size_t k = 0; k < next_delta.size(); ++k) {
                     // we are not in the last layer so i+1 is fine
-                    delta[j] += next_delta[k] * network[i + 1].weights[k][j];
+                    delta[i][j] += next_delta[k] * network[i + 1].weights[k][j];
                     LOG(SL::DEBUG) << next_delta[k] << "*" << network[i + 1].weights[k][j];
                     if (k < next_delta.size() - 1) {
                         LOG(SL::DEBUG) << " + ";
                     }
                 }
                 float sigmoid_derivative = sigmoid_derivative_cpu(output[j]);
-                delta[j] *= sigmoid_derivative;
-                LOG(SL::DEBUG) << ") * " << sigmoid_derivative << " = " << delta[j] << std::endl;
+                delta[i][j] *= sigmoid_derivative;
+                LOG(SL::DEBUG) << ") * " << sigmoid_derivative << " = " << delta[i][j] << std::endl;
             }
         }
         LOG(SL::DEBUG) << RESET << std::endl;
 
-        LOG(SL::DEBUG) << "Change weights and biases for layer " << i << ":" << std::endl;
-        // Update weights and biases
-        for (size_t j = 0; j < network[i].weights.size(); ++j) {
-            LOG(SL::DEBUG) << "Weights " << j << "x" << network[i].weights[j].size() << ":" << GREY << std::endl;
-            for (size_t k = 0; k < network[i].weights[j].size(); ++k) {
-                // dC/dw(L) = a(L-1)*delta
-                LOG(SL::DEBUG) << network[i].weights[j][k] << "-=" << learning_rate << "*" << delta[j] << "*"
-                               << previous_output[k] << " ";
-                network[i].weights[j][k] -= learning_rate * delta[j] * previous_output[k];
+        // Option to update weights and biases right away. Usually results in lower test accuracy.
+        // for (size_t l = 0; l < image_batch.size(); l++) {
+        //     LOG(SL::DEBUG) << "Change weights and biases for layer " << i << ":" << std::endl;
+        //     // previous output equal to derivatives of z in respect to all weights connected to this z
+        //     // const std::vector<float>& previous_output = (i == 0) ? image_batch[0] : network[i - 1].output;
+        //     const std::vector<float>& previous_output = (i == 0) ? image_batch[l] : all_activations[l][i - 1];
+        //     // Update weights and biases
+        //     for (size_t j = 0; j < network[i].weights.size(); ++j) {
+        //         LOG(SL::DEBUG) << "Weights " << j << "x" << network[i].weights[j].size() << ":" << GREY << std::endl;
+        //         for (size_t k = 0; k < network[i].weights[j].size(); ++k) {
+        //             // dC/dw(L) = a(L-1)*delta
+        //             LOG(SL::DEBUG) << network[i].weights[j][k] << "-=" << learning_rate << "*" << delta[i][j] << "*"
+        //                         << previous_output[k] << " ";
+        //             network[i].weights[j][k] -= learning_rate * delta[i][j] * previous_output[k];
+        //         }
+        //         LOG(SL::DEBUG) << RESET << std::endl;
+        //         // since z to bias derivative is 1 so dC/db(L) = 1*delta
+        //         LOG(SL::DEBUG) << "Biases:" << GREY << std::endl;
+        //         LOG(SL::DEBUG) << network[i].biases[j] << "-=" << learning_rate << "*" << delta[i][j] << " ";
+        //         network[i].biases[j] -= learning_rate * delta[i][j];
+        //         LOG(SL::DEBUG) << RESET << std::endl;
+        //     }
+        //     LOG(SL::DEBUG) << RESET << std::endl;
+        //     LOG(SL::INFO) << DIM_GREEN << "layer " << i << RESET << std::endl;
+        // }
+    }
+    for (size_t l = 0; l < image_batch.size(); l++) {
+        for (int i = network.size() - 1; i >= 0; --i) {
+            LOG(SL::DEBUG) << "Change weights and biases for layer " << i << ":" << std::endl;
+            // previous output equal to derivatives of z in respect to all weights connected to this z
+            // const std::vector<float>& previous_output = (i == 0) ? image_batch[0] : network[i - 1].output;
+            const std::vector<float>& previous_output = (i == 0) ? image_batch[l] : all_activations[l][i - 1];
+            // Update weights and biases
+            for (size_t j = 0; j < network[i].weights.size(); ++j) {
+                LOG(SL::DEBUG) << "Weights " << j << "x" << network[i].weights[j].size() << ":" << GREY << std::endl;
+                for (size_t k = 0; k < network[i].weights[j].size(); ++k) {
+                    // dC/dw(L) = a(L-1)*delta
+                    LOG(SL::DEBUG) << network[i].weights[j][k] << "-=" << learning_rate << "*" << delta[i][j] << "*"
+                                << previous_output[k] << " ";
+                    network[i].weights[j][k] -= learning_rate * delta[i][j] * previous_output[k];
+                }
+                LOG(SL::DEBUG) << RESET << std::endl;
+                // since z to bias derivative is 1 so dC/db(L) = 1*delta
+                LOG(SL::DEBUG) << "Biases:" << GREY << std::endl;
+                LOG(SL::DEBUG) << network[i].biases[j] << "-=" << learning_rate << "*" << delta[i][j] << " ";
+                network[i].biases[j] -= learning_rate * delta[i][j];
+                LOG(SL::DEBUG) << RESET << std::endl;
             }
             LOG(SL::DEBUG) << RESET << std::endl;
-            // since z to bias derivative is 1 so dC/db(L) = 1*delta
-            LOG(SL::DEBUG) << "Biases:" << GREY << std::endl;
-            LOG(SL::DEBUG) << network[i].biases[j] << "-=" << learning_rate << "*" << delta[j] << " ";
-            network[i].biases[j] -= learning_rate * delta[j];
-            LOG(SL::DEBUG) << RESET << std::endl;
+            LOG(SL::INFO) << DIM_GREEN << "layer " << i << RESET << std::endl;
         }
-        LOG(SL::DEBUG) << RESET << std::endl;
-        LOG(SL::INFO) << DIM_GREEN << "layer " << i << RESET << std::endl;
     }
 }

@@ -77,10 +77,12 @@ std::vector<float> generate_one_hot_vector(uint8_t label, uint8_t length) {
     if (label < length) {
         one_hot_vector[label] = 1.0f;
     }
-    LOG(SL::DEBUG) << "One hot: " << GREY;
-    for (float& value : one_hot_vector) {
-        LOG(SL::DEBUG) << value << " ";
+    if (SL::should_log(SL::DEBUG)) {
+        LOG(SL::DEBUG) << "One hot: " << GREY;
+        for (float& value : one_hot_vector) {
+            LOG(SL::DEBUG) << value << " ";
+        }
+        LOG(SL::DEBUG) << RESET << std::endl;
     }
-    LOG(SL::DEBUG) << RESET << std::endl;
     return one_hot_vector;
 }

@@ -86,15 +86,46 @@ void train_on_all_images_gpu(const float& learning_rate, size_t& training_amount
 }
 
 void train_on_a_batch_cpu(const std::vector<int> counters, const float learning_rate, const std::vector<uint8_t>& labels,
-                          const std::vector<std::vector<float>>& images, std::vector<Layer>& network) {
+                          const vec_float_2d& image_batch, std::vector<Layer>& network) {
     LOG(SL::NOTICE) << "(CPU) Processing images " << BLUE << counters[0] << " - " << counters.back() << RESET;
-    // perform forward propagation for each image in a batch
-    for (size_t i = 0; i < images.size(); i++) {
-        Activations activations = forward_propagation_cpu(images[i], network);
-        // accumulate activations there
-        std::vector<float> one_hot = generate_one_hot_vector(labels[i]);
-
+    std::vector<float> one_hot_average(network.back().output.size(), 0.0f);
+    vec_float_2d activations_average(network.size());
+    std::vector<vec_float_2d> all_activations;
+    for (size_t j = 0; j < network.size(); j++) {
+        activations_average[j] = std::vector<float>(network[j].output.size(), 0.0f);
     }
+    // perform forward propagation for each image in a batch
+    for (size_t i = 0; i < image_batch.size(); i++) {
+        vec_float_2d activations = forward_propagation_cpu(image_batch[i], network);
+        all_activations.push_back(activations);
+        for (size_t j = 0; j < activations_average.size(); j++) {
+            for (size_t k = 0; k < activations_average[j].size(); k++) {
+                activations_average[j][k] += activations[j][k];
+            }
+        }
+        
+        std::vector<float> one_hot = generate_one_hot_vector(labels[i]);
+        for (size_t j = 0; j < one_hot.size(); j++) {
+            one_hot_average[j] += one_hot[j];
+        }
+        // // optimized version
+        // size_t label_index = labels[i];
+        // if (label_index < one_hot_average.size()) {
+        //     one_hot_average[label_index] += 1.0f;
+        // }
+    }
+    for (size_t j = 0; j < activations_average.size(); j++) {
+        for (size_t k = 0; k < activations_average[j].size(); k++) {
+            activations_average[j][k] /= static_cast<float>(image_batch.size());
+        }
+        network[j].output = activations_average[j];
+    }
+    for (size_t j = 0; j < one_hot_average.size(); j++) {
+        one_hot_average[j] /= static_cast<float>(image_batch.size());
+    }
+
+    // so here we pass all images and calculate gradient sum E(1-images.size())(delta * previous activation)
+    backpropagation_cpu(image_batch, one_hot_average, network, learning_rate, all_activations);
 }
 
 void train_on_one_image_cpu(const int counter, const float learning_rate, const uint8_t& label,
@@ -104,7 +135,7 @@ void train_on_one_image_cpu(const int counter, const float learning_rate, const 
                     << static_cast<int>(label) << RESET << std::endl;
     std::vector<float> one_hot = generate_one_hot_vector(label);
     // Perform forward propagation on the GPU
-    Activations activations = forward_propagation_cpu(train_image, network);
+    const vec_float_2d activations = forward_propagation_cpu(train_image, network);
     for (size_t i = 0; i < activations.size(); i++) {
         network[i].output = activations[i];
     }
@@ -122,7 +153,7 @@ void train_on_one_image_cpu(const int counter, const float learning_rate, const 
     float cumulative_loss = cumulative_loss_cpu(output, one_hot);
     LOG(SL::NOTICE) << "Cumulative Loss: " << BLUE << cumulative_loss << RESET << std::endl;
 
-    backpropagation_cpu(train_image, one_hot, network, learning_rate);
+    backpropagation_cpu({ train_image }, one_hot, network, learning_rate, { activations });
     print_network(network);
 }
 
@@ -132,7 +163,7 @@ bool test_one_image_cpu(const int counter, const uint8_t& label, const std::vect
     LOG(SL::NOTICE) << "(CPU) Processing image " << BLUE << counter << RESET << ", label: " << BLUE
                     << static_cast<int>(label) << RESET << std::endl;
     // Perform forward propagation on the GPU
-    Activations activations = forward_propagation_cpu(train_image, network);
+    vec_float_2d activations = forward_propagation_cpu(train_image, network);
     for (size_t i = 0; i < activations.size(); i++) {
         network[i].output = activations[i];
     }
