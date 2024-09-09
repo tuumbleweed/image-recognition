@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
     std::vector<Layer> network = initialize_network(input_size, hidden_size1, hidden_size2, output_size, seed);
     std::vector<Layer> network_copy = network;
 
-    size_t training_amount = vm["number"].as<size_t>();
+    size_t training_amount = vm["train"].as<size_t>();
     if (training_amount == -1 || (training_amount > test_images_norm.size())) {
         training_amount = train_images_norm.size();
     }
@@ -46,9 +46,10 @@ int main(int argc, char *argv[]) {
     if ((testing_amount == -1) || (testing_amount > test_images_norm.size())) {
         testing_amount = test_images_norm.size();
     }
+    size_t batch_size = vm["batch-size"].as<size_t>();
 
     if (cpu) {
-        train_on_all_images_cpu(learning_rate, training_amount, testing_amount, train_labels, test_labels,
+        train_on_all_images_cpu(learning_rate, training_amount, testing_amount, batch_size, train_labels, test_labels,
                                 train_images_norm, test_images_norm, network);
     }
 

@@ -10,7 +10,7 @@
 #include "network/cpu.h"
 #include "network/gpu.h"
 
-void train_on_all_images_cpu(const float& learning_rate, size_t& training_amount, size_t& testing_amount,
+void train_on_all_images_cpu(const float& learning_rate, const size_t& training_amount, const size_t& testing_amount, const size_t& batch_size,
                              const std::vector<uint8_t>& train_labels, const std::vector<uint8_t>& test_labels,
                              const std::vector<std::vector<float>>& train_images_norm,
                              const std::vector<std::vector<float>>& test_images_norm, std::vector<Layer> network) {
@@ -19,8 +19,17 @@ void train_on_all_images_cpu(const float& learning_rate, size_t& training_amount
                     << learning_rate << RESET << " learning rate\n";
     std::this_thread::sleep_for(std::chrono::seconds(1));  // Waits for 1 second
     LOG(SL::NOTICE) << std::endl;
+    vec_float_2d image_batch(batch_size);
+    std::vector<uint8_t> label_batch(batch_size);
+    std::vector<size_t> counters(batch_size);
     for (size_t i = 0; i < training_amount; i++) {
-        train_on_one_image_cpu(i, learning_rate, train_labels[i], train_images_norm[i], network);
+        // everything will be fine
+        image_batch[i % batch_size] = train_images_norm[i];
+        label_batch[i % batch_size] = train_labels[i];
+        counters[i % batch_size] = i;
+        if (i % batch_size == batch_size-1) {
+            train_on_a_batch_cpu(counters, learning_rate, label_batch, image_batch, network);
+        }
     }
     auto train_end_time = std::chrono::high_resolution_clock::now();
     int correct_count = 0;
@@ -85,19 +94,19 @@ void train_on_all_images_gpu(const float& learning_rate, size_t& training_amount
                     << std::endl;
 }
 
-void train_on_a_batch_cpu(const std::vector<int> counters, const float learning_rate, const std::vector<uint8_t>& labels,
+void train_on_a_batch_cpu(const std::vector<size_t> counters, const float learning_rate, const std::vector<uint8_t>& labels,
                           const vec_float_2d& image_batch, std::vector<Layer>& network) {
-    LOG(SL::NOTICE) << "(CPU) Processing images " << BLUE << counters[0] << " - " << counters.back() << RESET;
+    LOG(SL::NOTICE) << "(CPU) Processing images " << BLUE << static_cast<int>(counters[0]) << " - " << static_cast<int>(counters.back()) << RESET << std::endl;
     std::vector<float> one_hot_average(network.back().output.size(), 0.0f);
     vec_float_2d activations_average(network.size());
-    std::vector<vec_float_2d> all_activations;
+    std::vector<vec_float_2d> all_activations(image_batch.size());
     for (size_t j = 0; j < network.size(); j++) {
         activations_average[j] = std::vector<float>(network[j].output.size(), 0.0f);
     }
     // perform forward propagation for each image in a batch
     for (size_t i = 0; i < image_batch.size(); i++) {
         vec_float_2d activations = forward_propagation_cpu(image_batch[i], network);
-        all_activations.push_back(activations);
+        all_activations[i] = activations;
         for (size_t j = 0; j < activations_average.size(); j++) {
             for (size_t k = 0; k < activations_average[j].size(); k++) {
                 activations_average[j][k] += activations[j][k];
@@ -126,6 +135,7 @@ void train_on_a_batch_cpu(const std::vector<int> counters, const float learning_
 
     // so here we pass all images and calculate gradient sum E(1-images.size())(delta * previous activation)
     backpropagation_cpu(image_batch, one_hot_average, network, learning_rate, all_activations);
+    print_network(network);
 }
 
 void train_on_one_image_cpu(const int counter, const float learning_rate, const uint8_t& label,
