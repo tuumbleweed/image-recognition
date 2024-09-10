@@ -45,5 +45,14 @@ cmake -B build -S . && cmake --build build && ./build/ImageRecognition --gpu --c
 - ~~GPU memory leak~~
 - ~~Allocate and deallocate memory only once on GPU.~~
 - ~~Reorganize project~~
-- Stop moving data from gpu to host with each image (only after N images)
-- Feed data in batches of N
+- ~~Feed data in batches of N (CPU)~~
+- Feed data in batches of N (GPU)
+
+
+## Best accuracy
+- Grid search on (for now only those methods)
+    - Learning rate
+    - Batch size
+    - Seed (and other weight initialization methods)
+    - Number of layers and neurons
+    - Different activation functions
