@@ -24,10 +24,16 @@ void train_on_all_images_cpu(const float& learning_rate, const size_t& training_
     std::vector<size_t> counters(batch_size);
     for (size_t i = 0; i < training_amount; i++) {
         // everything will be fine
-        image_batch[i % batch_size] = train_images_norm[i];
-        label_batch[i % batch_size] = train_labels[i];
-        counters[i % batch_size] = i;
-        if (i % batch_size == batch_size-1) {
+        size_t counter = i % batch_size;
+        image_batch[counter] = train_images_norm[i];
+        label_batch[counter] = train_labels[i];
+        counters[counter] = i+1;
+        if ((counter == batch_size-1) || (i == training_amount-1)) {
+            if ((i == training_amount-1) && (counter != batch_size-1)) {
+                image_batch.resize(counter+1);
+                label_batch.resize(counter+1);
+                counters.resize(counter+1);
+            }
             train_on_a_batch_cpu(counters, learning_rate, label_batch, image_batch, network);
         }
     }
