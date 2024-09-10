@@ -112,16 +112,10 @@ void train_on_a_batch_cpu(const std::vector<size_t> counters, const float learni
                 activations_average[j][k] += activations[j][k];
             }
         }
-        
-        std::vector<float> one_hot = generate_one_hot_vector(labels[i]);
-        for (size_t j = 0; j < one_hot.size(); j++) {
-            one_hot_average[j] += one_hot[j];
+        size_t label_index = labels[i];
+        if (label_index < one_hot_average.size()) {
+            one_hot_average[label_index] += 1.0f;
         }
-        // // optimized version
-        // size_t label_index = labels[i];
-        // if (label_index < one_hot_average.size()) {
-        //     one_hot_average[label_index] += 1.0f;
-        // }
     }
     for (size_t j = 0; j < activations_average.size(); j++) {
         for (size_t k = 0; k < activations_average[j].size(); k++) {
@@ -132,6 +126,9 @@ void train_on_a_batch_cpu(const std::vector<size_t> counters, const float learni
     for (size_t j = 0; j < one_hot_average.size(); j++) {
         one_hot_average[j] /= static_cast<float>(image_batch.size());
     }
+
+    float cumulative_loss = cumulative_loss_cpu(activations_average[network.size()-1], one_hot_average);
+    LOG(SL::NOTICE) << "Cumulative Loss: " << BLUE << cumulative_loss << RESET << std::endl;
 
     // so here we pass all images and calculate gradient sum E(1-images.size())(delta * previous activation)
     backpropagation_cpu(image_batch, one_hot_average, network, learning_rate, all_activations);
