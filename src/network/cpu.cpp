@@ -173,33 +173,8 @@ void backpropagation_cpu(const vec_float_2d& image_batch, const std::vector<floa
             }
         }
         LOG(SL::DEBUG) << RESET << std::endl;
-
-        // Option to update weights and biases right away. Usually results in lower test accuracy.
-        // for (size_t l = 0; l < image_batch.size(); l++) {
-        //     LOG(SL::DEBUG) << "Change weights and biases for layer " << i << ":" << std::endl;
-        //     // previous output equal to derivatives of z in respect to all weights connected to this z
-        //     // const std::vector<float>& previous_output = (i == 0) ? image_batch[0] : network[i - 1].output;
-        //     const std::vector<float>& previous_output = (i == 0) ? image_batch[l] : all_activations[l][i - 1];
-        //     // Update weights and biases
-        //     for (size_t j = 0; j < network[i].weights.size(); ++j) {
-        //         LOG(SL::DEBUG) << "Weights " << j << "x" << network[i].weights[j].size() << ":" << GREY << std::endl;
-        //         for (size_t k = 0; k < network[i].weights[j].size(); ++k) {
-        //             // dC/dw(L) = a(L-1)*delta
-        //             LOG(SL::DEBUG) << network[i].weights[j][k] << "-=" << learning_rate << "*" << delta[i][j] << "*"
-        //                         << previous_output[k] << " ";
-        //             network[i].weights[j][k] -= learning_rate * delta[i][j] * previous_output[k];
-        //         }
-        //         LOG(SL::DEBUG) << RESET << std::endl;
-        //         // since z to bias derivative is 1 so dC/db(L) = 1*delta
-        //         LOG(SL::DEBUG) << "Biases:" << GREY << std::endl;
-        //         LOG(SL::DEBUG) << network[i].biases[j] << "-=" << learning_rate << "*" << delta[i][j] << " ";
-        //         network[i].biases[j] -= learning_rate * delta[i][j];
-        //         LOG(SL::DEBUG) << RESET << std::endl;
-        //     }
-        //     LOG(SL::DEBUG) << RESET << std::endl;
-        //     LOG(SL::INFO) << DIM_GREEN << "layer " << i << RESET << std::endl;
-        // }
     }
+
     for (size_t l = 0; l < image_batch.size(); l++) {
         for (int i = network.size() - 1; i >= 0; --i) {
             LOG(SL::DEBUG) << "Change weights and biases for layer " << i << ":" << std::endl;

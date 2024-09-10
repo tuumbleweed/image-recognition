@@ -209,16 +209,10 @@ void backpropagation_gpu(const std::vector<float>& input, const std::vector<floa
     cudaMemcpyWrapper(gpu_input, input.data(), input.size() * sizeof(float), cudaMemcpyHostToDevice);
     cudaMemcpyWrapper(gpu_actual, actual.data(), actual.size() * sizeof(float), cudaMemcpyHostToDevice);
 
-    float* delta;
-    float* next_delta;
-    size_t max_output_size = actual.size();  // Start with the size for the output layer
-    for (int i = network.size() - 2; i >= 0; --i) {
-        if (network[i].output.size() > max_output_size) {
-            max_output_size = network[i].output.size();
-        }
+    std::vector<float*> deltas(network.size());
+    for (size_t i = 0; i < network.size(); i++) {
+        cudaMallocWrapper(reinterpret_cast<void**>(&deltas[i]), network[i].output.size() * sizeof(float));
     }
-    cudaMallocWrapper(reinterpret_cast<void**>(&delta), max_output_size * sizeof(float));
-    cudaMallocWrapper(reinterpret_cast<void**>(&next_delta), max_output_size * sizeof(float));
 
     LOG(SL::INFO) << "(GPU) Backpropagation:" << std::endl;
     // Backward propagation through the layers
@@ -230,40 +224,33 @@ void backpropagation_gpu(const std::vector<float>& input, const std::vector<floa
         LOG(SL::DEBUG) << "Computing deltas for layer " << i << " (GPU)" << GREY << std::endl;
         if (i == network.size() - 1) {
             // For output layer
-            compute_delta_output_gpu<<<(output.size() + 255) / 256, 256>>>(gpu_network[i].output, gpu_actual, delta,
+            compute_delta_output_gpu<<<(output.size() + 255) / 256, 256>>>(gpu_network[i].output, gpu_actual, deltas[i],
                                                                            output.size());
         } else {
-            cudaMemcpyWrapper(next_delta, delta, max_output_size * sizeof(float), cudaMemcpyDeviceToDevice);
-            compute_delta_hidden_gpu<<<(output.size() + 255) / 256, 256>>>(next_delta, gpu_network[i + 1].weights,
-                                                                           gpu_network[i].output, delta, output.size(),
+            compute_delta_hidden_gpu<<<(output.size() + 255) / 256, 256>>>(deltas[i + 1], gpu_network[i + 1].weights,
+                                                                           gpu_network[i].output, deltas[i], output.size(),
                                                                            network[i + 1].output.size());
-            // for (int j = 0; j < output.size(); ++j) {
-            //     // Launch the kernel with only one thread and one block
-            //     compute_delta_hidden_gpu<<<1, 1>>>(next_delta, gpu_network[i + 1].weights, gpu_network[i].output,
-            //     delta, output.size(), network[i + 1].output.size(), j);
-            //     // Ensure that the GPU has finished computing before moving to the next iteration
-            //     cudaDeviceSynchronize();
-            // }
         }
-        // Wait for the GPU to finish before moving on
-        cudaDeviceSynchronize();
         LOG(SL::DEBUG) << RESET << std::endl;
+    }
 
+    for (int i = network.size() - 1; i >= 0; --i) {
+        const std::vector<float>& output = network[i].output;
+        const std::vector<float>& previous_output = (i == 0) ? input : network[i - 1].output;
+        float* gpu_previous_output = (i == 0) ? gpu_input : gpu_network[i - 1].output;
         LOG(SL::DEBUG) << "Changing weights and biases for layer " << i << std::endl;
-        // Update weights and biases
-        update_weights_biases_gpu<<<(output.size() + 255) / 256, 256>>>(gpu_network[i].weights, gpu_network[i].biases,
-                                                                        gpu_previous_output, delta, output.size(),
-                                                                        previous_output.size(), learning_rate, i);
-        // Wait for the GPU to finish before moving on
-        cudaDeviceSynchronize();
-        // LOG(SL::DEBUG) << RESET << std::endl;
+            // Update weights and biases
+            update_weights_biases_gpu<<<(output.size() + 255) / 256, 256>>>(gpu_network[i].weights, gpu_network[i].biases,
+                                                                            gpu_previous_output, deltas[i], output.size(),
+                                                                            previous_output.size(), learning_rate, i);
     }
 
     // Free GPU memory
     cudaFreeWrapper(gpu_input);
     cudaFreeWrapper(gpu_actual);
-    cudaFreeWrapper(delta);
-    cudaFreeWrapper(next_delta);
+    for (size_t i = 0; i < network.size(); i++) {
+        cudaFreeWrapper(deltas[i]);
+    }
 }
 
 // just copy it back to cpu to print later
