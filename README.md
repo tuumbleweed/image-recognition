@@ -46,7 +46,7 @@ cmake -B build -S . && cmake --build build && ./build/ImageRecognition --gpu --c
 - ~~Allocate and deallocate memory only once on GPU.~~
 - ~~Reorganize project~~
 - ~~Feed data in batches of N (CPU)~~
-- Feed data in batches of N (GPU)
+- ~~Feed data in batches of N (GPU)~~
 
 
 ## Best accuracy
