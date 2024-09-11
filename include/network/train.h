@@ -18,6 +18,8 @@ bool test_one_image_gpu(const int counter, const uint8_t& label, const std::vect
 
 void train_on_a_batch_cpu(const std::vector<size_t> counters, const float learning_rate, const std::vector<uint8_t>& labels,
                           const vec_float_2d& image_batch, std::vector<Layer>& network);
+void train_on_a_batch_gpu(const std::vector<size_t> counters, const float learning_rate, const std::vector<uint8_t>& labels,
+                          const vec_float_2d& image_batch, std::vector<Layer>& network, std::vector<GPULayer>& gpu_network);
 
 void train_on_all_images_cpu(const float& learning_rate, const size_t& training_amount, const size_t& testing_amount, const size_t& batch_size,
                              const std::vector<uint8_t>& train_labels, const std::vector<uint8_t>& test_labels,
@@ -25,10 +27,9 @@ void train_on_all_images_cpu(const float& learning_rate, const size_t& training_
                              const std::vector<std::vector<float>>& test_images_norm, std::vector<Layer> network);
 
 
-void train_on_all_images_gpu(const float& learning_rate, size_t& training_amount, size_t& testing_amount,
+void train_on_all_images_gpu(const float& learning_rate, size_t& training_amount, size_t& testing_amount, const size_t& batch_size,
                              const std::vector<uint8_t>& train_labels, const std::vector<uint8_t>& test_labels,
                              const std::vector<std::vector<float>>& train_images_norm,
-                             const std::vector<std::vector<float>>& test_images_norm,
-                             std::vector<Layer> network);
+                             const std::vector<std::vector<float>>& test_images_norm, std::vector<Layer> network);
 
 #endif // TRAIN_H

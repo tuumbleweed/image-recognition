@@ -11,9 +11,10 @@ struct GPULayer {
 };
 
 // Forward declaration of functions that are used in main.cpp
-void forward_propagation_gpu(const std::vector<float>& input, std::vector<Layer>& network, std::vector<GPULayer>& gpu_network);
-void backpropagation_gpu(const std::vector<float>& input, const std::vector<float>& actual, 
-                         std::vector<Layer>& network, std::vector<GPULayer>& gpu_network, float learning_rate);
+vec_float_2d forward_propagation_gpu(const std::vector<float>& input, const std::vector<Layer>& network,
+                             std::vector<GPULayer>& gpu_network);
+void backpropagation_gpu(const vec_float_2d& image_batch, const std::vector<float>& actual, std::vector<Layer>& network,
+                         std::vector<GPULayer>& gpu_network, const float learning_rate, const std::vector<vec_float_2d>& all_activations);
 void network_from_gpu_to_host(std::vector<Layer>& network, std::vector<GPULayer>& gpu_network);
 std::vector<GPULayer> allocate_network_data_on_gpu(std::vector<Layer>& network);
 void deallocate_network_data_on_gpu(std::vector<GPULayer>& gpu_network);

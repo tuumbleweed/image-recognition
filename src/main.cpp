@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
     }
 
     if (gpu) {
-        train_on_all_images_gpu(learning_rate, training_amount, testing_amount, train_labels, test_labels,
+        train_on_all_images_gpu(learning_rate, training_amount, testing_amount, batch_size, train_labels, test_labels,
                                 train_images_norm, test_images_norm, network);
     }
 
