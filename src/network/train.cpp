@@ -35,6 +35,7 @@ void train_on_all_images_cpu(const float& learning_rate, const size_t& training_
                 counters.resize(counter+1);
             }
             train_on_a_batch_cpu(counters, learning_rate, label_batch, image_batch, network);
+            print_network(network);
         }
     }
     auto train_end_time = std::chrono::high_resolution_clock::now();
@@ -85,11 +86,12 @@ void train_on_all_images_gpu(const float& learning_rate, size_t& training_amount
                 counters.resize(counter+1);
             }
             train_on_a_batch_gpu(counters, learning_rate, label_batch, image_batch, network, gpu_network);
+            print_network(network);
         }
     }
     auto train_end_time = std::chrono::high_resolution_clock::now();
     network_from_gpu_to_host(network, gpu_network);
-    print_network(network);
+    // print_network(network);
     int correct_count = 0;
 
     LOG(SL::NOTICE) << "(GPU) Testing network with " << BLUE << testing_amount << RESET << " images\n";
@@ -149,7 +151,6 @@ void train_on_a_batch_cpu(const std::vector<size_t> counters, const float learni
 
     // so here we pass all images and calculate gradient sum E(1-images.size())(delta * previous activation)
     backpropagation_cpu(image_batch, one_hot_average, network, learning_rate, all_activations);
-    print_network(network);
 }
 
 void train_on_a_batch_gpu(const std::vector<size_t> counters, const float learning_rate, const std::vector<uint8_t>& labels,
@@ -189,7 +190,6 @@ void train_on_a_batch_gpu(const std::vector<size_t> counters, const float learni
 
     // so here we pass all images and calculate gradient sum E(1-images.size())(delta * previous activation)
     backpropagation_gpu(image_batch, one_hot_average, network, gpu_network, learning_rate, all_activations);
-    print_network(network);
 }
 
 void train_on_one_image_cpu(const int counter, const float learning_rate, const uint8_t& label,
@@ -249,7 +249,6 @@ void train_on_one_image_gpu(const int counter, const float learning_rate, const 
     LOG(SL::NOTICE) << "Cumulative Loss: " << BLUE << cumulative_loss << RESET << std::endl;
 
     backpropagation_gpu({ train_image }, one_hot, network, gpu_network, learning_rate, { activations });
-    // backpropagation_gpu2(train_image, one_hot, network, gpu_network, learning_rate);
     print_network(network);
 }
 

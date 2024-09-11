@@ -232,11 +232,10 @@ void backpropagation_gpu(const vec_float_2d& image_batch, const std::vector<floa
     }
 
     for (size_t l = 0; l < image_batch.size(); l++) {
-        const std::vector<float>& input_image = image_batch[l];
-        cudaMemcpyWrapper(gpu_input, input_image.data(), input_image.size() * sizeof(float), cudaMemcpyHostToDevice);
+        cudaMemcpyWrapper(gpu_input, image_batch[l].data(), image_batch[l].size() * sizeof(float), cudaMemcpyHostToDevice);
         for (int i = network.size() - 1; i >= 0; --i) {
             const std::vector<float>& output = network[i].output;
-            const std::vector<float>& previous_output = (i == 0) ? input_image : all_activations[l][i - 1];
+            const std::vector<float>& previous_output = (i == 0) ? image_batch[l] : all_activations[l][i - 1];
             float* gpu_previous_output = (i == 0) ? gpu_input : gpu_network[i - 1].output;
             LOG(SL::DEBUG) << "Changing weights and biases for layer " << i << std::endl;
                 // Update weights and biases

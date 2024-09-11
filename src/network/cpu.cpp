@@ -112,9 +112,12 @@ vec_float_2d forward_propagation_cpu(const std::vector<float>& input, const std:
 
 float cumulative_loss_cpu(const std::vector<float>& predicted, const std::vector<float>& actual) {
     float cumulative_loss = 0.0f;
+    LOG(SL::DEBUG) << "Cumulative loss:" << GREY << std::endl;
     for (size_t i = 0; i < predicted.size(); ++i) {
+        LOG(SL::DEBUG) << "(" << predicted[i] << " - " << actual[i] << ") * (" << predicted[i] << " - " << actual[i] << ")" << std::endl;
         cumulative_loss += (predicted[i] - actual[i]) * (predicted[i] - actual[i]);
     }
+    LOG(SL::DEBUG) << RESET << std::endl;
 
     return cumulative_loss;
 }
