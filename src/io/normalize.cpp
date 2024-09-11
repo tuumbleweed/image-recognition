@@ -18,7 +18,7 @@ std::vector<std::vector<float>> normalize_all(const std::vector<std::vector<uint
     std::vector<std::vector<float>> normalized_images;
     normalized_images.reserve(images.size());
 
-    for (auto& image : images) {
+    for (const std::vector<uint8_t>& image : images) {
         std::vector<float> normalized_image;
         normalized_image.reserve(image.size());
 

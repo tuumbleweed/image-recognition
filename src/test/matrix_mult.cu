@@ -11,7 +11,7 @@ std::vector<float> multiply_on_gpu(const std::vector<float>& A, const std::vecto
                                    const std::vector<float>& biases) {
     // Flatten matrix B into a single array
     std::vector<float> B_flat;
-    for (const auto& row : B) {
+    for (const std::vector<float>& row : B) {
         B_flat.insert(B_flat.end(), row.begin(), row.end());
     }
 

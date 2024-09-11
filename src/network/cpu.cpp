@@ -22,7 +22,7 @@ float sigmoid_cpu(float x) {
 
 // Function to apply Sigmoid activation to a vector
 void apply_sigmoid_cpu(std::vector<float>& input) {
-    for (auto& val : input) {
+    for (float& val : input) {
         val = sigmoid_cpu(val);
     }
 }
@@ -63,7 +63,7 @@ std::vector<float> matrix_multiply_cpu(const std::vector<float>& A, const std::v
 }
 
 // Function to initialize memory, copy data, and run forward propagation
-vec_float_2d forward_propagation_cpu(const std::vector<float>& input, std::vector<Layer> network) {
+vec_float_2d forward_propagation_cpu(const std::vector<float>& input, const std::vector<Layer>& network) {
     int input_size = input.size();
     int output_size = network.back().weights.size();
     vec_float_2d activations(network.size());
