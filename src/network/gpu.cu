@@ -246,22 +246,12 @@ void backpropagation_gpu(const vec_float_2d& image_batch, const std::vector<floa
     
     for (size_t l = 0; l < image_batch.size(); l++) {
         for (int i = network.size() - 1; i >= 0; --i) {
-            if (i > 0) {
-                LOG(SL::INFO) << "Activations " << i - 1 << "\n" << GREY;
-                for (float activation : all_activations[l][i - 1]) {
-                    LOG(SL::INFO) << activation << " ";
-                }
-                LOG(SL::INFO) << RESET << std::endl;
-            }
-            const std::vector<float>& output = network[i].output;
-            // previous output equal to derivatives of z in respect to all weights connected to this z
             const std::vector<float>& previous_output = (i == 0) ? image_batch[l] : all_activations[l][i - 1];
-            cudaMemcpyWrapper(gpu_previous_output, previous_output.data(),  max_gpu_previous_output_size, cudaMemcpyHostToDevice);
-            // float* gpu_previous_output = (i == 0) ? gpu_input : gpu_input;
+            cudaMemcpyWrapper(gpu_previous_output, previous_output.data(),  previous_output.size() * sizeof(float), cudaMemcpyHostToDevice);
             LOG(SL::DEBUG) << "Changing weights and biases for layer " << i << std::endl;
             // Update weights and biasess
-            update_weights_biases_gpu<<<(output.size() + 255) / 256, 256>>>(gpu_network[i].weights, gpu_network[i].biases,
-                                                                            gpu_previous_output, deltas[i], output.size(),
+            update_weights_biases_gpu<<<(network[i].output.size() + 255) / 256, 256>>>(gpu_network[i].weights, gpu_network[i].biases,
+                                                                            gpu_previous_output, deltas[i], network[i].output.size(),
                                                                             previous_output.size(), learning_rate, i);
         }
     }

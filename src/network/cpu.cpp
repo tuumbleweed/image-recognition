@@ -180,13 +180,6 @@ void backpropagation_cpu(const vec_float_2d& image_batch, const std::vector<floa
 
     for (size_t l = 0; l < image_batch.size(); l++) {
         for (int i = network.size() - 1; i >= 0; --i) {
-            if (i > 0) {
-                LOG(SL::INFO) << "Activations " << i - 1 << "\n" << GREY;
-                for (float activation : all_activations[l][i - 1]) {
-                    LOG(SL::INFO) << activation << " ";
-                }
-                LOG(SL::INFO) << RESET << std::endl;
-            }
             LOG(SL::DEBUG) << "Change weights and biases for layer " << i << ":" << std::endl;
             // previous output equal to derivatives of z in respect to all weights connected to this z
             const std::vector<float>& previous_output = (i == 0) ? image_batch[l] : all_activations[l][i - 1];
