@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <cstdint>
+#include <cstddef> // for size_t (it was indirectlly included in previous versions but not in 12.2)
 
 // Structure to represent a layer in the neural network
 struct Layer {
