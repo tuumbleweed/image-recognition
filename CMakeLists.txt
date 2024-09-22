@@ -16,8 +16,10 @@ message("SOURCES BEFORE: ${SOURCES}")
 # Exclude the main file from the matrix mult SOURCES list
 set(MAIN_FILE "src/main.cpp")
 set(MATRIX_MULT_FILE "src/test/matrix_mult.cpp")
+set(ATOMIC_FILE "src/test/atomic.cu")
 list(FILTER SOURCES EXCLUDE REGEX ${MAIN_FILE})
 list(FILTER SOURCES EXCLUDE REGEX ${MATRIX_MULT_FILE})
+list(FILTER SOURCES EXCLUDE REGEX ${ATOMIC_FILE})
 message("SOURCES: ${SOURCES}")
 
 # ----------------------------------- DEPENDENCIES ------------------------------------
@@ -40,6 +42,7 @@ target_include_directories(ImageRecognition PRIVATE include)
 # ----------------------------------- MATRIX MULT ------------------------------------
 # Add the matrix mult executable (excluding main.cpp and matrix_mult.cpp)
 add_executable(ImageRecognitionMatrixMult ${SOURCES} ${MATRIX_MULT_FILE})
+add_executable(ImageRecognitionAtomic ${ATOMIC_FILE})
 message("SOURCES matrix mult: ${SOURCES}")
 # Ensure CUDA code is compiled and linked properly for the matrix mult
 set_target_properties(ImageRecognitionMatrixMult PROPERTIES
