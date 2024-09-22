@@ -58,6 +58,7 @@ __global__ void update_weights_biases_gpu(float* weights, float* biases, const f
             // weights[idx * prev_size + k] -= learning_rate * delta[idx] * prev_output[k];
             // atomic, need for batches
             atomicAdd(&weights[idx * prev_size + k], -learning_rate * delta[idx] * prev_output[k]);
+            // printf("%f - %f\n", weights[idx * prev_size + k], learning_rate * delta[idx] * prev_output[k]);
         }
         // biases[idx] -= learning_rate * delta[idx];
         // atomic, need for batches
@@ -205,9 +206,16 @@ vec_float_2d forward_propagation_gpu(const std::vector<float>& input, const std:
 void backpropagation_gpu(const vec_float_2d& image_batch, const std::vector<float>& actual, std::vector<Layer>& network,
                          std::vector<GPULayer>& gpu_network, const float learning_rate, const std::vector<vec_float_2d>& all_activations) {
 
-    size_t image_size = image_batch[0].size() * sizeof(float);
-    float* gpu_input;
-    cudaMallocWrapper(reinterpret_cast<void**>(&gpu_input), image_size);
+    // size_t image_size = image_batch[0].size() * sizeof(float);
+    float* gpu_previous_output;
+    size_t max_gpu_previous_output_size = image_batch[0].size();
+    for (std::vector<float> activation : all_activations[0]) {
+        if (max_gpu_previous_output_size < activation.size()) {
+            max_gpu_previous_output_size = activation.size();
+        }
+    }
+    max_gpu_previous_output_size *= sizeof(float);
+    cudaMallocWrapper(reinterpret_cast<void**>(&gpu_previous_output), max_gpu_previous_output_size);
     float* gpu_actual;
     cudaMallocWrapper(reinterpret_cast<void**>(&gpu_actual), actual.size() * sizeof(float));
     cudaMemcpyWrapper(gpu_actual, actual.data(), actual.size() * sizeof(float), cudaMemcpyHostToDevice);
@@ -237,11 +245,19 @@ void backpropagation_gpu(const vec_float_2d& image_batch, const std::vector<floa
 
     
     for (size_t l = 0; l < image_batch.size(); l++) {
-        cudaMemcpyWrapper(gpu_input, image_batch[l].data(), image_size, cudaMemcpyHostToDevice);
         for (int i = network.size() - 1; i >= 0; --i) {
+            if (i > 0) {
+                LOG(SL::INFO) << "Activations " << i - 1 << "\n" << GREY;
+                for (float activation : all_activations[l][i - 1]) {
+                    LOG(SL::INFO) << activation << " ";
+                }
+                LOG(SL::INFO) << RESET << std::endl;
+            }
             const std::vector<float>& output = network[i].output;
+            // previous output equal to derivatives of z in respect to all weights connected to this z
             const std::vector<float>& previous_output = (i == 0) ? image_batch[l] : all_activations[l][i - 1];
-            float* gpu_previous_output = (i == 0) ? gpu_input : gpu_network[i - 1].output;
+            cudaMemcpyWrapper(gpu_previous_output, previous_output.data(),  max_gpu_previous_output_size, cudaMemcpyHostToDevice);
+            // float* gpu_previous_output = (i == 0) ? gpu_input : gpu_input;
             LOG(SL::DEBUG) << "Changing weights and biases for layer " << i << std::endl;
             // Update weights and biasess
             update_weights_biases_gpu<<<(output.size() + 255) / 256, 256>>>(gpu_network[i].weights, gpu_network[i].biases,
@@ -251,7 +267,7 @@ void backpropagation_gpu(const vec_float_2d& image_batch, const std::vector<floa
     }
 
     // Free GPU memory
-    cudaFreeWrapper(gpu_input);
+    cudaFreeWrapper(gpu_previous_output);
     cudaFreeWrapper(gpu_actual);
     for (size_t i = 0; i < network.size(); i++) {
         cudaFreeWrapper(deltas[i]);
