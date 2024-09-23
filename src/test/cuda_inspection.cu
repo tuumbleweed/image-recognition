@@ -14,6 +14,14 @@ __global__ void inspect_cuda_2d() {
     );
 }
 
+__global__ void inspect_update_weights() {
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    printf(
+        "idx: %d, threadIdx.x - %d, blockIdx.x - %d, blockDim.x - %d\n",
+        idx, threadIdx.x, blockIdx.x, blockDim.x
+    );
+}
+
 int main() {
     float *d_data;
     cudaMalloc(&d_data, sizeof(float));
@@ -22,8 +30,9 @@ int main() {
     // int gridSize = 2;
     // inspect_cuda_3d<<<gridSize, blockSize>>>();
 
-    inspect_cuda_2d<<<3, 5>>>();
+    // inspect_cuda_2d<<<3, 5>>>();
 
+    inspect_update_weights<<<3, 5>>>();
 
     cudaFree(d_data);
 }
