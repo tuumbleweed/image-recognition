@@ -206,8 +206,6 @@ vec_float_2d forward_propagation_gpu(const std::vector<float>& input, const std:
 void backpropagation_gpu(const vec_float_2d& image_batch, const std::vector<float>& actual, std::vector<Layer>& network,
                          std::vector<GPULayer>& gpu_network, const float learning_rate, const std::vector<vec_float_2d>& all_activations) {
 
-    // size_t image_size = image_batch[0].size() * sizeof(float);
-    float* gpu_previous_output;
     size_t max_gpu_previous_output_size = image_batch[0].size();
     for (std::vector<float> activation : all_activations[0]) {
         if (max_gpu_previous_output_size < activation.size()) {
@@ -215,6 +213,8 @@ void backpropagation_gpu(const vec_float_2d& image_batch, const std::vector<floa
         }
     }
     max_gpu_previous_output_size *= sizeof(float);
+
+    float* gpu_previous_output;
     cudaMallocWrapper(reinterpret_cast<void**>(&gpu_previous_output), max_gpu_previous_output_size);
     float* gpu_actual;
     cudaMallocWrapper(reinterpret_cast<void**>(&gpu_actual), actual.size() * sizeof(float));

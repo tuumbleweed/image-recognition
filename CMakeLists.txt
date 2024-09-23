@@ -17,9 +17,11 @@ message("SOURCES BEFORE: ${SOURCES}")
 set(MAIN_FILE "src/main.cpp")
 set(MATRIX_MULT_FILE "src/test/matrix_mult.cpp")
 set(ATOMIC_FILE "src/test/atomic.cu")
+set(CUDA_INSPECTION_FILE "src/test/cuda_inspection.cu")
 list(FILTER SOURCES EXCLUDE REGEX ${MAIN_FILE})
 list(FILTER SOURCES EXCLUDE REGEX ${MATRIX_MULT_FILE})
 list(FILTER SOURCES EXCLUDE REGEX ${ATOMIC_FILE})
+list(FILTER SOURCES EXCLUDE REGEX ${CUDA_INSPECTION_FILE})
 message("SOURCES: ${SOURCES}")
 
 # ----------------------------------- DEPENDENCIES ------------------------------------
@@ -41,13 +43,14 @@ target_include_directories(ImageRecognition PRIVATE include)
 
 # ----------------------------------- MATRIX MULT ------------------------------------
 # Add the matrix mult executable (excluding main.cpp and matrix_mult.cpp)
-add_executable(ImageRecognitionMatrixMult ${SOURCES} ${MATRIX_MULT_FILE})
-add_executable(ImageRecognitionAtomic ${ATOMIC_FILE})
+add_executable(MatrixMult ${SOURCES} ${MATRIX_MULT_FILE})
+add_executable(Atomic ${ATOMIC_FILE})
+add_executable(CudaInspection ${CUDA_INSPECTION_FILE})
 message("SOURCES matrix mult: ${SOURCES}")
 # Ensure CUDA code is compiled and linked properly for the matrix mult
-set_target_properties(ImageRecognitionMatrixMult PROPERTIES
+set_target_properties(MatrixMult PROPERTIES
     CUDA_SEPARABLE_COMPILATION ON)
 # Link CUDA libraries for the matrix mult executable if needed
-target_link_libraries(ImageRecognitionMatrixMult ${CUDA_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(MatrixMult ${CUDA_LIBRARIES} ${Boost_LIBRARIES})
 # Include directories for headers in the matrix mult executable
-target_include_directories(ImageRecognitionMatrixMult PRIVATE include)
+target_include_directories(MatrixMult PRIVATE include)

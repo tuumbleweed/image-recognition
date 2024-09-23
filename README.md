@@ -8,6 +8,9 @@ cmake -B build -S . # generate makefile
 cmake --build build # build using makefile
 ./build/ImageRecognition # run
 
+# build
+cmake -B build -S . && cmake --build build
+
 # together
 cmake -B build -S . && cmake --build build && ./build/ImageRecognition
 cmake -B build -S . && cmake --build build && ./build/ImageRecognitionTest
@@ -47,6 +50,8 @@ cmake -B build -S . && cmake --build build && ./build/ImageRecognition --gpu --c
 - ~~Reorganize project~~
 - ~~Feed data in batches of N (CPU)~~
 - ~~Feed data in batches of N (GPU)~~
+- Accumulate weight and bias changes for both cpu and gpu and print them in INFO. (for each batch of images)
+- See why they differ.
 
 
 ## Best accuracy
