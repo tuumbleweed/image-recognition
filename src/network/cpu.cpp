@@ -11,34 +11,34 @@
 #include "network/init.h"
 
 // Sigmoid function for CPU
-float sigmoid_cpu(float x) {
+double sigmoid_cpu(double x) {
     if (x >= 0) {
         return 1.0f / (1.0f + std::exp(-x));
     } else {
-        float exp_x = std::exp(x);
+        double exp_x = std::exp(x);
         return exp_x / (1.0f + exp_x);
     }
 }
 
 // Function to apply Sigmoid activation to a vector
-void apply_sigmoid_cpu(std::vector<float>& input) {
-    for (float& val : input) {
+void apply_sigmoid_cpu(std::vector<double>& input) {
+    for (double& val : input) {
         val = sigmoid_cpu(val);
     }
 }
 
 // Sigmoid derivative for CPU
-float sigmoid_derivative_cpu(float x) {
+double sigmoid_derivative_cpu(double x) {
     // Apply sigmoid to get the output
-    float sigmoid_output = sigmoid_cpu(x);
+    double sigmoid_output = sigmoid_cpu(x);
     // Derivative of sigmoid is sigmoid(x) * (1 - sigmoid(x))
     return sigmoid_output * (1.0f - sigmoid_output);
 }
 
 // Function for matrix multiplication
-std::vector<float> matrix_multiply_cpu(const std::vector<float>& A, const std::vector<std::vector<float>>& B,
-                                       const std::vector<float>& biases, int a_length_b_width, int b_length) {
-    std::vector<float> result(b_length);
+std::vector<double> matrix_multiply_cpu(const std::vector<double>& A, const std::vector<std::vector<double>>& B,
+                                       const std::vector<double>& biases, int a_length_b_width, int b_length) {
+    std::vector<double> result(b_length);
     int a_length_size = A.size();
     int b_length_size = B.size();
     int b_width_size = B[0].size();
@@ -52,7 +52,7 @@ std::vector<float> matrix_multiply_cpu(const std::vector<float>& A, const std::v
     LOG(SL::TRACE) << "a_length_b_width: " << a_length_b_width << std::endl;
     LOG(SL::TRACE) << "b_length: " << b_length << std::endl;
     for (int b_row = 0; b_row < b_length; ++b_row) {
-        float sum = 0.0f;
+        double sum = 0.0f;
         for (int ab_index = 0; ab_index < a_length_b_width; ++ab_index) {
             sum += A[ab_index] * B[b_row][ab_index];
         }
@@ -63,14 +63,14 @@ std::vector<float> matrix_multiply_cpu(const std::vector<float>& A, const std::v
 }
 
 // Function to initialize memory, copy data, and run forward propagation
-vec_float_2d forward_propagation_cpu(const std::vector<float>& input, const std::vector<Layer>& network) {
+vec_double_2d forward_propagation_cpu(const std::vector<double>& input, const std::vector<Layer>& network) {
     int input_size = input.size();
     int output_size = network.back().weights.size();
-    vec_float_2d activations(network.size());
+    vec_double_2d activations(network.size());
 
     // Allocate memory for the intermediate results
-    std::vector<float> current_input = input;
-    std::vector<float> current_output;
+    std::vector<double> current_input = input;
+    std::vector<double> current_output;
 
     LOG(SL::INFO) << "(CPU) Forward Propagation:" << std::endl;
     LOG(SL::DEBUG)
@@ -110,8 +110,8 @@ vec_float_2d forward_propagation_cpu(const std::vector<float>& input, const std:
     return activations;
 }
 
-float cumulative_loss_cpu(const std::vector<float>& predicted, const std::vector<float>& actual) {
-    float cumulative_loss = 0.0f;
+double cumulative_loss_cpu(const std::vector<double>& predicted, const std::vector<double>& actual) {
+    double cumulative_loss = 0.0f;
     LOG(SL::DEBUG) << "Cumulative loss:" << GREY << std::endl;
     for (size_t i = 0; i < predicted.size(); ++i) {
         LOG(SL::DEBUG) << "(" << predicted[i] << " - " << actual[i] << ") * (" << predicted[i] << " - " << actual[i] << ")" << std::endl;
@@ -126,14 +126,14 @@ float cumulative_loss_cpu(const std::vector<float>& predicted, const std::vector
 // later batch them together and calculate average. Then change.
 // when working with "next" and "previous" keep in mind that we walk backwards here
 // from "next" to "previous".
-void backpropagation_cpu(const vec_float_2d& image_batch, const std::vector<float>& actual, std::vector<Layer>& network,
-                         const float learning_rate, const std::vector<vec_float_2d>& all_activations) {
+void backpropagation_cpu(const vec_double_2d& image_batch, const std::vector<double>& actual, std::vector<Layer>& network,
+                         const double learning_rate, const std::vector<vec_double_2d>& all_activations) {
     // Compute gradients and update weights and biases in reverse order
-    vec_float_2d delta(network.size());
+    vec_double_2d delta(network.size());
 
     LOG(SL::INFO) << "Backpropagation:" << std::endl;
     for (int i = network.size() - 1; i >= 0; --i) {
-        const std::vector<float>& output = network[i].output;
+        const std::vector<double>& output = network[i].output;
 
         // Calculate the error
         // dC to dA(L), dA(L) to dZ are calculeted separately
@@ -157,7 +157,7 @@ void backpropagation_cpu(const vec_float_2d& image_batch, const std::vector<floa
             // this way we can calculate dC to dA(L)(in this case da(L-1)) for the next layer
             // so 2.0f * (output[j] - actual[j]) is replaced by a sum of next_delta and weights
             // 2.0f * (output[j] - actual[j]) * sigmoid_derivative_cpu(output[j]) * sum of weights for j
-            std::vector<float>& next_delta = delta[i+1];
+            std::vector<double>& next_delta = delta[i+1];
             delta[i].resize(output.size());
             for (size_t j = 0; j < output.size(); ++j) {
                 LOG(SL::DEBUG) << "Delta " << j << ": (";
@@ -170,7 +170,7 @@ void backpropagation_cpu(const vec_float_2d& image_batch, const std::vector<floa
                         LOG(SL::DEBUG) << " + ";
                     }
                 }
-                float sigmoid_derivative = sigmoid_derivative_cpu(output[j]);
+                double sigmoid_derivative = sigmoid_derivative_cpu(output[j]);
                 delta[i][j] *= sigmoid_derivative;
                 LOG(SL::DEBUG) << ") * " << sigmoid_derivative << " = " << delta[i][j] << std::endl;
             }
@@ -178,11 +178,12 @@ void backpropagation_cpu(const vec_float_2d& image_batch, const std::vector<floa
         LOG(SL::DEBUG) << RESET << std::endl;
     }
 
-    for (size_t l = 0; l < image_batch.size(); l++) {
+    size_t batch_size = image_batch.size();
+    for (size_t l = 0; l < batch_size; l++) {
         for (int i = network.size() - 1; i >= 0; --i) {
             LOG(SL::DEBUG) << "Change weights and biases for layer " << i << ":" << std::endl;
             // previous output equal to derivatives of z in respect to all weights connected to this z
-            const std::vector<float>& previous_output = (i == 0) ? image_batch[l] : all_activations[l][i - 1];
+            const std::vector<double>& previous_output = (i == 0) ? image_batch[l] : all_activations[l][i - 1];
             // Update weights and biases
             for (size_t j = 0; j < network[i].weights.size(); ++j) {
                 LOG(SL::DEBUG) << "Weights " << j << "x" << network[i].weights[j].size() << ":" << GREY << std::endl;
@@ -190,13 +191,13 @@ void backpropagation_cpu(const vec_float_2d& image_batch, const std::vector<floa
                     // dC/dw(L) = a(L-1)*delta
                     LOG(SL::DEBUG) << network[i].weights[j][k] << "-=" << learning_rate << "*" << delta[i][j] << "*"
                                 << previous_output[k] << " ";
-                    network[i].weights[j][k] -= learning_rate * delta[i][j] * previous_output[k];
+                    network[i].weights[j][k] -= learning_rate * delta[i][j] * previous_output[k] / batch_size;
                 }
                 LOG(SL::DEBUG) << RESET << std::endl;
                 // since z to bias derivative is 1 so dC/db(L) = 1*delta
                 LOG(SL::DEBUG) << "Biases:" << GREY << std::endl;
                 LOG(SL::DEBUG) << network[i].biases[j] << "-=" << learning_rate << "*" << delta[i][j] << " ";
-                network[i].biases[j] -= learning_rate * delta[i][j];
+                network[i].biases[j] -= learning_rate * delta[i][j] / batch_size;
                 LOG(SL::DEBUG) << RESET << std::endl;
             }
             LOG(SL::DEBUG) << RESET << std::endl;

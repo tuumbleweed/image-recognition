@@ -4,21 +4,21 @@
 #include "network/init.h"
 
 // Sigmoid function for CPU
-float sigmoid_cpu(float x);
+double sigmoid_cpu(double x);
 
 // Function to apply Sigmoid activation to a vector
-void apply_sigmoid_cpu(std::vector<float>& input);
+void apply_sigmoid_cpu(std::vector<double>& input);
 
 // Function for matrix multiplication
-std::vector<float> matrix_multiply_cpu(const std::vector<float>& A, const std::vector<std::vector<float>>& B,
-                                       const std::vector<float>& biases, int a_length_b_width, int b_length);
+std::vector<double> matrix_multiply_cpu(const std::vector<double>& A, const std::vector<std::vector<double>>& B,
+                                       const std::vector<double>& biases, int a_length_b_width, int b_length);
 
 // Function to initialize memory, copy data, and run forward propagation
-vec_float_2d forward_propagation_cpu(const std::vector<float>& input, const std::vector<Layer>& network);
+vec_double_2d forward_propagation_cpu(const std::vector<double>& input, const std::vector<Layer>& network);
 
-float cumulative_loss_cpu(const std::vector<float>& predicted, const std::vector<float>& actual);
+double cumulative_loss_cpu(const std::vector<double>& predicted, const std::vector<double>& actual);
 
-void backpropagation_cpu(const vec_float_2d& image_batch, const std::vector<float>& actual, std::vector<Layer>& network,
-                         const float learning_rate, const std::vector<vec_float_2d>& all_activations);
+void backpropagation_cpu(const vec_double_2d& image_batch, const std::vector<double>& actual, std::vector<Layer>& network,
+                         const double learning_rate, const std::vector<vec_double_2d>& all_activations);
 
 #endif // CPU_H

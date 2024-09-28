@@ -44,7 +44,7 @@ cmake -B build -S . && cmake --build build && ./build/ImageRecognition --gpu -l 
     - ~~Layer 1 is different~~
     - ~~Error is most likely in compute_delta_hidden_gpu~~
     - ~~In compute_delta_hidden_gpu it multiplies wrong things when computing deltas on layers 2 and 1~~
-    - ~~float* next_delta = delta + max_output_size - network[i + 1].output.size(); points to wrong location.
+    - ~~double* next_delta = delta + max_output_size - network[i + 1].output.size(); points to wrong location.
         16-10=6 next delta points to 6 instead of 0 and rest of values are 0~~
     - ~~It's fixed, all GPU calculations are equal to CPU for both layer 0 and 1~~
     - ~~Finally both CPU an GPU work the same (60-80% accuracy)

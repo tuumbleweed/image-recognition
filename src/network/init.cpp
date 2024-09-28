@@ -48,7 +48,7 @@ Layer initialize_weights_and_biases(const int input_dim, const int output_dim, u
     if (seed == 0) {
         gen.seed(rd());
     }
-    std::normal_distribution<float> dist(0.0f, 1.0f / std::sqrt(input_dim));  // Xavier initialization
+    std::normal_distribution<double> dist(0.0f, 1.0f / std::sqrt(input_dim));  // Xavier initialization
 
     LOG(SL::DEBUG) << "------------------------------------ Initialize weights (" << input_dim << 'x' << output_dim
                    << ") ------------------------------------" << std::endl;
@@ -72,14 +72,14 @@ Layer initialize_weights_and_biases(const int input_dim, const int output_dim, u
     return layer;
 }
 
-std::vector<float> generate_one_hot_vector(uint8_t label, uint8_t length) {
-    std::vector<float> one_hot_vector(length, 0.0f);
+std::vector<double> generate_one_hot_vector(uint8_t label, uint8_t length) {
+    std::vector<double> one_hot_vector(length, 0.0f);
     if (label < length) {
         one_hot_vector[label] = 1.0f;
     }
     if (SL::should_log(SL::DEBUG)) {
         LOG(SL::DEBUG) << "One hot: " << GREY;
-        for (float& value : one_hot_vector) {
+        for (double& value : one_hot_vector) {
             LOG(SL::DEBUG) << value << " ";
         }
         LOG(SL::DEBUG) << RESET << std::endl;

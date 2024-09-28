@@ -8,7 +8,7 @@
 
 #include "network/init.h"
 
-void print_image(const std::vector<float>& image, const int& rows, const int& cols);
+void print_image(const std::vector<double>& image, const int& rows, const int& cols);
 
 std::tuple<std::vector<std::vector<uint8_t>>, int, int> read_images(const std::string& filename);
 

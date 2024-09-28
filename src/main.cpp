@@ -25,14 +25,14 @@ int main(int argc, char *argv[]) {
     const auto [test_images, test_rows, test_cols] = read_images("tmp/t10k-images.idx3-ubyte");
     const std::vector<uint8_t> test_labels = read_labels("tmp/t10k-labels.idx1-ubyte");
 
-    const std::vector<std::vector<float>> train_images_norm = normalize_all(train_images);
-    const std::vector<std::vector<float>> test_images_norm = normalize_all(test_images);
+    const std::vector<std::vector<double>> train_images_norm = normalize_all(train_images);
+    const std::vector<std::vector<double>> test_images_norm = normalize_all(test_images);
 
     const int input_size = train_rows * train_cols;  // 784 for 28x28 images
     const int hidden_size1 = 16;
     const int hidden_size2 = 16;
     const int output_size = 10;  // 10 classes for digit recognition
-    const float learning_rate = vm["learning-rate"].as<float>();
+    const double learning_rate = vm["learning-rate"].as<double>();
     const bool cpu = vm["cpu"].as<bool>();
     const bool gpu = vm["gpu"].as<bool>();
     std::vector<Layer> network = initialize_network(input_size, hidden_size1, hidden_size2, output_size, seed);

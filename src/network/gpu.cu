@@ -23,24 +23,24 @@ inline void gpuAssert(cudaError_t code, const char* file, int line, bool abort =
     }
 }
 
-__device__ float sigmoid_gpu(float x) {
+__device__ double sigmoid_gpu(double x) {
     if (x >= 0) {
         return 1.0f / (1.0f + expf(-x));
     } else {
-        float exp_x = expf(x);
+        double exp_x = expf(x);
         return exp_x / (1.0f + exp_x);
     }
 }
 
 // Sigmoid derivative for GPU
-__device__ float sigmoid_derivative_gpu(float x) {
+__device__ double sigmoid_derivative_gpu(double x) {
     // Apply sigmoid to get the output
-    float sigmoid_output = sigmoid_gpu(x);
+    double sigmoid_output = sigmoid_gpu(x);
     // Derivative of sigmoid is sigmoid(x) * (1 - sigmoid(x))
     return sigmoid_output * (1.0f - sigmoid_output);
 }
 
-__global__ void compute_delta_output_gpu(const float* output, const float* actual, float* delta, int size) {
+__global__ void compute_delta_output_gpu(const double* output, const double* actual, double* delta, int size) {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < size) {
         delta[idx] = (output[idx] - actual[idx]) * sigmoid_derivative_gpu(output[idx]);
@@ -49,55 +49,85 @@ __global__ void compute_delta_output_gpu(const float* output, const float* actua
     }
 }
 
-__global__ void update_weights_biases_gpu(float* weights, float* biases, const float* prev_output, const float* delta,
-                                          int current_size, int prev_size, float learning_rate, int layer) {
+__global__ void update_weights_biases_gpu(double* weights, double* biases, const double* prev_output, const double* delta,
+                                          int current_size, int prev_size, double learning_rate, int layer) {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < current_size) {
-        // printf("Changing weights and biases for layer %d %s\n", layer, GREY);
         for (int k = 0; k < prev_size; ++k) {
-            // weights[idx * prev_size + k] -= learning_rate * delta[idx] * prev_output[k];
+            weights[idx * prev_size + k] -= learning_rate * delta[idx] * prev_output[k];
+        }
+        biases[idx] -= learning_rate * delta[idx];
+    }
+}
+
+__global__ void update_weights_biases_gpu_atomic(double* weights, double* biases, const double* prev_output, const double* delta,
+                                          int current_size, int prev_size, double learning_rate, int layer) {
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if (idx < current_size) {
+        for (int k = 0; k < prev_size; ++k) {
             // atomic, need for batches
             atomicAdd(&weights[idx * prev_size + k], -learning_rate * delta[idx] * prev_output[k]);
-            // printf("%f - %f\n", weights[idx * prev_size + k], learning_rate * delta[idx] * prev_output[k]);
         }
-        // biases[idx] -= learning_rate * delta[idx];
         // atomic, need for batches
         atomicAdd(&biases[idx], -learning_rate * delta[idx]);
-        // printf("%s\n", RESET);
     }
 }
 
-__global__ void compute_delta_hidden_gpu(const float* next_delta, const float* next_weights, const float* output,
-                                         float* delta, int current_size, int next_size) {
+// Kernel for accumulating weight and bias updates
+__global__ void accumulate_weight_bias_updates_atomic(double* accumulated_weights, double* accumulated_biases, 
+                                               const double* weights, const double* biases, 
+                                               const double* delta, const double* prev_output,
+                                               int current_size, int prev_size, double learning_rate) {
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if (idx < current_size) {
+        for (int k = 0; k < prev_size; ++k) {
+            // Accumulate weight updates (use atomicAdd if required for multi-thread safety)
+            atomicAdd(&accumulated_weights[idx * prev_size + k], -learning_rate * delta[idx] * prev_output[k]);
+        }
+        // Accumulate bias updates
+        atomicAdd(&accumulated_biases[idx], -learning_rate * delta[idx]);
+    }
+}
+
+// After batch accumulation, apply the accumulated weights and biases
+__global__ void apply_accumulated_updates(double* weights, double* biases, double* accumulated_weights, 
+                                          double* accumulated_biases, int current_size, int prev_size, int batch_size) {
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if (idx < current_size) {
+        for (int k = 0; k < prev_size; ++k) {
+            // Apply accumulated weight updates, averaged over the batch size
+            weights[idx * prev_size + k] += accumulated_weights[idx * prev_size + k] / batch_size;
+        }
+        // Apply accumulated bias updates, averaged over the batch size
+        biases[idx] += accumulated_biases[idx] / batch_size;
+    }
+}
+
+__global__ void compute_delta_hidden_gpu(const double* next_delta, const double* next_weights, const double* output,
+                                         double* delta, int current_size, int next_size) {
     int j = blockIdx.x * blockDim.x + threadIdx.x;
     if (j < current_size) {
-        // printf("Delta %d: (", j);
-        float sum = 0.0f;
+        double sum = 0.0f;
         for (int k = 0; k < next_size; ++k) {
             sum += next_delta[k] * next_weights[k * current_size + j];
-            // printf("%.6f*%.6f", next_delta[k], next_weights[k * current_size + j]);
-            // if (k < next_size-1) {
-            //     printf(" + ");
-            // }
         }
         delta[j] = sum * sigmoid_derivative_gpu(output[j]);
-        // printf(") * %.6f = %.6f\n", sigmoid_derivative_gpu(output[j]), delta[j]);
     }
 }
 
-__global__ void apply_sigmoid_gpu(float* input, int size) {
+__global__ void apply_sigmoid_gpu(double* input, int size) {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < size) {
         input[idx] = sigmoid_gpu(input[idx]);
     }
 }
 
-__global__ void matrix_multiply_gpu(const float* A, const float* B, const float* biases, float* result,
+__global__ void matrix_multiply_gpu(const double* A, const double* B, const double* biases, double* result,
                                     int a_length_b_width, int b_length) {
     int b_row = blockIdx.x * blockDim.x + threadIdx.x;
 
     if (b_row < b_length) {
-        float sum = 0.0f;
+        double sum = 0.0f;
         for (int ab_index = 0; ab_index < a_length_b_width; ++ab_index) {
             sum += A[ab_index] * B[b_row * a_length_b_width + ab_index];
         }
@@ -112,16 +142,16 @@ std::vector<GPULayer> allocate_network_data_on_gpu(std::vector<Layer>& network) 
     for (size_t i = 0; i < network.size(); ++i) {
         int layer_input_size = network[i].weights[0].size();
         int layer_output_size = network[i].weights.size();
-        size_t mem_size_weights = layer_input_size * layer_output_size * sizeof(float);
-        size_t mem_size_biases = layer_output_size * sizeof(float);
+        size_t mem_size_weights = layer_input_size * layer_output_size * sizeof(double);
+        size_t mem_size_biases = layer_output_size * sizeof(double);
 
         // Allocate memory for weights
         cudaMallocWrapper(reinterpret_cast<void**>(&gpu_network[i].weights), mem_size_weights);
         cudaMallocWrapper(reinterpret_cast<void**>(&gpu_network[i].biases), mem_size_biases);
         cudaMallocWrapper(reinterpret_cast<void**>(&gpu_network[i].output), mem_size_biases);
         // Copy weights to the GPU
-        std::vector<float> flattened_weights;
-        for (const std::vector<float>& row : network[i].weights) {
+        std::vector<double> flattened_weights;
+        for (const std::vector<double>& row : network[i].weights) {
             flattened_weights.insert(flattened_weights.end(), row.begin(), row.end());
         }
         cudaMemcpyWrapper(gpu_network[i].weights, flattened_weights.data(), mem_size_weights, cudaMemcpyHostToDevice);
@@ -143,19 +173,19 @@ void deallocate_network_data_on_gpu(std::vector<GPULayer>& gpu_network) {
 }
 
 // Function to initialize memory, copy data, and run forward propagation
-vec_float_2d forward_propagation_gpu(const std::vector<float>& input, const std::vector<Layer>& network,
+vec_double_2d forward_propagation_gpu(const std::vector<double>& input, const std::vector<Layer>& network,
                              std::vector<GPULayer>& gpu_network) {
     int input_size = input.size();
-    vec_float_2d activations(network.size());
+    vec_double_2d activations(network.size());
 
-    float* d_input;
+    double* d_input;
     // Allocate memory on the GPU
-    cudaMallocWrapper(reinterpret_cast<void**>(&d_input), input_size * sizeof(float));
+    cudaMallocWrapper(reinterpret_cast<void**>(&d_input), input_size * sizeof(double));
     // Copy the input data to the GPU
-    cudaMemcpyWrapper(d_input, input.data(), input_size * sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpyWrapper(d_input, input.data(), input_size * sizeof(double), cudaMemcpyHostToDevice);
 
     // Forward propagation through the layers
-    float* current_input = d_input;
+    double* current_input = d_input;
     LOG(SL::INFO) << "(GPU) Forward Propagation:" << std::endl;
     LOG(SL::DEBUG)
         << "------------------------------------ Activation Output (GPU) ------------------------------------"
@@ -165,16 +195,13 @@ vec_float_2d forward_propagation_gpu(const std::vector<float>& input, const std:
         activations[i].resize(layer_output_size);
 
         // Launch matrix multiplication kernel
-        dim3 threadsPerBlock(16, 16);
-        dim3 blocksPerGrid((layer_output_size + threadsPerBlock.x - 1) / threadsPerBlock.x,
-                           (input_size + threadsPerBlock.y - 1) / threadsPerBlock.y);
-        matrix_multiply_gpu<<<blocksPerGrid, threadsPerBlock>>>(current_input, gpu_network[i].weights,
+        matrix_multiply_gpu<<<(layer_output_size + 31) / 32, 32>>>(current_input, gpu_network[i].weights,
                                                                 gpu_network[i].biases, gpu_network[i].output,
                                                                 input_size, layer_output_size);
 
         if (SL::should_log(SL::DEBUG)) {
             // Debug: Check output after matrix multiplication
-            cudaMemcpyWrapper(activations[i].data(), gpu_network[i].output, layer_output_size * sizeof(float),
+            cudaMemcpyWrapper(activations[i].data(), gpu_network[i].output, layer_output_size * sizeof(double),
                             cudaMemcpyDeviceToHost);
             LOG(SL::DEBUG) << "Layer " << i << " Pre-Activation Output (GPU):" << GREY << std::endl;
             for (int j = 0; j < layer_output_size; ++j) {
@@ -184,10 +211,10 @@ vec_float_2d forward_propagation_gpu(const std::vector<float>& input, const std:
         }
 
         // Apply Sigmoid activation function
-        apply_sigmoid_gpu<<<(layer_output_size + 255) / 256, 256>>>(gpu_network[i].output, layer_output_size);
+        apply_sigmoid_gpu<<<(layer_output_size + 31) / 32, 32>>>(gpu_network[i].output, layer_output_size);
 
         // Debug: Check output after activation
-        cudaMemcpyWrapper(activations[i].data(), gpu_network[i].output, layer_output_size * sizeof(float),
+        cudaMemcpyWrapper(activations[i].data(), gpu_network[i].output, layer_output_size * sizeof(double),
                         cudaMemcpyDeviceToHost);
         LOG(SL::DEBUG) << "Layer " << i << " Post-Activation Output (GPU):" << GREY << std::endl;
         for (int j = 0; j < layer_output_size; ++j) {
@@ -203,62 +230,108 @@ vec_float_2d forward_propagation_gpu(const std::vector<float>& input, const std:
     return activations;
 }
 
-void backpropagation_gpu(const vec_float_2d& image_batch, const std::vector<float>& actual, std::vector<Layer>& network,
-                         std::vector<GPULayer>& gpu_network, const float learning_rate, const std::vector<vec_float_2d>& all_activations) {
+void backpropagation_gpu(const vec_double_2d& image_batch, const std::vector<double>& actual, std::vector<Layer>& network,
+                         std::vector<GPULayer>& gpu_network, const double learning_rate, const std::vector<vec_double_2d>& all_activations) {
 
-    size_t max_gpu_previous_output_size = image_batch[0].size();
-    for (std::vector<float> activation : all_activations[0]) {
-        if (max_gpu_previous_output_size < activation.size()) {
-            max_gpu_previous_output_size = activation.size();
-        }
-    }
-    max_gpu_previous_output_size *= sizeof(float);
+    double* gpu_actual;
+    cudaMallocWrapper(reinterpret_cast<void**>(&gpu_actual), actual.size() * sizeof(double));
+    cudaMemcpyWrapper(gpu_actual, actual.data(), actual.size() * sizeof(double), cudaMemcpyHostToDevice);
 
-    float* gpu_previous_output;
-    cudaMallocWrapper(reinterpret_cast<void**>(&gpu_previous_output), max_gpu_previous_output_size);
-    float* gpu_actual;
-    cudaMallocWrapper(reinterpret_cast<void**>(&gpu_actual), actual.size() * sizeof(float));
-    cudaMemcpyWrapper(gpu_actual, actual.data(), actual.size() * sizeof(float), cudaMemcpyHostToDevice);
-
-    std::vector<float*> deltas(network.size());
+    std::vector<double*> deltas(network.size());
     for (size_t i = 0; i < network.size(); i++) {
-        cudaMallocWrapper(reinterpret_cast<void**>(&deltas[i]), network[i].output.size() * sizeof(float));
+        cudaMallocWrapper(reinterpret_cast<void**>(&deltas[i]), network[i].output.size() * sizeof(double));
     }
 
     LOG(SL::INFO) << "(GPU) Backpropagation:" << std::endl;
     // Backward propagation through the layers
     for (int i = network.size() - 1; i >= 0; --i) {
-        const std::vector<float>& output = network[i].output;
+        const std::vector<double>& output = network[i].output;
 
         LOG(SL::DEBUG) << "Computing deltas for layer " << i << " (GPU)" << GREY << std::endl;
         if (i == network.size() - 1) {
             // For output layer
-            compute_delta_output_gpu<<<(output.size() + 255) / 256, 256>>>(gpu_network[i].output, gpu_actual, deltas[i],
+            compute_delta_output_gpu<<<(output.size() + 31) / 32, 32>>>(gpu_network[i].output, gpu_actual, deltas[i],
                                                                            output.size());
         } else {
-            compute_delta_hidden_gpu<<<(output.size() + 255) / 256, 256>>>(deltas[i + 1], gpu_network[i + 1].weights,
+            compute_delta_hidden_gpu<<<(output.size() + 31) / 32, 32>>>(deltas[i + 1], gpu_network[i + 1].weights,
                                                                            gpu_network[i].output, deltas[i], output.size(),
                                                                            network[i + 1].output.size());
         }
         LOG(SL::DEBUG) << RESET << std::endl;
     }
 
-    
-    for (size_t l = 0; l < image_batch.size(); l++) {
-        for (int i = network.size() - 1; i >= 0; --i) {
-            const std::vector<float>& previous_output = (i == 0) ? image_batch[l] : all_activations[l][i - 1];
-            cudaMemcpyWrapper(gpu_previous_output, previous_output.data(),  previous_output.size() * sizeof(float), cudaMemcpyHostToDevice);
-            LOG(SL::DEBUG) << "Changing weights and biases for layer " << i << std::endl;
-            // Update weights and biasess
-            update_weights_biases_gpu<<<(network[i].output.size() + 255) / 256, 256>>>(gpu_network[i].weights, gpu_network[i].biases,
-                                                                            gpu_previous_output, deltas[i], network[i].output.size(),
-                                                                            previous_output.size(), learning_rate, i);
+    // for (size_t l = 0; l < image_batch.size(); l++) {
+    //     for (int i = network.size() - 1; i >= 0; --i) {
+    //         const std::vector<double>& previous_output = (i == 0) ? image_batch[l] : all_activations[l][i - 1];
+    //         cudaMemcpyWrapper(gpu_previous_output, previous_output.data(),  previous_output.size() * sizeof(double), cudaMemcpyHostToDevice);
+    //         LOG(SL::DEBUG) << "Changing weights and biases for layer " << i << std::endl;
+    //         // Update weights and biasess
+    //         // (network[i].output.size() + 31) / 32 = 1
+    //         update_weights_biases_gpu_atomic<<<(network[i].output.size() + 31) / 32, 32>>>(
+    //                                                 gpu_network[i].weights, gpu_network[i].biases,
+    //                                                 gpu_previous_output, deltas[i], network[i].output.size(),
+    //                                                 previous_output.size(), learning_rate, i);
+    //         cudaDeviceSynchronize();
+    //         // accumulate first, then print in INFO
+    //     }
+    // }
+    // // apply once here
+
+    size_t max_gpu_previous_output_size = image_batch[0].size();
+    for (std::vector<double> activation : all_activations[0]) {
+        if (max_gpu_previous_output_size < activation.size()) {
+            max_gpu_previous_output_size = activation.size();
         }
+    }
+    max_gpu_previous_output_size *= sizeof(double);
+    double* gpu_previous_output;
+    cudaMallocWrapper(reinterpret_cast<void**>(&gpu_previous_output), max_gpu_previous_output_size);
+
+// // Allocate memory for accumulated weight and bias changes
+    std::vector<double*> accumulated_weights(network.size());
+    std::vector<double*> accumulated_biases(network.size());
+
+    for (size_t i = 0; i < network.size(); i++) {
+        size_t weight_size = network[i].weights.size() * network[i].weights[0].size() * sizeof(double);
+        size_t bias_size = network[i].biases.size() * sizeof(double);
+
+        cudaMallocWrapper(reinterpret_cast<void**>(&accumulated_weights[i]), weight_size);
+        cudaMallocWrapper(reinterpret_cast<void**>(&accumulated_biases[i]), bias_size);
+
+        // Initialize to zero
+        cudaMemset(accumulated_weights[i], 0, weight_size);
+        cudaMemset(accumulated_biases[i], 0, bias_size);
+    }
+
+    for (size_t l = 0; l < image_batch.size(); l++) {
+    for (int i = network.size() - 1; i >= 0; --i) {
+        const std::vector<double>& previous_output = (i == 0) ? image_batch[l] : all_activations[l][i - 1];
+        cudaMemcpyWrapper(gpu_previous_output, previous_output.data(), previous_output.size() * sizeof(double), cudaMemcpyHostToDevice);
+
+        // Accumulate weight and bias updates
+        accumulate_weight_bias_updates_atomic<<<(network[i].output.size() + 31) / 32, 32>>>(
+            accumulated_weights[i], accumulated_biases[i], gpu_network[i].weights, gpu_network[i].biases, 
+            deltas[i], gpu_previous_output, network[i].output.size(), previous_output.size(), learning_rate);
+    }
+}
+
+// // Apply the accumulated updates after all batches are processed
+    for (int i = network.size() - 1; i >= 0; --i) {
+        const std::vector<double>& previous_output = (i == 0) ? image_batch[0] : all_activations[0][i - 1];
+        apply_accumulated_updates<<<(network[i].output.size() + 31) / 32, 32>>>(
+            gpu_network[i].weights, gpu_network[i].biases, accumulated_weights[i], accumulated_biases[i], 
+            network[i].output.size(), previous_output.size(), image_batch.size());
     }
 
     // Free GPU memory
+    for (size_t i = 0; i < network.size(); i++) {
+        cudaFreeWrapper(accumulated_weights[i]);
+        cudaFreeWrapper(accumulated_biases[i]);
+    }
+
     cudaFreeWrapper(gpu_previous_output);
     cudaFreeWrapper(gpu_actual);
+
     for (size_t i = 0; i < network.size(); i++) {
         cudaFreeWrapper(deltas[i]);
     }
@@ -275,16 +348,16 @@ void network_from_gpu_to_host(std::vector<Layer>& network, std::vector<GPULayer>
 
         // Copy weights from GPU to CPU
         for (size_t j = 0; j < output_dim; ++j) {
-            cudaMemcpyWrapper(cpu_layer.weights[j].data(), gpu_layer.weights + j * input_dim, input_dim * sizeof(float),
+            cudaMemcpyWrapper(cpu_layer.weights[j].data(), gpu_layer.weights + j * input_dim, input_dim * sizeof(double),
                               cudaMemcpyDeviceToHost);
         }
 
         // Copy biases from GPU to CPU
-        cudaMemcpyWrapper(cpu_layer.biases.data(), gpu_layer.biases, output_dim * sizeof(float),
+        cudaMemcpyWrapper(cpu_layer.biases.data(), gpu_layer.biases, output_dim * sizeof(double),
                           cudaMemcpyDeviceToHost);
 
         // Copy output from GPU to CPU
-        cudaMemcpyWrapper(cpu_layer.output.data(), gpu_layer.output, output_dim * sizeof(float),
+        cudaMemcpyWrapper(cpu_layer.output.data(), gpu_layer.output, output_dim * sizeof(double),
                           cudaMemcpyDeviceToHost);
     }
 }

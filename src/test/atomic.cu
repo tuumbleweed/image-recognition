@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-__global__ void test_atomicAdd(float* data) {
+__global__ void test_atomicAdd(double* data) {
     int idx = threadIdx.x;
     if (idx < 5) {
         // data[0] -= 1;
@@ -10,13 +10,13 @@ __global__ void test_atomicAdd(float* data) {
 }
 
 int main() {
-    float *d_data;
-    float h_data = 10.0f;
-    cudaMalloc(&d_data, sizeof(float));
-    cudaMemcpy(d_data, &h_data, sizeof(float), cudaMemcpyHostToDevice);
+    double *d_data;
+    double h_data = 10.0f;
+    cudaMalloc(&d_data, sizeof(double));
+    cudaMemcpy(d_data, &h_data, sizeof(double), cudaMemcpyHostToDevice);
 
     test_atomicAdd<<<1, 32>>>(d_data);  // Launch kernel with 32 threads
-    cudaMemcpy(&h_data, d_data, sizeof(float), cudaMemcpyDeviceToHost);
+    cudaMemcpy(&h_data, d_data, sizeof(double), cudaMemcpyDeviceToHost);
 
     printf("Result: %f\n", h_data);  // Should print 9.0 if atomicAdd worked
     cudaFree(d_data);

@@ -45,8 +45,8 @@ __global__ void inspect_update_weights(int current_size, int prev_size) {
 
 
 int main() {
-    float *d_data;
-    cudaMalloc(&d_data, sizeof(float));
+    double *d_data;
+    cudaMalloc(&d_data, sizeof(double));
 
     // dim3 blockSize(5, 3);
     // int gridSize = 2;

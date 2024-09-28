@@ -66,7 +66,7 @@ std::vector<uint8_t> read_labels(const std::string& filename) {
 }
 
 // print image as grayscale ascii art
-void print_image(const std::vector<float>& image, const int& rows, const int& cols) {
+void print_image(const std::vector<double>& image, const int& rows, const int& cols) {
     for (int r = 0; r < rows; ++r) {
         for (int c = 0; c < cols; ++c) {
             if (image[r * cols + c] == 0.0f) {
@@ -95,7 +95,7 @@ void print_network(const std::vector<Layer>& network) {
                        << std::endl;
         for (int i = 0; i < layer.weights.size(); ++i) {
             LOG(SL::DEBUG) << "Weights " << i + 1 << '/' << layer.weights.size() << ":" << GREY << std::endl;
-            for (const float& weight : layer.weights[i]) {
+            for (const double& weight : layer.weights[i]) {
                 LOG(SL::DEBUG) << weight << " ";
             }
             LOG(SL::DEBUG) << RESET << std::endl;

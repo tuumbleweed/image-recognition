@@ -13,7 +13,7 @@ po::variables_map parse_command_line(int argc, char *argv[]) {
         ("batch-size,b", po::value<size_t>()->default_value(1), "How many images to train on at a time, default is 1")
         ("cpu", po::bool_switch()->default_value(false), "Use cpu")
         ("gpu", po::bool_switch()->default_value(false),"Use gpu")
-        ("learning-rate,lr", po::value<float>()->default_value(0.05f), "Learning rate")
+        ("learning-rate,lr", po::value<double>()->default_value(0.05f), "Learning rate")
         ("seed,s", po::value<unsigned int>()->default_value(0), "Seed for initializing network weights and biases. Set to 0 to use random seed.");
 
     po::variables_map vm;
