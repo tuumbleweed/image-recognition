@@ -15,6 +15,13 @@ cmake -B build -S . && cmake --build build
 cmake -B build -S . && cmake --build build && ./build/ImageRecognition
 cmake -B build -S . && cmake --build build && ./build/ImageRecognitionTest
 cmake -B build -S . && cmake --build build && ./build/ImageRecognition --gpu --cpu -l DEBUG --test 0 -n 1
+cmake -B build -S . && cmake --build build && ./build/CudaInspection
+# batch size of 1
+cmake -B build -S . && cmake --build build && ./build/ImageRecognition --cpu -l NOTICE --seed 50 --batch-size 1 --test 1000 --train 10000
+cmake -B build -S . && cmake --build build && ./build/ImageRecognition --gpu -l NOTICE --seed 50 --batch-size 1 --test 1000 --train 10000
+# batch size of 2
+cmake -B build -S . && cmake --build build && ./build/ImageRecognition --cpu -l NOTICE --seed 50 --batch-size 2 --test 1000 --train 10000
+cmake -B build -S . && cmake --build build && ./build/ImageRecognition --gpu -l NOTICE --seed 50 --batch-size 2 --test 1000 --train 10000
 ```
 
 
