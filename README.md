@@ -57,9 +57,12 @@ cmake -B build -S . && cmake --build build && ./build/ImageRecognition --gpu -l 
 - ~~Reorganize project~~
 - ~~Feed data in batches of N (CPU)~~
 - ~~Feed data in batches of N (GPU)~~
-- Accumulate weight and bias changes for both cpu and gpu and print them in INFO. (for each batch of images)
-- See why they differ.
-
+- ~~Accumulate weight and bias changes for both cpu and gpu and print them in INFO. (for each batch of images)~~
+- ~~See why they differ.~~
+    - ~~After accumulating changes and averaging gradients it was mostly fixed.~~
+    - ~~The small difference (around 0.20% in accuracy) between the CPU and GPU is expected and largely unavoidable due to the way floating-point arithmetic works on different platforms. The discrepancy in activations you are seeing is within a reasonable range (differences in the 6th decimal place), and should not significantly affect the overall performance of the model.~~
+- Optimize training and testing speed.
+- Improve accuracy.
 
 ## Best accuracy
 - Grid search on (for now only those methods)
