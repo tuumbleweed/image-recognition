@@ -22,6 +22,8 @@ cmake -B build -S . && cmake --build build && ./build/ImageRecognition --gpu -l 
 # batch size of 2
 cmake -B build -S . && cmake --build build && ./build/ImageRecognition --cpu -l NOTICE --seed 50 --batch-size 2 --test 1000 --train 10000
 cmake -B build -S . && cmake --build build && ./build/ImageRecognition --gpu -l NOTICE --seed 50 --batch-size 2 --test 1000 --train 10000
+cmake -B build -S . && cmake --build build && ./build/ImageRecognition --cpu -l NOTICE --seed 50 --batch-size 2 --test 0 --train 2
+cmake -B build -S . && cmake --build build && ./build/ImageRecognition --gpu -l NOTICE --seed 50 --batch-size 2 --test 0 --train 2
 ```
 
 
@@ -71,3 +73,7 @@ cmake -B build -S . && cmake --build build && ./build/ImageRecognition --gpu -l 
     - Seed (and other weight initialization methods)
     - Number of layers and neurons
     - Different activation functions
+
+differences:
+-0.05173-=-0.00155272
+-0.05173-=0.0015715

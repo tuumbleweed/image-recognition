@@ -287,12 +287,12 @@ void backpropagation_gpu(const vec_double_2d& image_batch, const std::vector<dou
     // Copy data from GPU to host for inspection
     copy_accumulated_weights_to_host(accumulated_weights, accumulated_biases, host_weights, host_biases, network);
 
-    for (int i = network.size() - 1; i >= 1; --i) {
+    for (int i = network.size() - 1; i >= 2; --i) {
         const std::vector<double>& previous_output = (i == 0) ? image_batch[0] : all_activations[0][i - 1];
         for (size_t j = 0; j < network[i].weights.size(); ++j) {
-                LOG(SL::NOTICE) << "Weights " << j << "x" << network[i].weights[j].size() << ":" << GREY << std::endl;
+                LOG(SL::NOTICE) << "Weights " << j << "x" << network[i].weights.size() << ":" << GREY << std::endl;
             for (size_t k = 0; k < previous_output.size(); ++k) {
-                LOG(SL::NOTICE) << network[i].weights[j][k] << "-=" << host_weights[i][j*network[i].weights.size()+k] / image_batch_size << " ";
+                LOG(SL::NOTICE) << network[i].weights[j][k] << "-=" << host_weights[i][j*previous_output.size()+k] / image_batch_size << " ";
             }
             LOG(SL::NOTICE) << RESET << std::endl;
             LOG(SL::NOTICE) << "Biases:" << GREY << std::endl;
@@ -356,18 +356,19 @@ void copy_accumulated_weights_to_host(
     host_biases.resize(network_size);
     
     for (size_t i = 0; i < network_size; ++i) {
-        size_t layer_size = network[i].weights.size();
+        size_t weights_size = network[i].weights.size()*network[i].weights[0].size();
+        size_t biases_size = network[i].biases.size();
         
         // Allocate space on host for each layer's weights and biases
-        host_weights[i].resize(layer_size);
-        host_biases[i].resize(layer_size);
+        host_weights[i].resize(weights_size);
+        host_biases[i].resize(biases_size);
         
         // Copy weights from GPU to host
         cudaMemcpyWrapper(host_weights[i].data(), accumulated_weights_gpu[i], 
-                              layer_size * sizeof(double), cudaMemcpyDeviceToHost);
+                              weights_size * sizeof(double), cudaMemcpyDeviceToHost);
         
         // Copy biases from GPU to host
         cudaMemcpyWrapper(host_biases[i].data(), accumulated_biases_gpu[i], 
-                              layer_size * sizeof(double), cudaMemcpyDeviceToHost);
+                              biases_size * sizeof(double), cudaMemcpyDeviceToHost);
     }
 }
