@@ -6,11 +6,6 @@
 #include "network/init.h"
 #include "network/gpu.h"
 
-void train_on_one_image_cpu(const int counter, const double learning_rate, const uint8_t& label, const std::vector<double>& train_image, std::vector<Layer>& network);
-
-void train_on_one_image_gpu(const int counter, const double learning_rate, const uint8_t& label, const std::vector<double>& train_image,
-                            std::vector<Layer>& network, std::vector<GPULayer>& gpu_network);
-
 bool test_one_image_cpu(const int counter, const uint8_t& label, const std::vector<double>& train_image, std::vector<Layer>& network);
 
 bool test_one_image_gpu(const int counter, const uint8_t& label, const std::vector<double>& train_image,

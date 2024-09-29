@@ -86,13 +86,13 @@ void train_on_all_images_gpu(const double& learning_rate, size_t& training_amoun
                 counters.resize(counter+1);
             }
             train_on_a_batch_gpu(counters, learning_rate, label_batch, image_batch, network, gpu_network);
-            network_from_gpu_to_host(network, gpu_network);
-            print_network(network);
+            // network_from_gpu_to_host(network, gpu_network);
+            // print_network(network);
         }
     }
     auto train_end_time = std::chrono::high_resolution_clock::now();
-    // network_from_gpu_to_host(network, gpu_network);
-    // print_network(network);
+    network_from_gpu_to_host(network, gpu_network);
+    print_network(network);
     int correct_count = 0;
 
     LOG(SL::NOTICE) << "(GPU) Testing network with " << BLUE << testing_amount << RESET << " images\n";
@@ -192,67 +192,6 @@ void train_on_a_batch_gpu(const std::vector<size_t> counters, const double learn
     // so here we pass all images and calculate gradient sum E(1-images.size())(delta * previous activation)
     backpropagation_gpu(image_batch, one_hot_average, network, gpu_network, learning_rate, all_activations);
 }
-
-void train_on_one_image_cpu(const int counter, const double learning_rate, const uint8_t& label,
-                            const std::vector<double>& train_image, std::vector<Layer>& network) {
-    print_image(train_image, 28, 28);
-    LOG(SL::NOTICE) << "(CPU) Processing image " << BLUE << counter << RESET << ", label: " << BLUE
-                    << static_cast<int>(label) << RESET << std::endl;
-    std::vector<double> one_hot = generate_one_hot_vector(label);
-    // Perform forward propagation on the GPU
-    const vec_double_2d activations = forward_propagation_cpu(train_image, network);
-    for (size_t i = 0; i < activations.size(); i++) {
-        network[i].output = activations[i];
-    }
-    // Print the output
-    std::vector<double> output = network.back().output;
-    LOG(SL::DEBUG) << "Output probabilities (CPU):" << GREY << std::endl;
-    for (size_t i = 0; i < output.size(); ++i) {
-        LOG(SL::DEBUG) << i << ": " << output[i];
-        if (i < output.size() - 1) {
-            LOG(SL::DEBUG) << ", ";
-        }
-    }
-    LOG(SL::DEBUG) << RESET << std::endl;
-
-    double cumulative_loss = cumulative_loss_cpu(output, one_hot);
-    LOG(SL::NOTICE) << "Cumulative Loss: " << BLUE << cumulative_loss << RESET << std::endl;
-
-    backpropagation_cpu({ train_image }, one_hot, network, learning_rate, { activations });
-    print_network(network);
-}
-
-void train_on_one_image_gpu(const int counter, const double learning_rate, const uint8_t& label,
-                            const std::vector<double>& train_image, std::vector<Layer>& network,
-                            std::vector<GPULayer>& gpu_network) {
-    print_image(train_image, 28, 28);
-    LOG(SL::NOTICE) << "(GPU) Processing image " << BLUE << counter << RESET << ", label: " << BLUE
-                    << static_cast<int>(label) << RESET << std::endl;
-    std::vector<double> one_hot = generate_one_hot_vector(label);
-    // Perform forward propagation on the GPU
-    // forward_propagation_gpu2(train_image, network, gpu_network);
-    vec_double_2d activations = forward_propagation_gpu(train_image, network, gpu_network);
-    for (size_t i = 0; i < activations.size(); i++) {
-        network[i].output = activations[i];
-    }
-    // Print the output
-    std::vector<double> output = activations.back();
-    LOG(SL::DEBUG) << "Output probabilities (GPU):" << GREY << std::endl;
-    for (size_t i = 0; i < output.size(); ++i) {
-        LOG(SL::DEBUG) << i << ": " << output[i];
-        if (i < output.size() - 1) {
-            LOG(SL::DEBUG) << ", ";
-        }
-    }
-    LOG(SL::DEBUG) << RESET << std::endl;
-
-    double cumulative_loss = cumulative_loss_cpu(output, one_hot);
-    LOG(SL::NOTICE) << "Cumulative Loss: " << BLUE << cumulative_loss << RESET << std::endl;
-
-    backpropagation_gpu({ train_image }, one_hot, network, gpu_network, learning_rate, { activations });
-    print_network(network);
-}
-
 
 bool test_one_image_cpu(const int counter, const uint8_t& label, const std::vector<double>& train_image,
                         std::vector<Layer>& network) {
