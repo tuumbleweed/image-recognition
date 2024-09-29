@@ -126,7 +126,8 @@ double cumulative_loss_cpu(const std::vector<double>& predicted, const std::vect
 // later batch them together and calculate average. Then change.
 // when working with "next" and "previous" keep in mind that we walk backwards here
 // from "next" to "previous".
-void backpropagation_cpu(const vec_double_2d& image_batch, const std::vector<double>& actual, std::vector<Layer>& network,
+void backpropagation_cpu(const vec_double_2d& image_batch, const std::vector<double>& actual,
+                         std::vector<Layer>& network, std::vector<Layer> accumulated_network_changes,
                          const double learning_rate, const std::vector<vec_double_2d>& all_activations) {
     // Compute gradients and update weights and biases in reverse order
     vec_double_2d delta(network.size());
@@ -187,21 +188,32 @@ void backpropagation_cpu(const vec_double_2d& image_batch, const std::vector<dou
             // Update weights and biases
             for (size_t j = 0; j < network[i].weights.size(); ++j) {
                 LOG(SL::DEBUG) << "Weights " << j << "x" << network[i].weights[j].size() << ":" << GREY << std::endl;
-                for (size_t k = 0; k < network[i].weights[j].size(); ++k) {
+                for (size_t k = 0; k < previous_output.size(); ++k) {
                     // dC/dw(L) = a(L-1)*delta
-                    LOG(SL::DEBUG) << network[i].weights[j][k] << "-=" << learning_rate << "*" << delta[i][j] << "*"
+                    LOG(SL::DEBUG) << accumulated_network_changes[i].weights[j][k] << "+=" << learning_rate << "*" << delta[i][j] << "*"
                                 << previous_output[k] << " ";
-                    network[i].weights[j][k] -= learning_rate * delta[i][j] * previous_output[k] / batch_size;
+                    accumulated_network_changes[i].weights[j][k] += learning_rate * delta[i][j] * previous_output[k];
                 }
                 LOG(SL::DEBUG) << RESET << std::endl;
                 // since z to bias derivative is 1 so dC/db(L) = 1*delta
                 LOG(SL::DEBUG) << "Biases:" << GREY << std::endl;
-                LOG(SL::DEBUG) << network[i].biases[j] << "-=" << learning_rate << "*" << delta[i][j] << " ";
-                network[i].biases[j] -= learning_rate * delta[i][j] / batch_size;
+                LOG(SL::DEBUG) << accumulated_network_changes[i].biases[j] << "+=" << learning_rate << "*" << delta[i][j] << " ";
+                accumulated_network_changes[i].biases[j] += learning_rate * delta[i][j];
                 LOG(SL::DEBUG) << RESET << std::endl;
             }
             LOG(SL::DEBUG) << RESET << std::endl;
             LOG(SL::INFO) << DIM_GREEN << "layer " << i << RESET << std::endl;
+        }
+    }
+
+    // Apply the accumulated updates after all batches are processed
+    for (int i = network.size() - 1; i >= 0; --i) {
+        const std::vector<double>& previous_output = (i == 0) ? image_batch[0] : all_activations[0][i - 1];
+        for (size_t j = 0; j < network[i].weights.size(); ++j) {
+            for (size_t k = 0; k < previous_output.size(); ++k) {
+                network[i].weights[j][k] -= accumulated_network_changes[i].weights[j][k] / batch_size;
+            }
+            network[i].biases[j] -= accumulated_network_changes[i].biases[j] / batch_size;
         }
     }
 }

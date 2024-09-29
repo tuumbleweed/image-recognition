@@ -13,7 +13,8 @@
 void train_on_all_images_cpu(const double& learning_rate, const size_t& training_amount, const size_t& testing_amount, const size_t& batch_size,
                              const std::vector<uint8_t>& train_labels, const std::vector<uint8_t>& test_labels,
                              const std::vector<std::vector<double>>& train_images_norm,
-                             const std::vector<std::vector<double>>& test_images_norm, std::vector<Layer> network) {
+                             const std::vector<std::vector<double>>& test_images_norm,
+                             std::vector<Layer> network, const std::vector<Layer> accumulated_network_changes) {
     auto start_time = std::chrono::high_resolution_clock::now();
     LOG(SL::NOTICE) << "(CPU) Training network with " << BLUE << training_amount << RESET << " images and " << BLUE
                     << learning_rate << RESET << " learning rate\n";
@@ -34,7 +35,7 @@ void train_on_all_images_cpu(const double& learning_rate, const size_t& training
                 label_batch.resize(counter+1);
                 counters.resize(counter+1);
             }
-            train_on_a_batch_cpu(counters, learning_rate, label_batch, image_batch, network);
+            train_on_a_batch_cpu(counters, learning_rate, label_batch, image_batch, network, accumulated_network_changes);
             print_network(network);
         }
     }
@@ -55,8 +56,9 @@ void train_on_all_images_cpu(const double& learning_rate, const size_t& training
     std::chrono::duration<double> train_duration = train_end_time - start_time;
     std::chrono::duration<double> test_duration = test_end_time - train_end_time;
     LOG(SL::NOTICE) << "(CPU) Got success rate " << GREEN << std::fixed << std::setprecision(2) << success_rate << "%"
-                    << RESET << " for learing rate " << GREEN << learning_rate << RESET << " train duration: " << GREEN
-                    << train_duration.count() << RESET << " test duration: " << GREEN << test_duration.count() << RESET
+                    << RESET << " for learing rate " << GREEN << learning_rate << RESET << " batch size "
+                    << GREEN << batch_size << RESET << " train duration: " << GREEN << train_duration.count()
+                    << RESET << " test duration: " << GREEN << test_duration.count() << RESET
                     << std::endl;
 }
 
@@ -110,13 +112,14 @@ void train_on_all_images_gpu(const double& learning_rate, size_t& training_amoun
     std::chrono::duration<double> train_duration = train_end_time - start_time;
     std::chrono::duration<double> test_duration = test_end_time - train_end_time;
     LOG(SL::NOTICE) << "(GPU) Got success rate " << GREEN << std::fixed << std::setprecision(2) << success_rate << "%"
-                    << RESET << " for learing rate " << GREEN << learning_rate << RESET << " train duration: " << GREEN
-                    << train_duration.count() << RESET << " test duration: " << GREEN << test_duration.count() << RESET
+                    << RESET << " for learing rate " << GREEN << learning_rate << RESET << " batch size "
+                    << GREEN << batch_size << RESET << " train duration: " << GREEN << train_duration.count()
+                    << RESET << " test duration: " << GREEN << test_duration.count() << RESET
                     << std::endl;
 }
 
 void train_on_a_batch_cpu(const std::vector<size_t> counters, const double learning_rate, const std::vector<uint8_t>& labels,
-                          const vec_double_2d& image_batch, std::vector<Layer>& network) {
+                          const vec_double_2d& image_batch, std::vector<Layer>& network, const std::vector<Layer> accumulated_network_changes) {
     LOG(SL::NOTICE) << "(CPU) Processing images " << BLUE << static_cast<int>(counters[0]) << " - " << static_cast<int>(counters.back()) << RESET << std::endl;
     std::vector<double> one_hot_average(network.back().output.size(), 0.0f);
     vec_double_2d activations_average(network.size());
@@ -151,7 +154,7 @@ void train_on_a_batch_cpu(const std::vector<size_t> counters, const double learn
     LOG(SL::NOTICE) << "Cumulative Loss: " << BLUE << cumulative_loss << RESET << std::endl;
 
     // so here we pass all images and calculate gradient sum E(1-images.size())(delta * previous activation)
-    backpropagation_cpu(image_batch, one_hot_average, network, learning_rate, all_activations);
+    backpropagation_cpu(image_batch, one_hot_average, network, accumulated_network_changes, learning_rate, all_activations);
 }
 
 void train_on_a_batch_gpu(const std::vector<size_t> counters, const double learning_rate, const std::vector<uint8_t>& labels,

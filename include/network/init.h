@@ -21,10 +21,10 @@ struct Layer {
 
 using vec_double_2d = std::vector<std::vector<double>>;
 
-Layer initialize_weights_and_biases(const int input_dim, const int output_dim, unsigned int seed);
+Layer initialize_weights_and_biases(const int input_dim, const int output_dim, unsigned int seed, bool zero_init);
 
 // Function to initialize the network layers and their weights
-std::vector<Layer> initialize_network(int input_size, int hidden_size1, int hidden_size2, int output_size, unsigned int seed);
+std::vector<Layer> initialize_network(int input_size, int hidden_size1, int hidden_size2, int output_size, unsigned int seed, bool zero_init = false);
 
 std::vector<double> generate_one_hot_vector(uint8_t label, uint8_t length = 10);
 

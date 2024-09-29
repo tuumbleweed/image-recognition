@@ -37,6 +37,7 @@ int main(int argc, char *argv[]) {
     const bool gpu = vm["gpu"].as<bool>();
     std::vector<Layer> network = initialize_network(input_size, hidden_size1, hidden_size2, output_size, seed);
     std::vector<Layer> network_copy = network;
+    const std::vector<Layer> accumulated_network_changes = initialize_network(input_size, hidden_size1, hidden_size2, output_size, seed, true);
 
     size_t training_amount = vm["train"].as<size_t>();
     if (training_amount == -1 || (training_amount > test_images_norm.size())) {
@@ -50,12 +51,12 @@ int main(int argc, char *argv[]) {
 
     if (cpu) {
         train_on_all_images_cpu(learning_rate, training_amount, testing_amount, batch_size, train_labels, test_labels,
-                                train_images_norm, test_images_norm, network);
+                                train_images_norm, test_images_norm, network, accumulated_network_changes);
     }
 
     if (gpu) {
         train_on_all_images_gpu(learning_rate, training_amount, testing_amount, batch_size, train_labels, test_labels,
-                                train_images_norm, test_images_norm, network);
+                                train_images_norm, test_images_norm, network_copy);
     }
 
     return 0;

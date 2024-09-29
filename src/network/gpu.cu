@@ -50,30 +50,30 @@ __global__ void compute_delta_output_gpu(const double* output, const double* act
 // Kernel for accumulating weight and bias updates
 __global__ void accumulate_weight_bias_updates_atomic(double* accumulated_weights, double* accumulated_biases, 
                                                const double* weights, const double* biases, 
-                                               const double* delta, const double* prev_output,
+                                               const double* deltasI, const double* prev_output,
                                                int current_size, int prev_size, double learning_rate) {
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
-    if (idx < current_size) {
+    int j = blockIdx.x * blockDim.x + threadIdx.x;
+    if (j < current_size) {
         for (int k = 0; k < prev_size; ++k) {
             // Accumulate weight updates (use atomicAdd if required for multi-thread safety)
-            atomicAdd(&accumulated_weights[idx * prev_size + k], -learning_rate * delta[idx] * prev_output[k]);
+            atomicAdd(&accumulated_weights[j * prev_size + k], -learning_rate * deltasI[j] * prev_output[k]);
         }
         // Accumulate bias updates
-        atomicAdd(&accumulated_biases[idx], -learning_rate * delta[idx]);
+        atomicAdd(&accumulated_biases[j], -learning_rate * deltasI[j]);
     }
 }
 
 // After batch accumulation, apply the accumulated weights and biases
 __global__ void apply_accumulated_updates(double* weights, double* biases, double* accumulated_weights, 
                                           double* accumulated_biases, int current_size, int prev_size, int batch_size) {
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
-    if (idx < current_size) {
+    int j = blockIdx.x * blockDim.x + threadIdx.x;
+    if (j < current_size) {
         for (int k = 0; k < prev_size; ++k) {
             // Apply accumulated weight updates, averaged over the batch size
-            weights[idx * prev_size + k] += accumulated_weights[idx * prev_size + k] / batch_size;
+            weights[j * prev_size + k] += accumulated_weights[j * prev_size + k] / batch_size;
         }
         // Apply accumulated bias updates, averaged over the batch size
-        biases[idx] += accumulated_biases[idx] / batch_size;
+        biases[j] += accumulated_biases[j] / batch_size;
     }
 }
 
@@ -169,7 +169,7 @@ vec_double_2d forward_propagation_gpu(const std::vector<double>& input, const st
         activations[i].resize(layer_output_size);
 
         // Launch matrix multiplication kernel
-        matrix_multiply_gpu<<<(layer_output_size + 31) / 32, 32>>>(current_input, gpu_network[i].weights,
+        matrix_multiply_gpu<<<(layer_output_size + 15) / 16, 16>>>(current_input, gpu_network[i].weights,
                                                                 gpu_network[i].biases, gpu_network[i].output,
                                                                 input_size, layer_output_size);
 
@@ -185,7 +185,7 @@ vec_double_2d forward_propagation_gpu(const std::vector<double>& input, const st
         }
 
         // Apply Sigmoid activation function
-        apply_sigmoid_gpu<<<(layer_output_size + 31) / 32, 32>>>(gpu_network[i].output, layer_output_size);
+        apply_sigmoid_gpu<<<(layer_output_size + 15) / 16, 16>>>(gpu_network[i].output, layer_output_size);
 
         // Debug: Check output after activation
         cudaMemcpyWrapper(activations[i].data(), gpu_network[i].output, layer_output_size * sizeof(double),
@@ -224,10 +224,10 @@ void backpropagation_gpu(const vec_double_2d& image_batch, const std::vector<dou
         LOG(SL::DEBUG) << "Computing deltas for layer " << i << " (GPU)" << GREY << std::endl;
         if (i == network.size() - 1) {
             // For output layer
-            compute_delta_output_gpu<<<(output.size() + 31) / 32, 32>>>(gpu_network[i].output, gpu_actual, deltas[i],
+            compute_delta_output_gpu<<<(output.size() + 15) / 16, 16>>>(gpu_network[i].output, gpu_actual, deltas[i],
                                                                            output.size());
         } else {
-            compute_delta_hidden_gpu<<<(output.size() + 31) / 32, 32>>>(deltas[i + 1], gpu_network[i + 1].weights,
+            compute_delta_hidden_gpu<<<(output.size() + 15) / 16, 16>>>(deltas[i + 1], gpu_network[i + 1].weights,
                                                                            gpu_network[i].output, deltas[i], output.size(),
                                                                            network[i + 1].output.size());
         }
@@ -256,17 +256,18 @@ void backpropagation_gpu(const vec_double_2d& image_batch, const std::vector<dou
         cudaMallocWrapper(reinterpret_cast<void**>(&accumulated_biases[i]), bias_size);
 
         // Initialize to zero
-        cudaMemset(accumulated_weights[i], 0, weight_size);
-        cudaMemset(accumulated_biases[i], 0, bias_size);
+        cudaMemset(accumulated_weights[i], 0.0f, weight_size);
+        cudaMemset(accumulated_biases[i], 0.0f, bias_size);
     }
 
-    for (size_t l = 0; l < image_batch.size(); l++) {
+    size_t image_batch_size = image_batch.size();
+    for (size_t l = 0; l < image_batch_size; l++) {
     for (int i = network.size() - 1; i >= 0; --i) {
             const std::vector<double>& previous_output = (i == 0) ? image_batch[l] : all_activations[l][i - 1];
             cudaMemcpyWrapper(gpu_previous_output, previous_output.data(), previous_output.size() * sizeof(double), cudaMemcpyHostToDevice);
 
             // Accumulate weight and bias updates
-            accumulate_weight_bias_updates_atomic<<<(network[i].output.size() + 31) / 32, 32>>>(
+            accumulate_weight_bias_updates_atomic<<<(network[i].output.size() + 15) / 16, 16>>>(
                 accumulated_weights[i], accumulated_biases[i], gpu_network[i].weights, gpu_network[i].biases, 
                 deltas[i], gpu_previous_output, network[i].output.size(), previous_output.size(), learning_rate);
         }
@@ -275,9 +276,9 @@ void backpropagation_gpu(const vec_double_2d& image_batch, const std::vector<dou
     // Apply the accumulated updates after all batches are processed
     for (int i = network.size() - 1; i >= 0; --i) {
         const std::vector<double>& previous_output = (i == 0) ? image_batch[0] : all_activations[0][i - 1];
-        apply_accumulated_updates<<<(network[i].output.size() + 31) / 32, 32>>>(
+        apply_accumulated_updates<<<(network[i].output.size() + 15) / 16, 16>>>(
             gpu_network[i].weights, gpu_network[i].biases, accumulated_weights[i], accumulated_biases[i], 
-            network[i].output.size(), previous_output.size(), image_batch.size());
+            network[i].output.size(), previous_output.size(), image_batch_size);
     }
 
     // Free GPU memory

@@ -18,7 +18,8 @@ vec_double_2d forward_propagation_cpu(const std::vector<double>& input, const st
 
 double cumulative_loss_cpu(const std::vector<double>& predicted, const std::vector<double>& actual);
 
-void backpropagation_cpu(const vec_double_2d& image_batch, const std::vector<double>& actual, std::vector<Layer>& network,
+void backpropagation_cpu(const vec_double_2d& image_batch, const std::vector<double>& actual,
+                         std::vector<Layer>& network, std::vector<Layer> accumulated_network_changes,
                          const double learning_rate, const std::vector<vec_double_2d>& all_activations);
 
 #endif // CPU_H
