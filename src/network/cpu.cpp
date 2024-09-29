@@ -179,8 +179,8 @@ void backpropagation_cpu(const vec_double_2d& image_batch, const std::vector<dou
         LOG(SL::DEBUG) << RESET << std::endl;
     }
 
-    size_t batch_size = image_batch.size();
-    for (size_t l = 0; l < batch_size; l++) {
+    size_t image_batch_size = image_batch.size();
+    for (size_t l = 0; l < image_batch_size; l++) {
         for (int i = network.size() - 1; i >= 0; --i) {
             LOG(SL::DEBUG) << "Change weights and biases for layer " << i << ":" << std::endl;
             // previous output equal to derivatives of z in respect to all weights connected to this z
@@ -206,14 +206,29 @@ void backpropagation_cpu(const vec_double_2d& image_batch, const std::vector<dou
         }
     }
 
+    for (int i = network.size() - 1; i >= 1; --i) {
+        const std::vector<double>& previous_output = (i == 0) ? image_batch[0] : all_activations[0][i - 1];
+        for (size_t j = 0; j < network[i].weights.size(); ++j) {
+                LOG(SL::NOTICE) << "Weights " << j << "x" << network[i].weights[j].size() << ":" << GREY << std::endl;
+            for (size_t k = 0; k < previous_output.size(); ++k) {
+                LOG(SL::NOTICE) << network[i].weights[j][k] << "-=" << accumulated_network_changes[i].weights[j][k] / image_batch_size << " ";
+            }
+            LOG(SL::NOTICE) << RESET << std::endl;
+            LOG(SL::NOTICE) << "Biases:" << GREY << std::endl;
+            LOG(SL::NOTICE) << network[i].biases[j] << "-=" << accumulated_network_changes[i].biases[j] / image_batch_size << " ";
+            LOG(SL::NOTICE) << RESET << std::endl;
+        }
+        LOG(SL::NOTICE) << RESET << std::endl;
+    }
+
     // Apply the accumulated updates after all batches are processed
     for (int i = network.size() - 1; i >= 0; --i) {
         const std::vector<double>& previous_output = (i == 0) ? image_batch[0] : all_activations[0][i - 1];
         for (size_t j = 0; j < network[i].weights.size(); ++j) {
             for (size_t k = 0; k < previous_output.size(); ++k) {
-                network[i].weights[j][k] -= accumulated_network_changes[i].weights[j][k] / batch_size;
+                network[i].weights[j][k] -= accumulated_network_changes[i].weights[j][k] / image_batch_size;
             }
-            network[i].biases[j] -= accumulated_network_changes[i].biases[j] / batch_size;
+            network[i].biases[j] -= accumulated_network_changes[i].biases[j] / image_batch_size;
         }
     }
 }

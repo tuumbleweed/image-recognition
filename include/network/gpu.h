@@ -18,6 +18,13 @@ void backpropagation_gpu(const vec_double_2d& image_batch, const std::vector<dou
 void network_from_gpu_to_host(std::vector<Layer>& network, std::vector<GPULayer>& gpu_network);
 std::vector<GPULayer> allocate_network_data_on_gpu(std::vector<Layer>& network);
 void deallocate_network_data_on_gpu(std::vector<GPULayer>& gpu_network);
+void copy_accumulated_weights_to_host(
+    const std::vector<double*>& accumulated_weights_gpu, 
+    const std::vector<double*>& accumulated_biases_gpu,
+    std::vector<std::vector<double>>& host_weights, 
+    std::vector<std::vector<double>>& host_biases,
+    const std::vector<Layer>& network
+);
 
 #ifdef __CUDACC__ // This ensures the following code is only compiled by nvcc
 __device__ double sigmoid_gpu(double x);

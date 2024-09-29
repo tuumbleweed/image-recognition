@@ -281,6 +281,27 @@ void backpropagation_gpu(const vec_double_2d& image_batch, const std::vector<dou
             network[i].output.size(), previous_output.size(), image_batch_size);
     }
 
+    // Host vectors to hold the copied data
+    std::vector<std::vector<double>> host_weights;
+    std::vector<std::vector<double>> host_biases;
+    // Copy data from GPU to host for inspection
+    copy_accumulated_weights_to_host(accumulated_weights, accumulated_biases, host_weights, host_biases, network);
+
+    for (int i = network.size() - 1; i >= 1; --i) {
+        const std::vector<double>& previous_output = (i == 0) ? image_batch[0] : all_activations[0][i - 1];
+        for (size_t j = 0; j < network[i].weights.size(); ++j) {
+                LOG(SL::NOTICE) << "Weights " << j << "x" << network[i].weights[j].size() << ":" << GREY << std::endl;
+            for (size_t k = 0; k < previous_output.size(); ++k) {
+                LOG(SL::NOTICE) << network[i].weights[j][k] << "-=" << host_weights[i][j*network[i].weights.size()+k] / image_batch_size << " ";
+            }
+            LOG(SL::NOTICE) << RESET << std::endl;
+            LOG(SL::NOTICE) << "Biases:" << GREY << std::endl;
+            LOG(SL::NOTICE) << network[i].biases[j] << "-=" << host_biases[i][j] / image_batch_size << " ";
+            LOG(SL::NOTICE) << RESET << std::endl;
+        }
+        LOG(SL::NOTICE) << RESET << std::endl;
+    }
+
     // Free GPU memory
     for (size_t i = 0; i < network.size(); i++) {
         cudaFreeWrapper(accumulated_weights[i]);
@@ -317,5 +338,36 @@ void network_from_gpu_to_host(std::vector<Layer>& network, std::vector<GPULayer>
         // Copy output from GPU to CPU
         cudaMemcpyWrapper(cpu_layer.output.data(), gpu_layer.output, output_dim * sizeof(double),
                           cudaMemcpyDeviceToHost);
+    }
+}
+
+// Assume network.size() gives the size of the network layers
+void copy_accumulated_weights_to_host(
+    const std::vector<double*>& accumulated_weights_gpu, 
+    const std::vector<double*>& accumulated_biases_gpu,
+    std::vector<std::vector<double>>& host_weights, 
+    std::vector<std::vector<double>>& host_biases,
+    const std::vector<Layer>& network
+) {
+    size_t network_size = network.size();
+    
+    // Resize host vectors to match network size
+    host_weights.resize(network_size);
+    host_biases.resize(network_size);
+    
+    for (size_t i = 0; i < network_size; ++i) {
+        size_t layer_size = network[i].weights.size();
+        
+        // Allocate space on host for each layer's weights and biases
+        host_weights[i].resize(layer_size);
+        host_biases[i].resize(layer_size);
+        
+        // Copy weights from GPU to host
+        cudaMemcpyWrapper(host_weights[i].data(), accumulated_weights_gpu[i], 
+                              layer_size * sizeof(double), cudaMemcpyDeviceToHost);
+        
+        // Copy biases from GPU to host
+        cudaMemcpyWrapper(host_biases[i].data(), accumulated_biases_gpu[i], 
+                              layer_size * sizeof(double), cudaMemcpyDeviceToHost);
     }
 }

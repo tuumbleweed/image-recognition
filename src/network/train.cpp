@@ -88,13 +88,13 @@ void train_on_all_images_gpu(const double& learning_rate, size_t& training_amoun
                 counters.resize(counter+1);
             }
             train_on_a_batch_gpu(counters, learning_rate, label_batch, image_batch, network, gpu_network);
-            // network_from_gpu_to_host(network, gpu_network);
-            // print_network(network);
+            network_from_gpu_to_host(network, gpu_network);
+            print_network(network);
         }
     }
     auto train_end_time = std::chrono::high_resolution_clock::now();
-    network_from_gpu_to_host(network, gpu_network);
-    print_network(network);
+    // network_from_gpu_to_host(network, gpu_network);
+    // print_network(network);
     int correct_count = 0;
 
     LOG(SL::NOTICE) << "(GPU) Testing network with " << BLUE << testing_amount << RESET << " images\n";
