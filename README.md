@@ -63,6 +63,11 @@ cmake -B build -S . && cmake --build build && ./build/ImageRecognition --gpu -l 
 - ~~See why they differ.~~
     - ~~After accumulating changes and averaging gradients it was mostly fixed.~~
     - ~~The small difference (around 0.20% in accuracy) between the CPU and GPU is expected and largely unavoidable due to the way floating-point arithmetic works on different platforms. The discrepancy in activations you are seeing is within a reasonable range (differences in the 6th decimal place), and should not significantly affect the overall performance of the model.~~
+- ~~NOW I FIXED IT! CPU==GPU FOR SURE!~~
+    - ~~So the problem was that for cpu I did use average activations network[j].output = activations_average[j]
+        but for gpu I forgot so I always used last activation that was there because forward_propagation_gpu modifies gpu_network.
+        So thats why when increasing batch size to 2 and above gpu results got more and more nonsensical.
+        The bigger the batch - the less correct the fake "average activation" ie last activation.~~
 - Optimize training and testing speed.
 - Improve accuracy.
 
