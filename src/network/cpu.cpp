@@ -148,6 +148,10 @@ void backpropagation_cpu(const vec_double_2d& image_batch, const std::vector<dou
                 // derivative of loss to a multiplied by derivative of a to z (sigmoid)
                 // can remove 2.0f and reflect it in learning rate to remove this multiplication
                 delta[i][j] = (output[j] - actual[j]) * sigmoid_derivative_cpu(output[j]);
+                // if (j == 0) {
+                //     // printf("%f\n", delta[i][j]);
+                //     printf("%f = (%f - %f) * %f\n", delta[i][j], output[j], actual[j], sigmoid_derivative_cpu(output[j]));
+                // }
                 LOG(SL::DEBUG) << std::fixed << std::setprecision(6) << output[j] << "-" << actual[j] << ") * "
                                << sigmoid_derivative_cpu(output[j]) << " = ";
                 LOG(SL::DEBUG) << delta[i][j] << "\n";
@@ -206,23 +210,27 @@ void backpropagation_cpu(const vec_double_2d& image_batch, const std::vector<dou
         }
     }
 
-    for (int i = network.size() - 1; i >= 2; --i) {
-        const std::vector<double>& previous_output = (i == 0) ? image_batch[0] : all_activations[0][i - 1];
-        for (size_t j = 0; j < network[i].weights.size(); ++j) {
-                LOG(SL::NOTICE) << "Weights " << j << "x" << network[i].weights.size() << ":" << GREY << std::endl;
-            for (size_t k = 0; k < previous_output.size(); ++k) {
-                //  LOG(SL::DEBUG) << accumulated_network_changes[i].weights[j][k] << "-=" << learning_rate << "*" << delta[i][j] << "*"
-                //                 << previous_output[k] << " ";
-                LOG(SL::NOTICE) << network[i].weights[j][k] << "-=" << accumulated_network_changes[i].weights[j][k] / image_batch_size << " ";
-            }
-            LOG(SL::NOTICE) << RESET << std::endl;
-            LOG(SL::NOTICE) << "Biases:" << GREY << std::endl;
-            // LOG(SL::DEBUG) << accumulated_network_changes[i].biases[j] << "+=" << learning_rate << "*" << delta[i][j] << " ";
-            LOG(SL::NOTICE) << network[i].biases[j] << "-=" << accumulated_network_changes[i].biases[j] / image_batch_size << " ";
-            LOG(SL::NOTICE) << RESET << std::endl;
-        }
-        LOG(SL::NOTICE) << RESET << std::endl;
-    }
+    // for (size_t l = 0; l < image_batch_size; l++) {
+    //     for (int i = network.size() - 1; i >= 2; --i) {
+    //     // for (int i = network.size() - 2; i >= 1; --i) {
+    //         const std::vector<double>& previous_output = (i == 0) ? image_batch[l] : all_activations[l][i - 1];
+    //         // for (size_t j = 0; j < network[i].weights.size(); ++j) {
+    //         for (size_t j = 0; j < 1; ++j) {
+    //             LOG(SL::NOTICE) << "Weights " << j << "x" << network[i].weights.size() << ":" << GREY << std::endl;
+    //             for (size_t k = 0; k < previous_output.size(); ++k) {
+    //                 LOG(SL::NOTICE) << network[i].weights[j][k] << "-=" << learning_rate << "*" << delta[i][j] << "*"
+    //                                 << previous_output[k] << " ";
+    //                 // LOG(SL::NOTICE) << network[i].weights[j][k] << "-=" << accumulated_network_changes[i].weights[j][k] / image_batch_size << " ";
+    //             }
+    //             LOG(SL::NOTICE) << RESET << std::endl;
+    //             LOG(SL::NOTICE) << "Biases:" << GREY << std::endl;
+    //             LOG(SL::NOTICE) << network[i].biases[j] << "+=" << learning_rate << "*" << delta[i][j] << " ";
+    //             // LOG(SL::NOTICE) << network[i].biases[j] << "-=" << accumulated_network_changes[i].biases[j] / image_batch_size << " ";
+    //             LOG(SL::NOTICE) << RESET << std::endl;
+    //         }
+    //         LOG(SL::NOTICE) << RESET << std::endl;
+    //     }
+    // }
 
     // Apply the accumulated updates after all batches are processed
     for (int i = network.size() - 1; i >= 0; --i) {
