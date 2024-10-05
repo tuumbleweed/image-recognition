@@ -211,6 +211,7 @@ bool test_one_image_cpu(const int counter, const uint8_t& label, const std::vect
     for (size_t i = 0; i < activations.size(); i++) {
         network[i].output = activations[i];
     }
+    print_network(network);
     // Print the output
     std::vector<double>& output = network.back().output;
     LOG(SL::DEBUG) << "Output probabilities (CPU):" << GREY << std::endl;
@@ -221,7 +222,6 @@ bool test_one_image_cpu(const int counter, const uint8_t& label, const std::vect
         }
     }
     LOG(SL::DEBUG) << RESET << std::endl;
-    print_network(network);
 
     // Find the index of the highest probability
     uint8_t max_index = std::distance(output.begin(), std::max_element(output.begin(), output.end()));

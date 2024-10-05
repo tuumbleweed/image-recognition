@@ -68,17 +68,8 @@ cmake -B build -S . && cmake --build build && ./build/ImageRecognition --gpu -l 
         but for gpu I forgot so I always used last activation that was there because forward_propagation_gpu modifies gpu_network.
         So thats why when increasing batch size to 2 and above gpu results got more and more nonsensical.
         The bigger the batch - the less correct the fake "average activation" ie last activation.~~
+- ~~Improve accuracy.~~
 - Optimize training and testing speed.
-- Improve accuracy.
 
-## Best accuracy
-- Grid search on (for now only those methods)
-    - Learning rate
-    - Batch size
-    - Seed (and other weight initialization methods)
-    - Number of layers and neurons
-    - Different activation functions
-
-differences:
--0.05173-=-0.00155272
--0.05173-=0.0015715
+(GPU) Got success rate 90.17% for learing rate 0.14 batch size 3 train duration: 51.12 test duration: 28.09
+(CPU) Got success rate 90.17% for learing rate 0.14 batch size 3 train duration: 625.72 test duration: 42.56
