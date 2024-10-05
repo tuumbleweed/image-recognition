@@ -40,7 +40,7 @@ int main(int argc, char *argv[]) {
     const std::vector<Layer> accumulated_network_changes = initialize_network(input_size, hidden_size1, hidden_size2, output_size, seed, true);
 
     size_t training_amount = vm["train"].as<size_t>();
-    if (training_amount == -1 || (training_amount > test_images_norm.size())) {
+    if (training_amount == -1 || (training_amount > train_images_norm.size())) {
         training_amount = train_images_norm.size();
     }
     size_t testing_amount = vm["test"].as<size_t>();
