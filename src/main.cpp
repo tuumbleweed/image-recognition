@@ -29,8 +29,10 @@ int main(int argc, char *argv[]) {
     const std::vector<std::vector<double>> test_images_norm = normalize_all(test_images);
 
     const int input_size = train_rows * train_cols;  // 784 for 28x28 images
-    const int hidden_size1 = 16;
-    const int hidden_size2 = 16;
+    // 128x32, 1.29 lr 8 per batch = 82.44%
+    // 512x256, 1.4 lr 3 per batch = 90.17%
+    const int hidden_size1 = 512;
+    const int hidden_size2 = 256;
     const int output_size = 10;  // 10 classes for digit recognition
     const double learning_rate = vm["learning-rate"].as<double>();
     const bool cpu = vm["cpu"].as<bool>();

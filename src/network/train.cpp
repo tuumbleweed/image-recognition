@@ -47,6 +47,8 @@ void train_on_all_images_cpu(const double& learning_rate, const size_t& training
     std::this_thread::sleep_for(std::chrono::seconds(1));  // Waits for 1 second
     LOG(SL::NOTICE) << std::endl;
     for (int i = 0; i < testing_amount; ++i) {
+        double success_rate = (static_cast<double>(correct_count) / (i+1)) * 100.0;
+        LOG(SL::NOTICE) << "(GPU) Got success rate " << GREEN << std::fixed << std::setprecision(2) << success_rate << "%" << RESET << std::endl;
         bool correct = test_one_image_cpu(i, test_labels[i], test_images_norm[i], network);
         if (correct) {
             ++correct_count;
@@ -102,6 +104,8 @@ void train_on_all_images_gpu(const double& learning_rate, size_t& training_amoun
     std::this_thread::sleep_for(std::chrono::seconds(1));  // Waits for 1 second
     LOG(SL::NOTICE) << std::endl;
     for (int i = 0; i < testing_amount; ++i) {
+        double success_rate = (static_cast<double>(correct_count) / (i+1)) * 100.0;
+        LOG(SL::NOTICE) << "(GPU) Got success rate " << GREEN << std::fixed << std::setprecision(2) << success_rate << "%" << RESET << std::endl;
         bool correct = test_one_image_gpu(i, test_labels[i], test_images_norm[i], network, gpu_network);
         if (correct) {
             ++correct_count;
