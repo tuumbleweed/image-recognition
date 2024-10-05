@@ -79,4 +79,5 @@ cmake -B build -S . && cmake --build build && ./build/ImageRecognition --gpu -l 
 - Optimize training and testing speed.
 
 (GPU) Got success rate 90.17% for learing rate 0.14 batch size 3 train duration: 51.12 test duration: 28.09
+
 (CPU) Got success rate 90.17% for learing rate 0.14 batch size 3 train duration: 625.72 test duration: 42.56
