@@ -35,6 +35,10 @@ double sigmoid_derivative_cpu(double x) {
     return sigmoid_output * (1.0f - sigmoid_output);
 }
 
+double relu_derivative_cpu(double x) {
+    return x > 0.0 ? 1.0 : 0.0;
+}
+
 // Function for matrix multiplication
 std::vector<double> matrix_multiply_cpu(const std::vector<double>& A, const std::vector<std::vector<double>>& B,
                                        const std::vector<double>& biases, int a_length_b_width, int b_length) {
@@ -175,7 +179,8 @@ void backpropagation_cpu(const vec_double_2d& image_batch, const std::vector<dou
                         LOG(SL::DEBUG) << " + ";
                     }
                 }
-                double sigmoid_derivative = sigmoid_derivative_cpu(output[j]);
+                double sigmoid_derivative = relu_derivative_cpu(output[j]);
+                // double sigmoid_derivative = sigmoid_derivative_cpu(output[j]);
                 delta[i][j] *= sigmoid_derivative;
                 LOG(SL::DEBUG) << ") * " << sigmoid_derivative << " = " << delta[i][j] << std::endl;
             }

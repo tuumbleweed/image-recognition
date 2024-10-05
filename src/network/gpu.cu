@@ -23,6 +23,10 @@ inline void gpuAssert(cudaError_t code, const char* file, int line, bool abort =
     }
 }
 
+__device__ double relu_derivative_gpu(double x) {
+    return x > 0.0 ? 1.0 : 0.0;
+}
+
 __device__ double sigmoid_gpu(double x) {
     if (x >= 0) {
         return 1.0f / (1.0f + expf(-x));
@@ -58,7 +62,8 @@ __global__ void compute_delta_hidden_gpu(const double* next_delta, const double*
         for (int k = 0; k < next_size; ++k) {
             sum += next_delta[k] * next_weights[k * current_size + j];
         }
-        delta[j] = sum * sigmoid_derivative_gpu(output[j]);
+        // delta[j] = sum * sigmoid_derivative_gpu(output[j]);
+        delta[j] = sum * relu_derivative_gpu(output[j]);
     }
 }
 
