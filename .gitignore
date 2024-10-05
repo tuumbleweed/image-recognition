@@ -1,0 +1,9 @@
+tmp/*
+
+*.o
+build/*
+
+!README.md
+
+cfg/*
+!cfg/example*
