@@ -1,4 +1,11 @@
 # Image Recognition
+Neural network that recognizes hand-written numbers.
+Created using 3Blue1Brown neural network playlist.
+
+Best result so far - 90.17% testing accuracy.
+
+Got images from https://yann.lecun.com/exdb/mnist/
+
 Take files containing lists of 60k training images and labels. Train neural network using this list.
 Take files containing lists of 10k testing images and labels. Measure neural network accuracy.
 
@@ -72,4 +79,5 @@ cmake -B build -S . && cmake --build build && ./build/ImageRecognition --gpu -l 
 - Optimize training and testing speed.
 
 (GPU) Got success rate 90.17% for learing rate 0.14 batch size 3 train duration: 51.12 test duration: 28.09
+
 (CPU) Got success rate 90.17% for learing rate 0.14 batch size 3 train duration: 625.72 test duration: 42.56
