@@ -1,0 +1,38 @@
+schema_version: 1
+id: image-recognition
+name: Image Recognition
+original_name: image-recognition
+short_description: An educational handwritten digit classifier implementing neural network training and evaluation in C++ and CUDA, with parallel CPU and GPU paths for comparison and debugging.
+repository:
+  local_name: image-recognition
+  url: https://github.com/tuumbleweed/image-recognition
+  relationship: experiment
+  parent_project: null
+project:
+  type: educational
+  status: inactive
+  categories: [machine_learning, systems]
+  start_date: null
+  end_date: null
+  date_precision: unknown
+  git_first_activity: '2024-07-28'
+  git_active_development_end: '2024-10-05'
+  git_last_activity: '2026-10-13'
+technologies:
+  languages: [C++, CUDA C++]
+  frameworks: []
+  databases: []
+  messaging: []
+  infrastructure: []
+  tools: [CMake, Boost.Program_options]
+links:
+  repository: https://github.com/tuumbleweed/image-recognition
+  demo: null
+publication:
+  visibility: review_required
+  featured: false
+  show_criticism: false
+  review_status: unverified
+analysis:
+  analyzed_commit: 49248ac49b4042b6e9d1cec990b931d809709b71
+  analyzed_at: '2026-10-16'
